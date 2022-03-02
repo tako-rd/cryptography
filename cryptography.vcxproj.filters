@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{a05e95e0-a395-4a3c-9bd7-b67e88b7bbe4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\crypto">
+      <UniqueIdentifier>{a9066323-4c0b-4a97-9302-190f976d456d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hash">
+      <UniqueIdentifier>{908f936c-b6e2-4a38-8df7-bc35068ce40d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\common">
+      <UniqueIdentifier>{9950b098-1089-4aca-9ca4-060c15e3c976}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include">
+      <UniqueIdentifier>{25b22259-4e59-49a2-8928-89d25d933491}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\common">
+      <UniqueIdentifier>{e5e0f1ae-f976-4388-bc49-d4e089e4322e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\crypto">
+      <UniqueIdentifier>{6887c1d4-fa9c-4cdb-bdbb-19cea36f234e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\hash">
+      <UniqueIdentifier>{ae9d4f2f-6d90-4dfb-b0c4-a81666a84757}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\include\cryptography.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\defs.h">
+      <Filter>include</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\common\base64.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\aes.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\des.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\key_generator.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\key_ring.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\rsa.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\common\cpu.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\block_cipher.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\mode.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\algorithm.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\common\padding.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\ecb.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\cbc.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\crypto\aes.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\des.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\key_generator.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\key_ring.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\rsa.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\base64.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\padding.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\ecb.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\cbc.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\cpu.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
