@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="crypto">
+      <UniqueIdentifier>{b0a4a68d-1d46-4166-bd5c-e001d9c37f64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="hash">
+      <UniqueIdentifier>{64a45965-1889-4e89-8aca-b6f96ec77f42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="defines">
+      <UniqueIdentifier>{ba422326-cccc-4738-9457-bedc170e865a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{db2992cb-5b2d-48d0-97d0-da5ef0d29406}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\gtest_aes">
+      <UniqueIdentifier>{2d11a3b0-4c69-4744-b50b-ab42baa3b696}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\gtest_des">
+      <UniqueIdentifier>{fbc3f130-3dc4-4d7d-90c6-6506b9993fa4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
+      <Filter>crypto\gtest_aes</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_aes\gtest_aes128.h">
+      <Filter>crypto\gtest_aes</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_aes\gtest_aes192.h">
+      <Filter>crypto\gtest_aes</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_aes\gtest_aes256.h">
+      <Filter>crypto\gtest_aes</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_des\gtest_des.h">
+      <Filter>crypto\gtest_des</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_des\gtest_des_defs.h">
+      <Filter>crypto\gtest_des</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">
+      <Filter>crypto\gtest_aes</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_aes\gtest_aes192.cc">
+      <Filter>crypto\gtest_aes</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_aes\gtest_aes256.cc">
+      <Filter>crypto\gtest_aes</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_des\gtest_des.cc">
+      <Filter>crypto\gtest_des</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
