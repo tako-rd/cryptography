@@ -7,8 +7,8 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#ifndef __RSA_H__
-#define __RSA_H__
+#ifndef RSA_H
+#define RSA_H
 
 #include "defs.h"
 

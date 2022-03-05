@@ -22,6 +22,12 @@
     <Filter Include="crypto\gtest_des">
       <UniqueIdentifier>{fbc3f130-3dc4-4d7d-90c6-6506b9993fa4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\gtest_ecb">
+      <UniqueIdentifier>{676a6f06-69da-44b8-8726-5acd23f3313d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\gtest_cbc">
+      <UniqueIdentifier>{ec88f38f-34a1-46cc-b789-a14608197b44}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -42,6 +48,12 @@
     <ClInclude Include="crypto\gtest_des\gtest_des_defs.h">
       <Filter>crypto\gtest_des</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_ecb\gtest_ecb.h">
+      <Filter>crypto\gtest_ecb</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_cbc\gtest_cbc.h">
+      <Filter>crypto\gtest_cbc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">
@@ -55,6 +67,12 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_des\gtest_des.cc">
       <Filter>crypto\gtest_des</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_ecb\gtest_ecb.cc">
+      <Filter>crypto\gtest_ecb</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_cbc\gtest_cbc.cc">
+      <Filter>crypto\gtest_cbc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

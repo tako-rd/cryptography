@@ -426,7 +426,7 @@ int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
 }
 
 int32_t aes::encrypt(const char * const ptext, const uint64_t plen, 
-                  uint8_t *ctext, const uint64_t clen) {
+                     uint8_t *ctext, const uint64_t clen) {
   if (16 != plen || 16 != clen) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -437,7 +437,7 @@ int32_t aes::encrypt(const char * const ptext, const uint64_t plen,
 }
 
 int32_t aes::decrypt(const uint8_t * const ctext, const uint64_t clen, 
-                  char *ptext, const uint64_t plen) {
+                     char *ptext, const uint64_t plen) {
   if (16 != plen || 16 != clen) { return FAILURE; }
 
   if (true == enable_intrinsic_func_) {

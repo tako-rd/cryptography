@@ -7,8 +7,8 @@
  * see https://opensource.org/licenses/MIT
  */
 
-#ifndef __DES_H__
-#define __DES_H__
+#ifndef DES_H
+#define DES_H
 
 #include <cstring>
 #include <vector>

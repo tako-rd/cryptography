@@ -11,14 +11,14 @@
 
 namespace cryptography {
 
-#define EXTRACT_6BIT_SMASK1                               0x0000'0000'0000'003F
-#define EXTRACT_6BIT_SMASK2                               0x0000'0000'0000'0FC0
-#define EXTRACT_6BIT_SMASK3                               0x0000'0000'0003'F000
-#define EXTRACT_6BIT_SMASK4                               0x0000'0000'00FC'0000
-#define EXTRACT_6BIT_SMASK5                               0x0000'0000'3F00'0000
-#define EXTRACT_6BIT_SMASK6                               0x0000'000F'C000'0000
-#define EXTRACT_6BIT_SMASK7                               0x0000'03F0'0000'0000
-#define EXTRACT_6BIT_SMASK8                               0x0000'FC00'0000'0000
+#define EXTRACT_6BIT_1                                    0x0000'0000'0000'003F
+#define EXTRACT_6BIT_2                                    0x0000'0000'0000'0FC0
+#define EXTRACT_6BIT_3                                    0x0000'0000'0003'F000
+#define EXTRACT_6BIT_4                                    0x0000'0000'00FC'0000
+#define EXTRACT_6BIT_5                                    0x0000'0000'3F00'0000
+#define EXTRACT_6BIT_6                                    0x0000'000F'C000'0000
+#define EXTRACT_6BIT_7                                    0x0000'03F0'0000'0000
+#define EXTRACT_6BIT_8                                    0x0000'FC00'0000'0000
 
 #define EXTRACT_BYTE_1                                    0x0000'0000'0000'00FF
 #define EXTRACT_BYTE_2                                    0x0000'0000'0000'FF00
@@ -39,37 +39,34 @@ namespace cryptography {
 #define KEY_SHIFT_REMOVE_LSB_1BIT                         0x0FFF'FFFE
 #define KEY_SHIFT_REMOVE_LSB_2BIT                         0x0FFF'FFFC
 
-#define SUBKEY_LEFT_MASK                                  0x00FF'FFFF'F000'0000
-#define SUBKEY_RIGHT_MASK                                 0x0000'0000'0FFF'FFFF
+#define SUBKEY_EXTRACT_LEFT_7BYTE                         0x00FF'FFFF'F000'0000
+#define SUBKEY_EXTRACT_RIGHT_7BYTE                        0x0000'0000'0FFF'FFFF
 
-#define EXTRACT_LEFT_1BIT_SMASK                           0x20
-#define EXTRACT_RIGHT_1BIT_SMASK                          0x01
-#define EXTRACT_MIDDLE_4BIT_SMASK                         0x1E
+#define EXTRACT_LEFT_1BIT                                 0x20
+#define EXTRACT_RIGHT_1BIT                                0x01
+#define EXTRACT_MIDDLE_4BIT                               0x1E
 
 #define EXTRACT_AND_SET_BIT_LEFT64(target, pos, setpos)   POPCOUNT64(target & (0x8000'0000'0000'0000 >> (pos - 1))) << (63 - setpos)
 #define EXTRACT_BIT_LEFT64(target, position)              POPCOUNT64(target & (0x8000'0000'0000'0000 >> (position - 1)))
 
-#define EXTRACT_AND_SET_BIT_LEFT32(target, pos, setpos)   POPCOUNT64(target & (0x8000'0000 >> (pos - 1))) << (31 - setpos)
-#define EXTRACT_BIT_LEFT32(target, position)              POPCOUNT64(target & (0x8000'0000 >> (position - 1)))
+#define EXTRACT_AND_SET_BIT_LEFT32(target, pos, setpos)   POPCOUNT32(target & (0x8000'0000 >> (pos - 1))) << (31 - setpos)
+#define EXTRACT_BIT_LEFT32(target, position)              POPCOUNT32(target & (0x8000'0000 >> (position - 1)))
 
 #define SUCCESS                                           0
 #define FAILURE                                           1
 
-
 #ifdef __LITTLE_ENDIAN__
-#define LEFT_TEXT                                         1
-#define RIGHT_TEXT                                        0
+  #define LEFT_TEXT                                       1
+  #define RIGHT_TEXT                                      0
 
-#define LEFT                                              0
-#define RIGHT                                             1
-
+  #define LEFT                                            0
+  #define RIGHT                                           1
 #elif __BIG_ENDIAN__
-#define LEFT_TEXT                                         0
-#define RIGHT_TEXT                                        1
+  #define LEFT_TEXT                                       0
+  #define RIGHT_TEXT                                      1
 
-#define LEFT                                              0
-#define RIGHT                                             1
-
+  #define LEFT                                            0
+  #define RIGHT                                           1
 #endif
 
 static const uint8_t ip[64] = {
@@ -402,8 +399,8 @@ inline void des::permuted_choice1(const uint64_t key, uint32_t &left, uint32_t &
   }
 
   tmp_key >>= 8;
-  left = (uint32_t)((tmp_key & SUBKEY_LEFT_MASK) >> 28);
-  right = (uint32_t)(tmp_key & SUBKEY_RIGHT_MASK);
+  left = (uint32_t)((tmp_key & SUBKEY_EXTRACT_LEFT_7BYTE) >> 28);
+  right = (uint32_t)(tmp_key & SUBKEY_EXTRACT_RIGHT_7BYTE);
 }
 
 inline void des::permuted_choice2(const uint32_t left, const uint32_t right, uint64_t &subkey) const noexcept {
@@ -467,21 +464,21 @@ void des::round(const uint64_t subkey, const uint32_t rtext, uint32_t &roundtext
 
   targettext ^= subkey;
 
-  stext[7] = (uint8_t)( targettext & EXTRACT_6BIT_SMASK1);
-  stext[6] = (uint8_t)((targettext & EXTRACT_6BIT_SMASK2) >>  6);
-  stext[5] = (uint8_t)((targettext & EXTRACT_6BIT_SMASK3) >> 12);
-  stext[4] = (uint8_t)((targettext & EXTRACT_6BIT_SMASK4) >> 18);
-  stext[3] = (uint8_t)((targettext & EXTRACT_6BIT_SMASK5) >> 24);
-  stext[2] = (uint8_t)((targettext & EXTRACT_6BIT_SMASK6) >> 30);
-  stext[1] = (uint8_t)((targettext & EXTRACT_6BIT_SMASK7) >> 36);
-  stext[0] = (uint8_t)((targettext & EXTRACT_6BIT_SMASK8) >> 42);
+  stext[7] = (uint8_t)( targettext & EXTRACT_6BIT_1);
+  stext[6] = (uint8_t)((targettext & EXTRACT_6BIT_2) >>  6);
+  stext[5] = (uint8_t)((targettext & EXTRACT_6BIT_3) >> 12);
+  stext[4] = (uint8_t)((targettext & EXTRACT_6BIT_4) >> 18);
+  stext[3] = (uint8_t)((targettext & EXTRACT_6BIT_5) >> 24);
+  stext[2] = (uint8_t)((targettext & EXTRACT_6BIT_6) >> 30);
+  stext[1] = (uint8_t)((targettext & EXTRACT_6BIT_7) >> 36);
+  stext[0] = (uint8_t)((targettext & EXTRACT_6BIT_8) >> 42);
 
   for (int8_t sidx = 0; sidx < 8; ++sidx) {
     uint8_t left = 0;
     uint8_t right = 0;
 
-    left = ((stext[sidx] & EXTRACT_LEFT_1BIT_SMASK) >> 4) | (stext[sidx] & EXTRACT_RIGHT_1BIT_SMASK);
-    right = (stext[sidx] & EXTRACT_MIDDLE_4BIT_SMASK) >> 1;
+    left = ((stext[sidx] & EXTRACT_LEFT_1BIT) >> 4) | (stext[sidx] & EXTRACT_RIGHT_1BIT);
+    right = (stext[sidx] & EXTRACT_MIDDLE_4BIT) >> 1;
 
     stext[sidx] = sbox[sidx][left][right];
   }

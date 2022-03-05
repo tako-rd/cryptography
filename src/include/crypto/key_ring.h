@@ -7,8 +7,8 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#ifndef __KEY_RING_H__
-#define __KEY_RING_H__
+#ifndef KEY_RING_H
+#define KEY_RING_H
 
 class key_ring {
  public:

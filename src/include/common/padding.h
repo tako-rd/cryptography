@@ -16,30 +16,40 @@ namespace cryptography {
 
 typedef enum padding_type {
   NO_PADDING = 0,
-  ZERO_BYTE_PADDING,
-  PKCS5_PADDING,
-  PKCS7_PADDING,
-  ISO10126_PADDING,
-  SSL3_PADDING,
+  ZERO,
+  PKCS1,
+  PKCS5,
+  PKCS7,
+  PKCS8,
+  PKCS9,
+  PKCS10,
+  PKCS11,
+  PKCS12,
+  ISO10126,
+  SSL3,
   OAEP_PADDING,
 } pdtype_t;
 
 class padding {
  public:
-  padding() : type_(ZERO_BYTE_PADDING), unit_size_(0) {};
+  padding() : type_(ZERO), unit_size_(0) {};
 
   ~padding() {};
 
   void initialize(const pdtype_t type, uint32_t unit_size);
 
-  void set(const char *raw, const uint64_t rawlen, char *padded, const uint64_t paddedlen);
+  int32_t set(const char * const raw, const uint64_t rawlen, char *buf, const uint64_t buflen);
 
-  void remove(const char *padded, const uint64_t paddedlen, char *raw, const uint64_t rawlen);
+  int32_t remove(const char * const padded, const uint64_t paddedlen, char *buf, const uint64_t buflen);
 
  private:
-  void set_zero_padding(const char *raw, const uint64_t rawlen, char *padded, const uint64_t paddedlen) const noexcept;
+  int32_t set_pkcs5(const char * const raw, const uint64_t rawlen, const uint64_t plen, const uint64_t pend, char *buf) const noexcept;
 
-  void remove_zero_padding(const char *padded, const uint64_t paddedlen, char *raw, const uint64_t rawlen) const noexcept;
+  int32_t remove_pkcs5(const char * const padded, const uint64_t paddedlen, char *buf) const noexcept;
+   
+  int32_t set_pkcs7(const char * const raw, const uint64_t rawlen, const uint64_t plen, const uint64_t pend, char *buf) const noexcept;
+
+  int32_t remove_pkcs7(const char * const padded, const uint64_t paddedlen, char *buf) const noexcept;
 
   pdtype_t type_;
 

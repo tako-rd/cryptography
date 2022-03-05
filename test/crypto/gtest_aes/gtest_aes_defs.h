@@ -12,13 +12,6 @@
 
 #include <stdint.h>
 
-#define FIPS197_AES_SUBKEY_128BIT_INPUT_A1    0
-#define FIPS197_AES_SUBKEY_128BIT_OUTPUT_A1   0
-
-#define FIPS197_AES_SUBKEY_128BIT_INPUT_C1    1
-#define FIPS197_AES_STRING_128BIT_INPUT_C1    0
-#define FIPS197_AES_CIPHER_128BIT_INPUT_C1    0
-
 static const char TEST_STRING_SINGLE_BYTE_STRING[16]    = "ciphertext msg.";
 static const char TEST_STRING_MULTI_BYTE_STRING[16]     = "à√çÜï∂éöóÒÇ≈Ç∑.";
 static const char TEST_STRING_U8_MULTI_BYTE_STRING[16]  = u8"à√çÜï∂Ç≈Ç∑";

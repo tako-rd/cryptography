@@ -7,8 +7,8 @@
  * see https://opensource.org/licenses/MIT
  */
 
-#ifndef __KEY_GENERATOR_H__
-#define __KEY_GENERATOR_H__
+#ifndef KEY_GENERATOR_H
+#define KEY_GENERATOR_H
 
 #include <stdint.h>
 #include <vector>
