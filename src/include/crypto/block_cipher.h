@@ -46,11 +46,11 @@ class block_cipher<Mode, typename Algorithm, true, true> {
   };
 
   bc_status_t encrypt(const char * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
-    algorithm_.encrypt(ptext, plen, ctext, clen);
+    return algorithm_.encrypt(ptext, plen, ctext, clen);
   };
 
   bc_status_t decrypt(const uint8_t * const ctext, const uint64_t clen, char *ptext, const uint64_t plen) {
-    algorithm_.decrypt(ctext, clen, ptext, plen);
+    return algorithm_.decrypt(ctext, clen, ptext, plen);
   };
 
   void clear() {
@@ -58,20 +58,20 @@ class block_cipher<Mode, typename Algorithm, true, true> {
   }
 
   bc_status_t enc_preprocess(const char * const in, const uint64_t inlen, uint8_t *out, const uint64_t outlen) {
-    mode_.enc_preprocess(in, inlen, out, outlen);
+    return mode_.enc_preprocess(in, inlen, out, outlen);
   };
 
   bc_status_t enc_postprocess(const uint8_t * const in, const uint64_t inlen, char *out, const uint64_t outlen) {
-    mode_.enc_postprocess(in, inlen, out, outlen);
+    return mode_.enc_postprocess(in, inlen, out, outlen);
   };
 
   bc_status_t dec_preprocess(const char * const in, const uint64_t inlen, uint8_t *out, const uint64_t outlen) {
-    mode_.dec_preprocess(in, inlen, out, outlen);
+    return mode_.dec_preprocess(in, inlen, out, outlen);
 
   };
 
   bc_status_t dec_postprocess(const uint8_t * const in, const uint64_t inlen, char *out, const uint64_t outlen) {
-    mode_.dec_postprocess(in, inlen, out, outlen);
+    return mode_.dec_postprocess(in, inlen, out, outlen);
   };
 
 

@@ -44,6 +44,7 @@
     <ClInclude Include="crypto\gtest_des\gtest_des.h" />
     <ClInclude Include="crypto\gtest_des\gtest_des_defs.h" />
     <ClInclude Include="crypto\gtest_ecb\gtest_ecb.h" />
+    <ClInclude Include="crypto\gtest_ecb\gtest_ecb_defs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc" />

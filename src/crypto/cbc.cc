@@ -40,7 +40,7 @@ void cbc::initialize(const uint16_t type, const uint8_t *iv, const uint64_t ivle
   }
 }
 
-void cbc::enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) {
+int32_t cbc::enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) {
   const uint64_t cursor_end = cursor_ + splen_;
   union_array_u128_t text = {0};
 
@@ -63,6 +63,7 @@ void cbc::enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t 
   for (uint64_t bytes = cursor_; bytes < cursor_end; ++bytes) {
     cbuf[bytes] = key_.u8[bytes];
   }
+  return MODE_PROC_SUCCESS;
 }
 
 int32_t cbc::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) {
@@ -90,7 +91,7 @@ int32_t cbc::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, u
   return MODE_PROC_SUCCESS;
 }
 
-void cbc::dec_preprocess(const uint8_t * const ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) {
+int32_t cbc::dec_preprocess(const uint8_t * const ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) {
   const uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
@@ -105,6 +106,7 @@ void cbc::dec_preprocess(const uint8_t * const ctext, const uint64_t clen, uint8
   for (uint64_t bytes = cursor_; bytes < cursor_end; ++bytes) {
     pbuf[bytes] = ctext[bytes];
   }
+  return MODE_PROC_SUCCESS;
 }
 
 int32_t cbc::dec_postprocess(const char * const pbuf, const uint64_t pblen, char *ptext, const uint64_t plen) {

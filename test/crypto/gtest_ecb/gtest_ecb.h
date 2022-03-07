@@ -11,6 +11,7 @@
 #define GTEST_ECB_H
 
 #include "gtest/gtest.h"
+#include "gtest_ecb_defs.h"
 
 #include "ecb.h"
 

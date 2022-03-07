@@ -32,7 +32,7 @@ public:
     static_cast<Mode &>(this)->initialize(type, iv, ivlen);
   };
 
-  void enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) {
+  int32_t enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) {
     static_cast<Mode &>(this)->enc_preprocess(ptext, plen, cbuf, cblen);
   };
 
@@ -40,7 +40,7 @@ public:
     return static_cast<Mode &>(this)->enc_postprocess(cbuf, cblen, ctext, clen);
   };
 
-  void dec_preprocess(const uint8_t * const ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) {
+  int32_t dec_preprocess(const uint8_t * const ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) {
     static_cast<Mode &>(this)->dec_preprocess(ctext, clen, pbuf, pblen);
   };
 
