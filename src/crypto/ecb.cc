@@ -11,29 +11,29 @@
 
 namespace cryptography {
 
-#define SPLIT_TEXT_LENGHT_FOR_DES     8
-#define SPLIT_TEXT_LENGHT_FOR_AES     16
+#define DES_SPLIT_LENGHT     8
+#define AES_SPLIT_LENGHT     16
 
 /* ECB mode */
-void ecb::initialize(const uint16_t type, const uint8_t *, const uint64_t) {
+void ecb::initialize(const uint16_t type, const uint8_t *, const uint64_t) noexcept {
   type_ = type_t(type & EXTRACT_TYPE);
   switch(type_) {
     case DEFAULT:
-      splen_ = 16;
+      splen_ = AES_SPLIT_LENGHT;
     case DES:
-      splen_ = 8;
+      splen_ = DES_SPLIT_LENGHT;
       break;
     case AES128:
     case AES192:
     case AES256:
-      splen_ = 16;
+      splen_ = AES_SPLIT_LENGHT;
       break;
     default:
       break;
   }
 }
 
-int32_t ecb::enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) {
+int32_t ecb::enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
@@ -47,7 +47,7 @@ int32_t ecb::enc_preprocess(const char * const ptext, const uint64_t plen, uint8
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) {
+int32_t ecb::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
@@ -56,6 +56,7 @@ int32_t ecb::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, u
 
   cursor_ += splen_;
   if (cursor_ >= plen_) {
+    cursor_ = 0;
     plen_ = 0;
     is_processing_ = false;
 
@@ -65,37 +66,34 @@ int32_t ecb::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, u
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::dec_preprocess(const uint8_t * const ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) {
+int32_t ecb::dec_preprocess(const uint8_t * const ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
     clen_ = clen;
-    blen_ = pblen;
     is_processing_ = true;
   } 
 
-  for (uint64_t bytes = cursor_; bytes < cursor_end; ++bytes) {
-    pbuf[bytes] = ctext[bytes];
+  for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
+    pbuf[outcsr] = ctext[incsr];
   }
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::dec_postprocess(const char * const pbuf, const uint64_t pblen, char *ptext, const uint64_t plen) {
+int32_t ecb::dec_postprocess(const char * const pbuf, const uint64_t pblen, char *ptext, const uint64_t plen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
-  for (uint64_t bytes = cursor_; bytes < cursor_end; ++bytes) {
-    ptext[bytes] = pbuf[bytes];
+  for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
+    ptext[outcsr] = pbuf[incsr];
   }
 
   cursor_ += splen_;
-  if (cursor_ <= plen_) {
-    plen_ = 0;
-    blen_ = 0;
+  if (cursor_ >= clen_) {
+    cursor_ = 0;
+    clen_ = 0;
     is_processing_ = false;
 
     return MODE_PROC_END;
-  } else {
-
   }
   return MODE_PROC_SUCCESS;
 }
