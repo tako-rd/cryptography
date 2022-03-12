@@ -12,6 +12,7 @@
 
 #include "gtest/gtest.h"
 #include "gtest_cbc_defs.h"
+#include "aes.h"
 
 #include "cbc.h"
 
