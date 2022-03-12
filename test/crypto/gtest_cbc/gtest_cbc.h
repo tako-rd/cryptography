@@ -11,6 +11,7 @@
 #define GTEST_CBC_H
 
 #include "gtest/gtest.h"
+#include "gtest_cbc_defs.h"
 
 #include "cbc.h"
 

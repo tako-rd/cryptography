@@ -57,6 +57,9 @@
     <ClInclude Include="crypto\gtest_ecb\gtest_ecb_defs.h">
       <Filter>crypto\gtest_ecb</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_cbc\gtest_cbc_defs.h">
+      <Filter>crypto\gtest_cbc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">

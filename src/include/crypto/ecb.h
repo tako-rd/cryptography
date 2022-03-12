@@ -17,7 +17,7 @@ namespace cryptography {
 
 class ecb : mode<ecb> {
 public:
-  ecb() : type_(DEFAULT), is_processing_(false), plen_(0), clen_(0), cursor_(0), splen_(0) {};
+  ecb() : type_(DEFAULT), is_processing_(false), inlen_(0), cursor_(0), splen_(0) {};
 
   ~ecb() {};
 
@@ -36,9 +36,7 @@ private:
 
   bool is_processing_;
 
-  uint64_t plen_;
-
-  uint64_t clen_;
+  uint64_t inlen_;
 
   uint64_t cursor_;
 

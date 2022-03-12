@@ -64,7 +64,7 @@ TEST_F(GTestEcb, Normal_enc_postprocess_002) {
   ecb.initialize(cryptography::AES128, nullptr, 0);
   do {
     ecb.enc_preprocess(ECB_TEST_STRING, sizeof(ECB_TEST_STRING), in_str, sizeof(in_str));
-  } while(0 == ecb.enc_postprocess(in_str, sizeof(ECB_TEST_STRING), out_str, sizeof(out_str)));
+  } while(0 == ecb.enc_postprocess(in_str, sizeof(in_str), out_str, sizeof(out_str)));
 
   for (int32_t i = 0; i < sizeof(ECB_TEST_STRING); ++i) {
     EXPECT_EQ(ECB_TEST_STRING[i], out_str[i]);
@@ -101,7 +101,7 @@ TEST_F(GTestEcb, Normal_dec_postprocess_001) {
   ecb.initialize(cryptography::DES, nullptr, 0);
   do {
     ecb.dec_preprocess((uint8_t *)ECB_TEST_STRING, sizeof(ECB_TEST_STRING), in_str, sizeof(in_str));
-  } while(0 == ecb.dec_postprocess((char *)in_str, sizeof(ECB_TEST_STRING), out_str, sizeof(out_str)));
+  } while(0 == ecb.dec_postprocess((char *)in_str, sizeof(in_str), out_str, sizeof(out_str)));
 
   for (int32_t i = 0; i < sizeof(ECB_TEST_STRING); ++i) {
     EXPECT_EQ(ECB_TEST_STRING[i], out_str[i]);
@@ -116,7 +116,7 @@ TEST_F(GTestEcb, Normal_dec_postprocess_002) {
   ecb.initialize(cryptography::AES128, nullptr, 0);
   do {
     ecb.dec_preprocess((uint8_t *)ECB_TEST_STRING, sizeof(ECB_TEST_STRING), in_str, sizeof(in_str));
-  } while(0 == ecb.dec_postprocess((char *)in_str, sizeof(ECB_TEST_STRING), out_str, sizeof(out_str)));
+  } while(0 == ecb.dec_postprocess((char *)in_str, sizeof(in_str), out_str, sizeof(out_str)));
 
   for (int32_t i = 0; i < sizeof(ECB_TEST_STRING); ++i) {
     EXPECT_EQ(ECB_TEST_STRING[i], out_str[i]);

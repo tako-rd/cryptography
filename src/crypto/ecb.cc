@@ -37,7 +37,7 @@ int32_t ecb::enc_preprocess(const char * const ptext, const uint64_t plen, uint8
   uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
-    plen_ = plen;
+    inlen_ = plen;
     is_processing_ = true;
   } 
 
@@ -55,14 +55,13 @@ int32_t ecb::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, u
   }
 
   cursor_ += splen_;
-  if (cursor_ >= plen_) {
+  if (cursor_ >= inlen_) {
     cursor_ = 0;
-    plen_ = 0;
+    inlen_ = 0;
     is_processing_ = false;
 
     return MODE_PROC_END;
   }
-
   return MODE_PROC_SUCCESS;
 }
 
@@ -70,7 +69,7 @@ int32_t ecb::dec_preprocess(const uint8_t * const ctext, const uint64_t clen, ui
   uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
-    clen_ = clen;
+    inlen_ = clen;
     is_processing_ = true;
   } 
 
@@ -88,9 +87,9 @@ int32_t ecb::dec_postprocess(const char * const pbuf, const uint64_t pblen, char
   }
 
   cursor_ += splen_;
-  if (cursor_ >= clen_) {
+  if (cursor_ >= inlen_) {
     cursor_ = 0;
-    clen_ = 0;
+    inlen_ = 0;
     is_processing_ = false;
 
     return MODE_PROC_END;

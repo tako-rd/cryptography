@@ -41,6 +41,7 @@
     <ClInclude Include="crypto\gtest_aes\gtest_aes256.h" />
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h" />
     <ClInclude Include="crypto\gtest_cbc\gtest_cbc.h" />
+    <ClInclude Include="crypto\gtest_cbc\gtest_cbc_defs.h" />
     <ClInclude Include="crypto\gtest_des\gtest_des.h" />
     <ClInclude Include="crypto\gtest_des\gtest_des_defs.h" />
     <ClInclude Include="crypto\gtest_ecb\gtest_ecb.h" />
