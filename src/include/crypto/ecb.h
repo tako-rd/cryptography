@@ -21,7 +21,7 @@ public:
 
   ~ecb() {};
 
-  void initialize(const uint16_t type, const uint8_t *, const uint64_t) noexcept;
+  int32_t initialize(const uint16_t type, const uint8_t *, const uint64_t) noexcept;
 
   int32_t enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept;
 

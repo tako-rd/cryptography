@@ -21,7 +21,7 @@ public:
 
   ~cbc() {}; 
 
-  void initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen);
+  int32_t initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen);
 
   int32_t enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen);
 

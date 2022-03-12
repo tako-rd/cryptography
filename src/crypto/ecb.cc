@@ -15,7 +15,7 @@ namespace cryptography {
 #define AES_SPLIT_LENGHT     16
 
 /* ECB mode */
-void ecb::initialize(const uint16_t type, const uint8_t *, const uint64_t) noexcept {
+int32_t ecb::initialize(const uint16_t type, const uint8_t *, const uint64_t) noexcept {
   type_ = type_t(type & EXTRACT_TYPE);
   switch(type_) {
     case DEFAULT:
@@ -31,6 +31,7 @@ void ecb::initialize(const uint16_t type, const uint8_t *, const uint64_t) noexc
     default:
       break;
   }
+  return MODE_PROC_SUCCESS;
 }
 
 int32_t ecb::enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept {

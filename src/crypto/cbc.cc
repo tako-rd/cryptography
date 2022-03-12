@@ -14,7 +14,7 @@ namespace cryptography {
 #define DES_SPLIT_LENGHT     8
 #define AES_SPLIT_LENGHT     16
 
-void cbc::initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) {
+int32_t cbc::initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) {
   type_ = type_t(type & EXTRACT_TYPE);
   switch(type_) {
     case DEFAULT:
@@ -32,9 +32,11 @@ void cbc::initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) {
   }
 
   if (splen_ != ivlen) {
-    return ;
+    return MODE_PROC_FAILURE;
   }
   iv_ = iv;
+
+  return MODE_PROC_SUCCESS;
 }
 
 int32_t cbc::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) {
@@ -47,11 +49,11 @@ int32_t cbc::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, 
 
   if (0 == cursor_) { 
     for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      cbuf[outcsr] = ptext[incsr] ^ iv_[outcsr];
+      cbuf[outcsr] = (ptext[incsr] ^ iv_[outcsr]);
     }
   } else {
     for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      cbuf[outcsr] = ptext[incsr] ^ key_[incsr - splen_];
+      cbuf[outcsr] = (ptext[incsr] ^ key_[incsr - splen_]);
     }
   }
   return MODE_PROC_SUCCESS;
@@ -64,7 +66,7 @@ int32_t cbc::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext
     key_ = ctext;
   }
 
-  for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
+  for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ctext[outcsr] = cbuf[incsr];
   }
 
