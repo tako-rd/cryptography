@@ -15,7 +15,7 @@ namespace cryptography {
 #define AES_SPLIT_LENGHT     16
 
 /* ECB mode */
-int32_t ecb::initialize(const uint16_t type, const uint8_t *, const uint64_t) noexcept {
+int32_t ecb::initialize(const uint16_t type, uint8_t *, const uint64_t) noexcept {
   type_ = type_t(type & EXTRACT_TYPE);
   switch(type_) {
     case DEFAULT:
@@ -34,7 +34,7 @@ int32_t ecb::initialize(const uint16_t type, const uint8_t *, const uint64_t) no
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::enc_preprocess(const char * const ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept {
+int32_t ecb::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
@@ -48,7 +48,7 @@ int32_t ecb::enc_preprocess(const char * const ptext, const uint64_t plen, uint8
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) noexcept {
+int32_t ecb::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
@@ -66,7 +66,7 @@ int32_t ecb::enc_postprocess(const uint8_t * const cbuf, const uint64_t cblen, u
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::dec_preprocess(const uint8_t * const ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) noexcept {
+int32_t ecb::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
@@ -80,7 +80,7 @@ int32_t ecb::dec_preprocess(const uint8_t * const ctext, const uint64_t clen, ui
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::dec_postprocess(const char * const pbuf, const uint64_t pblen, char *ptext, const uint64_t plen) noexcept {
+int32_t ecb::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {

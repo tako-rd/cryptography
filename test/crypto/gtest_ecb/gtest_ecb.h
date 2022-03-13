@@ -12,6 +12,7 @@
 
 #include "gtest/gtest.h"
 #include "gtest_ecb_defs.h"
+#include "aes.h"
 
 #include "ecb.h"
 

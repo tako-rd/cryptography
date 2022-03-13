@@ -72,6 +72,9 @@
     <ClInclude Include="src\include\crypto\cbc.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\crypto\cfb.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\crypto\aes.cc">
@@ -103,6 +106,9 @@
     </ClCompile>
     <ClCompile Include="src\common\cpu.cc">
       <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\cfb.cc">
+      <Filter>src\crypto</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

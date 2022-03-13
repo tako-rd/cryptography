@@ -49,12 +49,6 @@ public:
   };
 };
 
-class cfb : mode<cfb> {
- public:
- private:
-
-};
-
 class ofb : mode<ofb> {
  public:
  private:

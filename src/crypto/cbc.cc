@@ -14,7 +14,7 @@ namespace cryptography {
 #define DES_SPLIT_LENGHT     8
 #define AES_SPLIT_LENGHT     16
 
-int32_t cbc::initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) {
+int32_t cbc::initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) noexcept {
   type_ = type_t(type & EXTRACT_TYPE);
   switch(type_) {
     case DEFAULT:
@@ -39,7 +39,7 @@ int32_t cbc::initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) 
   return MODE_PROC_SUCCESS;
 }
 
-int32_t cbc::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) {
+int32_t cbc::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept {
   const uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
@@ -59,7 +59,7 @@ int32_t cbc::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, 
   return MODE_PROC_SUCCESS;
 }
 
-int32_t cbc::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) {
+int32_t cbc::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) noexcept {
   uint64_t cursor_end = cursor_ + splen_;
 
   if (0 == cursor_) {
@@ -82,7 +82,7 @@ int32_t cbc::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext
   return MODE_PROC_SUCCESS;
 }
 
-int32_t cbc::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) {
+int32_t cbc::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) noexcept {
   const uint64_t cursor_end = cursor_ + splen_;
 
   if (false == is_processing_) {
@@ -97,7 +97,7 @@ int32_t cbc::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, 
   return MODE_PROC_SUCCESS;
 }
 
-int32_t cbc::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) {
+int32_t cbc::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) noexcept {
   const uint64_t cursor_end = cursor_ + splen_;
 
   if (0 == cursor_) {
