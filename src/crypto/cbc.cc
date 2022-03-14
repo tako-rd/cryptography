@@ -49,11 +49,11 @@ int32_t cbc::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, 
 
   if (0 == cursor_) { 
     for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      cbuf[outcsr] = (ptext[incsr] ^ iv_[outcsr]);
+      cbuf[outcsr] = ptext[incsr] ^ iv_[outcsr];
     }
   } else {
     for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      cbuf[outcsr] = (ptext[incsr] ^ key_[incsr - splen_]);
+      cbuf[outcsr] = ptext[incsr] ^ key_[incsr - splen_];
     }
   }
   return MODE_PROC_SUCCESS;

@@ -17,7 +17,7 @@ namespace cryptography {
 
 class cfb : mode<cfb> {
  public:
-  cfb() {};
+  cfb() : type_(DEFAULT), iv_(nullptr), key_(nullptr), key_len_(0), input_(nullptr), is_processing_(false), cursor_(0), splen_(0) {};
 
   ~cfb() {};
 
@@ -32,7 +32,21 @@ class cfb : mode<cfb> {
   int32_t dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) noexcept;
 
  private:
+  type_t type_;
 
+  uint8_t *iv_;
+
+  uint8_t *key_;
+
+  uint64_t key_len_;
+
+  uint8_t *input_;
+
+  bool is_processing_;
+
+  uint64_t cursor_;
+
+  uint64_t splen_;
 };
 
 }
