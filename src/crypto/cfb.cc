@@ -49,12 +49,12 @@ int32_t cfb::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, 
   } 
 
   if (0 == cursor_) {
-    for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
+    for (uint64_t outcsr = 0; outcsr < cursor_end; ++outcsr) {
       cbuf[outcsr] = iv_[outcsr];
     }
   } else {
     for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      cbuf[outcsr] = key_[outcsr - splen_];
+      cbuf[outcsr] = key_[incsr - splen_];
     }
   }
   return MODE_PROC_SUCCESS;
@@ -75,6 +75,7 @@ int32_t cfb::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext
   if (cursor_ >= key_len_) {
     key_ = nullptr;
     key_len_ = 0;
+    input_ = nullptr;
     is_processing_ = false;
     cursor_ = 0;
 
@@ -93,12 +94,12 @@ int32_t cfb::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, 
   } 
 
   if (0 == cursor_) {
-    for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
+    for (uint64_t outcsr = 0; outcsr < cursor_end; ++outcsr) {
       pbuf[outcsr] = iv_[outcsr];
     }
   } else {
     for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      pbuf[outcsr] = key_[outcsr - splen_];
+      pbuf[outcsr] = ctext[incsr - splen_];
     }
   }
   return MODE_PROC_SUCCESS;
@@ -106,10 +107,6 @@ int32_t cfb::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, 
 
 int32_t cfb::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) noexcept {
   const uint64_t cursor_end = cursor_ + splen_;
-
-  if (0 == cursor_) {
-    key_ = ptext; 
-  }
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ptext[outcsr] = input_[outcsr] ^ pbuf[incsr];
@@ -119,6 +116,7 @@ int32_t cfb::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext
   if (cursor_ >= key_len_) {
     key_ = nullptr;
     key_len_ = 0;
+    input_ = nullptr;
     is_processing_ = false;
     cursor_ = 0;
 

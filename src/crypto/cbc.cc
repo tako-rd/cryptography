@@ -63,7 +63,7 @@ int32_t cbc::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext
   uint64_t cursor_end = cursor_ + splen_;
 
   if (0 == cursor_) {
-    key_ = ctext;
+    key_ = ctext; 
   }
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {

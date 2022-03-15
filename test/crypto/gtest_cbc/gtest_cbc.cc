@@ -62,13 +62,6 @@ TEST_F(GTestCbc, Normal_enc_postprocess_001) {
 
   for (int32_t i = 0, j = 0; i < sizeof(out_str); ++i, ++j) {
     printf("%02x ", out_str[i]);
-
-    //EXPECT_EQ((CBC_TEST_STRING[i] ^ CBC_TEST_DES_IV[j]), out_str[i]);
-
-    if (j >= 7) {
-      j = 0;
-    }
-
   }
   printf("\n");
 }
@@ -88,8 +81,6 @@ TEST_F(GTestCbc, Normal_enc_postprocess_002) {
 
   for (int32_t i = 0, j = 0; i < sizeof(CBC_TEST_STRING); ++i, ++j) {
     printf("%02x ", out_str[i]);
-
-    //EXPECT_EQ((CBC_TEST_STRING[i] ^ CBC_TEST_AES_IV[j]), out_str[i]);
   }
 }
 
