@@ -83,15 +83,17 @@
   #define DEBUG_END                             printf("[%s] end.\n", __func__)
   #define DEBUG_CHECK_POINT(x)                  printf("[%s] check point %d.\n", __func__, x)
 #else
-#define DEBUG_START
-#define DEBUG_END
+  #define DEBUG_DISPLAY_BIT_8(tag, target)    
+  #define DEBUG_DISPLAY_BIT_16(tag, target)   
+  #define DEBUG_DISPLAY_BIT_32(tag, target)   
+  #define DEBUG_DISPLAY_BIT_64(tag, target)   
+  #define DEBUG_DISPLAY_BIT_COUNT(tag, target)
 
+  #define DEBUG_START
+  #define DEBUG_END
 #endif
 
 namespace cryptography {
-
-#define EXTRACT_CIPHER_AND_HASH_TYPE  0xFF00
-#define EXTRACT_BLOCK_CIPHER_MODE     0x00FF
 
 typedef enum cipher_and_hash_type {
   DEFAULT      = 0x0000,

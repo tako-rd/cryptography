@@ -57,7 +57,7 @@ TEST_F(GTestCfb, Normal_enc_postprocess_002) {
   printf("\n");
 }
 
-TEST_F(GTestCfb, Normal_aes_cbc_encrypt_001) {
+TEST_F(GTestCfb, Normal_aes_cfb_encrypt_001) {
   cryptography::cfb cfb;
   cryptography::aes aes;
   uint8_t origin_text[64] = {0};
@@ -79,7 +79,7 @@ TEST_F(GTestCfb, Normal_aes_cbc_encrypt_001) {
   }
 }
 
-TEST_F(GTestCfb, Normal_aes_cbc_encrypt_002) {
+TEST_F(GTestCfb, Normal_aes_cfb_encrypt_002) {
   cryptography::cfb cfb;
   cryptography::aes aes;
   uint8_t origin_text[64] = {0};
@@ -101,7 +101,7 @@ TEST_F(GTestCfb, Normal_aes_cbc_encrypt_002) {
   }
 }
 
-TEST_F(GTestCfb, Normal_aes_cbc_decrypt_001) {
+TEST_F(GTestCfb, Normal_aes_cfb_decrypt_001) {
   cryptography::cfb cfb;
   cryptography::aes aes;
   uint8_t origin_text[64] = {0};
@@ -138,7 +138,7 @@ TEST_F(GTestCfb, Normal_aes_cbc_decrypt_001) {
   }
 }
 
-TEST_F(GTestCfb, Normal_aes_cbc_decrypt_002) {
+TEST_F(GTestCfb, Normal_aes_cfb_decrypt_002) {
   cryptography::cfb cfb;
   cryptography::aes aes;
   uint8_t origin_text[64] = {0};

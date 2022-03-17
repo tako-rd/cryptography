@@ -49,11 +49,7 @@ public:
   };
 };
 
-class ofb : mode<ofb> {
- public:
- private:
 
-};
 
 class ctr : mode<ctr> {
  public:

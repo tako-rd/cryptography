@@ -75,6 +75,9 @@
     <ClInclude Include="src\include\crypto\cfb.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\crypto\ofb.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\crypto\aes.cc">
@@ -108,6 +111,9 @@
       <Filter>src\common</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\cfb.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\ofb.cc">
       <Filter>src\crypto</Filter>
     </ClCompile>
   </ItemGroup>

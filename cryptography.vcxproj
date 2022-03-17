@@ -33,6 +33,7 @@
     <ClInclude Include="src\include\crypto\key_ring.h" />
     <ClInclude Include="src\include\crypto\block_cipher.h" />
     <ClInclude Include="src\include\crypto\mode.h" />
+    <ClInclude Include="src\include\crypto\ofb.h" />
     <ClInclude Include="src\include\crypto\rsa.h" />
     <ClInclude Include="src\include\defs.h" />
   </ItemGroup>
@@ -47,6 +48,7 @@
     <ClCompile Include="src\crypto\ecb.cc" />
     <ClCompile Include="src\crypto\key_generator.cc" />
     <ClCompile Include="src\crypto\key_ring.cc" />
+    <ClCompile Include="src\crypto\ofb.cc" />
     <ClCompile Include="src\crypto\rsa.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

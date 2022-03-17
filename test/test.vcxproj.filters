@@ -31,6 +31,9 @@
     <Filter Include="crypto\gtest_cfb">
       <UniqueIdentifier>{d95c6355-4bc8-4f3f-b905-302ddc029218}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\gtest_ofb">
+      <UniqueIdentifier>{92fee6c2-162d-485e-9ba8-005adbb06b23}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -69,6 +72,12 @@
     <ClInclude Include="crypto\gtest_cfb\gtest_cfb_defs.h">
       <Filter>crypto\gtest_cfb</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_ofb\gtest_ofb.h">
+      <Filter>crypto\gtest_ofb</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_ofb\gtest_ofb_defs.h">
+      <Filter>crypto\gtest_ofb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">
@@ -91,6 +100,9 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_cfb\gtest_cfb.cc">
       <Filter>crypto\gtest_cfb</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_ofb\gtest_ofb.cc">
+      <Filter>crypto\gtest_ofb</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
