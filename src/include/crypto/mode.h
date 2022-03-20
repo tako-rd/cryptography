@@ -49,14 +49,6 @@ public:
   };
 };
 
-
-
-class ctr : mode<ctr> {
- public:
- private:
-
-};
-
 }
 
 #endif

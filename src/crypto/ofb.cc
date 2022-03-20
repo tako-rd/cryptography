@@ -123,5 +123,4 @@ int32_t ofb::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext
   return MODE_PROC_SUCCESS;
 }
 
-
 }

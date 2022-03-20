@@ -27,6 +27,7 @@
     <ClInclude Include="src\include\crypto\algorithm.h" />
     <ClInclude Include="src\include\crypto\cbc.h" />
     <ClInclude Include="src\include\crypto\cfb.h" />
+    <ClInclude Include="src\include\crypto\ctr.h" />
     <ClInclude Include="src\include\crypto\des.h" />
     <ClInclude Include="src\include\crypto\ecb.h" />
     <ClInclude Include="src\include\crypto\key_generator.h" />
@@ -44,6 +45,7 @@
     <ClCompile Include="src\crypto\aes.cc" />
     <ClCompile Include="src\crypto\cbc.cc" />
     <ClCompile Include="src\crypto\cfb.cc" />
+    <ClCompile Include="src\crypto\ctr.cc" />
     <ClCompile Include="src\crypto\des.cc" />
     <ClCompile Include="src\crypto\ecb.cc" />
     <ClCompile Include="src\crypto\key_generator.cc" />
