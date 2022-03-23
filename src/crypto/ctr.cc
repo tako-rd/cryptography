@@ -134,15 +134,14 @@ int32_t ctr::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext
 }
 
 inline void ctr::iv_restore() noexcept {
-  uint64_t cnt = counter_;
-  uint64_t pos = splen_ - 1;
+  const uint64_t keycsr = splen_ - 1;
+  uint64_t quotient = counter_;
+  uint64_t surplus = counter_;
 
-  while (0 == counter_) {
-    if (0 != (cnt = cnt % 0xFF)) {
-
-    } else {
-
-    }
+  while (0 == surplus) {
+    quotient = quotient / 0xFF;
+    surplus = surplus % 0xFF;
+    iv_[keycsr - quotient] -= surplus;
   }
 }
 
