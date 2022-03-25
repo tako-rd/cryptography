@@ -57,29 +57,39 @@ int32_t ctr::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, 
 
 int32_t ctr::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) noexcept {
   const uint64_t cursor_end = cursor_ + splen_;
+  uint64_t keycsr = keycsr_;
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ctext[outcsr] = input_[outcsr] ^ cbuf[incsr];
   }
 
   while (true) {
-    if (0xFF == iv_[keycsr_]) {
-      iv_[keycsr_] = 0;
-      --keycsr_;
+    if (0xFF == iv_[keycsr]) {
+      iv_[keycsr] = 0;
+      --keycsr;
     } else {
-      ++iv_[keycsr_];
+      ++iv_[keycsr];
       ++counter_;
+      keycsr = keycsr_;
       break;
     }
   }
 
+  for (uint64_t j = 0; j < 16; ++j) {
+    printf("%02x ", iv_[j]);
+  }
+  printf("\n");
+
   cursor_ += splen_;
   if (cursor_ >= key_len_) {
+    iv_restore();
+
     key_len_ = 0;
     input_ = nullptr;
     is_processing_ = false;
     keycsr_ = 0;
     cursor_ = 0;
+    counter_ = 0;
 
     return MODE_PROC_END;
   }
@@ -104,29 +114,39 @@ int32_t ctr::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, 
 
 int32_t ctr::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) noexcept {
   const uint64_t cursor_end = cursor_ + splen_;
+  uint64_t keycsr = keycsr_;
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ptext[outcsr] = input_[outcsr] ^ pbuf[incsr];
   }
 
   while (true) {
-    if (0xFF == iv_[keycsr_]) {
-      iv_[keycsr_] = 0;
-      --keycsr_;
+    if (0xFF == iv_[keycsr]) {
+      iv_[keycsr] = 0;
+      --keycsr;
     } else {
-      ++iv_[keycsr_];
+      ++iv_[keycsr];
       ++counter_;
+      keycsr = keycsr_;
       break;
     }
   }
 
+  for (uint64_t j = 0; j < 16; ++j) {
+    printf("%02x ", iv_[j]);
+  }
+  printf("\n");
+
   cursor_ += splen_;
   if (cursor_ >= key_len_) {
+    iv_restore();
+
     key_len_ = 0;
     input_ = nullptr;
     is_processing_ = false;
     keycsr_ = 0;
     cursor_ = 0;
+    counter_ = 0;
 
     return MODE_PROC_END;
   }
@@ -134,15 +154,29 @@ int32_t ctr::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext
 }
 
 inline void ctr::iv_restore() noexcept {
-  const uint64_t keycsr = splen_ - 1;
+  uint64_t keycsr = splen_ - 1;
   uint64_t quotient = counter_;
   uint64_t surplus = counter_;
 
-  while (0 == surplus) {
-    quotient = quotient / 0xFF;
-    surplus = surplus % 0xFF;
-    iv_[keycsr - quotient] -= surplus;
+  while (0 != counter_) {
+    if (0x00 == iv_[keycsr]) {
+      iv_[keycsr] = 0xFF;
+      while (true) {
+        --keycsr;
+        if (0x00 == iv_[keycsr]) {
+          iv_[keycsr] = 0xFF;
+        } else {
+          --iv_[keycsr];
+          keycsr = splen_ - 1;
+          break;
+        }
+      }
+    } else {
+      --iv_[keycsr];
+    }
+    --counter_;
   }
+
 }
 
 }

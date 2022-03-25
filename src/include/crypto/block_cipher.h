@@ -57,7 +57,7 @@ class block_cipher<Mode, typename Algorithm, true, true> {
     algorithm_.clear();
   }
 
-  bc_status_t enc_preprocess(const char * const in, const uint64_t inlen, uint8_t *out, const uint64_t outlen) {
+  bc_status_t enc_preprocess(const uint8_t * const in, const uint64_t inlen, uint8_t *out, const uint64_t outlen) {
     return mode_.enc_preprocess(in, inlen, out, outlen);
   };
 
@@ -65,12 +65,12 @@ class block_cipher<Mode, typename Algorithm, true, true> {
     return mode_.enc_postprocess(in, inlen, out, outlen);
   };
 
-  bc_status_t dec_preprocess(const char * const in, const uint64_t inlen, uint8_t *out, const uint64_t outlen) {
+  bc_status_t dec_preprocess(const uint8_t * const in, const uint64_t inlen, uint8_t *out, const uint64_t outlen) {
     return mode_.dec_preprocess(in, inlen, out, outlen);
 
   };
 
-  bc_status_t dec_postprocess(const uint8_t * const in, const uint64_t inlen, char *out, const uint64_t outlen) {
+  bc_status_t dec_postprocess(const uint8_t * const in, const uint64_t inlen, uint8_t *out, const uint64_t outlen) {
     return mode_.dec_postprocess(in, inlen, out, outlen);
   };
 

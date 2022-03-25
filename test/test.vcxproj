@@ -44,6 +44,8 @@
     <ClInclude Include="crypto\gtest_cbc\gtest_cbc_defs.h" />
     <ClInclude Include="crypto\gtest_cfb\gtest_cfb.h" />
     <ClInclude Include="crypto\gtest_cfb\gtest_cfb_defs.h" />
+    <ClInclude Include="crypto\gtest_ctr\gtest_ctr.h" />
+    <ClInclude Include="crypto\gtest_ctr\gtest_ctr_defs.h" />
     <ClInclude Include="crypto\gtest_des\gtest_des.h" />
     <ClInclude Include="crypto\gtest_des\gtest_des_defs.h" />
     <ClInclude Include="crypto\gtest_ecb\gtest_ecb.h" />
@@ -57,6 +59,7 @@
     <ClCompile Include="crypto\gtest_aes\gtest_aes256.cc" />
     <ClCompile Include="crypto\gtest_cbc\gtest_cbc.cc" />
     <ClCompile Include="crypto\gtest_cfb\gtest_cfb.cc" />
+    <ClCompile Include="crypto\gtest_ctr\gtest_ctr.cc" />
     <ClCompile Include="crypto\gtest_des\gtest_des.cc" />
     <ClCompile Include="crypto\gtest_ecb\gtest_ecb.cc" />
     <ClCompile Include="crypto\gtest_ofb\gtest_ofb.cc" />
