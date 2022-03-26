@@ -75,11 +75,6 @@ int32_t ctr::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext
     }
   }
 
-  for (uint64_t j = 0; j < 16; ++j) {
-    printf("%02x ", iv_[j]);
-  }
-  printf("\n");
-
   cursor_ += splen_;
   if (cursor_ >= key_len_) {
     iv_restore();
@@ -132,11 +127,6 @@ int32_t ctr::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext
     }
   }
 
-  for (uint64_t j = 0; j < 16; ++j) {
-    printf("%02x ", iv_[j]);
-  }
-  printf("\n");
-
   cursor_ += splen_;
   if (cursor_ >= key_len_) {
     iv_restore();
@@ -176,7 +166,6 @@ inline void ctr::iv_restore() noexcept {
     }
     --counter_;
   }
-
 }
 
 }

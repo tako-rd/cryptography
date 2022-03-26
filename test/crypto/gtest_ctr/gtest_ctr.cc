@@ -91,7 +91,6 @@ TEST_F(GTestCtr, Normal_aes_ctr_decrypt_001) {
 
 
   for (int32_t i = 0; i < sizeof(origin_text); ++i) {
-    //printf("%02x ", plaintext[i]);
     EXPECT_EQ(origin_text[i], plaintext[i]);
   }
 }
@@ -132,4 +131,33 @@ TEST_F(GTestCtr, Normal_aes_ctr_decrypt_002) {
   for (int32_t i = 0; i < sizeof(origin_text); ++i) {
     EXPECT_EQ(origin_text[i], plaintext[i]);
   }
+}
+
+TEST_F(GTestCtr, Normal_aes_ctr_decrypt_003) {
+  cryptography::ctr ctr;
+  cryptography::aes aes;
+  uint8_t origin_text[28160] = {0};
+  uint8_t iv[16] = {0};
+  uint8_t str[16] = {0};
+  uint8_t cstr[16] = {0};
+  uint8_t ciphertext[28160] = {0};
+  uint8_t plaintext[28160] = {0};
+
+  memcpy(origin_text, CTR_TEST_STRING, sizeof(CTR_TEST_STRING));
+  memcpy(iv, NIST_AES_CTR_EXAM_AES_IV, sizeof(NIST_AES_CTR_EXAM_AES_IV));
+
+  aes.initialize(cryptography::AES128, NIST_AES_CTR_EXAM_AES_KEY, sizeof(NIST_AES_CTR_EXAM_AES_KEY), true);
+  ctr.initialize(cryptography::AES128, (uint8_t *)iv, sizeof(iv));
+  do {
+    ctr.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
+    EXPECT_EQ(0, aes.encrypt((char *)str, sizeof(str), cstr, sizeof(cstr)));
+  } while(0 == ctr.enc_postprocess(cstr, sizeof(cstr), ciphertext, sizeof(ciphertext)));
+
+  memset(str, 0x00, sizeof(str));
+  memset(cstr, 0x00, sizeof(cstr));
+
+  do {
+    ctr.dec_preprocess(ciphertext, sizeof(ciphertext), cstr, sizeof(cstr));
+    EXPECT_EQ(0, aes.encrypt((char *)cstr, sizeof(cstr), str, sizeof(str)));
+  } while(0 == ctr.dec_postprocess(str, sizeof(str), plaintext, sizeof(plaintext)));
 }
