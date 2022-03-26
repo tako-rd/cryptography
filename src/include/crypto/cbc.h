@@ -17,19 +17,19 @@ namespace cryptography {
 
 class cbc : mode<cbc> {
 public:
-  cbc() : type_(DEFAULT), iv_(nullptr), key_(nullptr), key_len_(0), is_processing_(false), cursor_(0), splen_(0) {} ; 
+  cbc() : type_(DEFAULT), iv_(nullptr), key_(nullptr), key_size_(0), is_processing_(false), cursor_(0), unit_size_(0) {} ; 
 
   ~cbc() {}; 
 
-  int32_t initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) noexcept;
+  int32_t initialize(const uint16_t type, uint8_t *iv, const uint64_t iv_size) noexcept;
 
-  int32_t enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept;
+  int32_t enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept;
 
-  int32_t enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) noexcept;
+  int32_t enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept;
 
-  int32_t dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) noexcept;
+  int32_t dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept;
 
-  int32_t dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) noexcept;
+  int32_t dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept;
 
 private:
   type_t type_;
@@ -38,13 +38,13 @@ private:
 
   uint8_t *key_;
 
-  uint64_t key_len_;
+  uint64_t key_size_;
 
   bool is_processing_;
 
   uint64_t cursor_;
 
-  uint64_t splen_;
+  uint64_t unit_size_;
 };
 
 };

@@ -11,27 +11,27 @@
 
 namespace cryptography {
 
-#define DES_SPLIT_LENGHT     8
-#define AES_SPLIT_LENGHT     16
+#define DES_UNIT_SIZE     8
+#define AES_UNIT_SIZE     16
 
-int32_t ofb::initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) noexcept {
+int32_t ofb::initialize(const uint16_t type, uint8_t *iv, const uint64_t iv_size) noexcept {
   type_ = type_t(type & EXTRACT_TYPE);
   switch(type_) {
     case DEFAULT:
-      splen_ = AES_SPLIT_LENGHT;
+      unit_size_ = AES_UNIT_SIZE;
     case DES:
-      splen_ = DES_SPLIT_LENGHT;
+      unit_size_ = DES_UNIT_SIZE;
       break;
     case AES128:
     case AES192:
     case AES256:
-      splen_ = AES_SPLIT_LENGHT;
+      unit_size_ = AES_UNIT_SIZE;
       break;
     default:
       break;
   }
 
-  if (splen_ != ivlen) {
+  if (unit_size_ != iv_size) {
     return MODE_PROC_FAILURE;
   }
   iv_ = iv;
@@ -39,12 +39,12 @@ int32_t ofb::initialize(const uint16_t type, uint8_t *iv, const uint64_t ivlen) 
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ofb::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept {
-  const uint64_t cursor_end = cursor_ + splen_;
+int32_t ofb::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept {
+  const uint64_t cursor_end = cursor_ + unit_size_;
 
   if (false == is_processing_) {
     input_ = ptext;
-    key_len_ = plen;
+    key_size_ = psize;
     is_processing_ = true;
   } 
 
@@ -60,18 +60,18 @@ int32_t ofb::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, 
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ofb::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) noexcept {
-  const uint64_t cursor_end = cursor_ + splen_;
+int32_t ofb::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept {
+  const uint64_t cursor_end = cursor_ + unit_size_;
 
   key_ = cbuf;
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ctext[outcsr] = input_[outcsr] ^ cbuf[incsr];
   }
 
-  cursor_ += splen_;
-  if (cursor_ >= key_len_) {
+  cursor_ += unit_size_;
+  if (cursor_ >= key_size_) {
     key_ = nullptr;
-    key_len_ = 0;
+    key_size_ = 0;
     input_ = nullptr;
     is_processing_ = false;
     cursor_ = 0;
@@ -81,12 +81,12 @@ int32_t ofb::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ofb::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) noexcept {
-  const uint64_t cursor_end = cursor_ + splen_;
+int32_t ofb::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept {
+  const uint64_t cursor_end = cursor_ + unit_size_;
 
   if (false == is_processing_) {
     input_ = ctext;
-    key_len_ = clen;
+    key_size_ = csize;
     is_processing_ = true;
   } 
 
@@ -102,18 +102,18 @@ int32_t ofb::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, 
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ofb::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) noexcept {
-  const uint64_t cursor_end = cursor_ + splen_;
+int32_t ofb::dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept {
+  const uint64_t cursor_end = cursor_ + unit_size_;
 
   key_ = pbuf;
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ptext[outcsr] = input_[outcsr] ^ pbuf[incsr];
   }
 
-  cursor_ += splen_;
-  if (cursor_ >= key_len_) {
+  cursor_ += unit_size_;
+  if (cursor_ >= key_size_) {
     key_ = nullptr;
-    key_len_ = 0;
+    key_size_ = 0;
     input_ = nullptr;
     is_processing_ = false;
     cursor_ = 0;

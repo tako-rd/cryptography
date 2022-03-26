@@ -51,7 +51,6 @@ typedef enum cpu_vender_infomation {
   AMD,
   ARM,
   APPLE,
-
   UNKNOWN_CPU_VENDER,
 } cpu_vender_t;
 

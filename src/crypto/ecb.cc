@@ -11,22 +11,21 @@
 
 namespace cryptography {
 
-#define DES_SPLIT_LENGHT     8
-#define AES_SPLIT_LENGHT     16
+#define DES_UNIT_SIZE     8
+#define AES_UNIT_SIZE     16
 
-/* ECB mode */
 int32_t ecb::initialize(const uint16_t type, uint8_t *, const uint64_t) noexcept {
   type_ = type_t(type & EXTRACT_TYPE);
   switch(type_) {
     case DEFAULT:
-      splen_ = AES_SPLIT_LENGHT;
+      unit_size_ = AES_UNIT_SIZE;
     case DES:
-      splen_ = DES_SPLIT_LENGHT;
+      unit_size_ = DES_UNIT_SIZE;
       break;
     case AES128:
     case AES192:
     case AES256:
-      splen_ = AES_SPLIT_LENGHT;
+      unit_size_ = AES_UNIT_SIZE;
       break;
     default:
       break;
@@ -34,11 +33,11 @@ int32_t ecb::initialize(const uint16_t type, uint8_t *, const uint64_t) noexcept
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, const uint64_t cblen) noexcept {
-  uint64_t cursor_end = cursor_ + splen_;
+int32_t ecb::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept {
+  uint64_t cursor_end = cursor_ + unit_size_;
 
   if (false == is_processing_) {
-    inlen_ = plen;
+    inlen_ = psize;
     is_processing_ = true;
   } 
 
@@ -48,14 +47,14 @@ int32_t ecb::enc_preprocess(uint8_t *ptext, const uint64_t plen, uint8_t *cbuf, 
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext, const uint64_t clen) noexcept {
-  uint64_t cursor_end = cursor_ + splen_;
+int32_t ecb::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept {
+  uint64_t cursor_end = cursor_ + unit_size_;
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ctext[outcsr] = cbuf[incsr];
   }
 
-  cursor_ += splen_;
+  cursor_ += unit_size_;
   if (cursor_ >= inlen_) {
     cursor_ = 0;
     inlen_ = 0;
@@ -66,11 +65,11 @@ int32_t ecb::enc_postprocess(uint8_t *cbuf, const uint64_t cblen, uint8_t *ctext
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, const uint64_t pblen) noexcept {
-  uint64_t cursor_end = cursor_ + splen_;
+int32_t ecb::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept {
+  uint64_t cursor_end = cursor_ + unit_size_;
 
   if (false == is_processing_) {
-    inlen_ = clen;
+    inlen_ = csize;
     is_processing_ = true;
   } 
 
@@ -80,14 +79,14 @@ int32_t ecb::dec_preprocess(uint8_t *ctext, const uint64_t clen, uint8_t *pbuf, 
   return MODE_PROC_SUCCESS;
 }
 
-int32_t ecb::dec_postprocess(uint8_t *pbuf, const uint64_t pblen, uint8_t *ptext, const uint64_t plen) noexcept {
-  uint64_t cursor_end = cursor_ + splen_;
+int32_t ecb::dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept {
+  uint64_t cursor_end = cursor_ + unit_size_;
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ptext[outcsr] = pbuf[incsr];
   }
 
-  cursor_ += splen_;
+  cursor_ += unit_size_;
   if (cursor_ >= inlen_) {
     cursor_ = 0;
     inlen_ = 0;
