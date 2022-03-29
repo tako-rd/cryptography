@@ -11,7 +11,7 @@
 
 TEST_F(GTestCfb, Normal_initialize_001) {
   cryptography::cfb cfb;
-  cfb.initialize(cryptography::DES, (uint8_t *)CFB_TEST_DES_IV, sizeof(CFB_TEST_DES_IV));
+  cfb.initialize(cryptography::SIMPLE_DES, (uint8_t *)CFB_TEST_DES_IV, sizeof(CFB_TEST_DES_IV));
 }
 
 TEST_F(GTestCfb, Normal_initialize_002) {
@@ -27,7 +27,7 @@ TEST_F(GTestCfb, Normal_enc_postprocess_001) {
 
   memcpy(origin_text, CFB_TEST_STRING, sizeof(CFB_TEST_STRING));
 
-  cfb.initialize(cryptography::DES, (uint8_t *)CFB_TEST_DES_IV, sizeof(CFB_TEST_DES_IV));
+  cfb.initialize(cryptography::SIMPLE_DES, (uint8_t *)CFB_TEST_DES_IV, sizeof(CFB_TEST_DES_IV));
   do {
     cfb.enc_preprocess(origin_text, sizeof(origin_text), in_str, sizeof(in_str));
   } while(0 == cfb.enc_postprocess(in_str, sizeof(in_str), out_str, sizeof(out_str)));
@@ -71,7 +71,7 @@ TEST_F(GTestCfb, Normal_aes_cfb_encrypt_001) {
   cfb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_CFB_EXAM_AES_IV, sizeof(NIST_AES_CFB_EXAM_AES_IV));
   do {
     cfb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt((char *)str, sizeof(str), cstr, sizeof(cstr)));
+    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
   } while(0 == cfb.enc_postprocess(cstr, sizeof(cstr), out_str, sizeof(out_str)));
 
   for (int32_t i = 0; i < sizeof(NIST_AES_CFB_EXAM_PLAINTEXT); ++i) {
@@ -93,7 +93,7 @@ TEST_F(GTestCfb, Normal_aes_cfb_encrypt_002) {
   cfb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_CFB_EXAM_AES_IV, sizeof(NIST_AES_CFB_EXAM_AES_IV));
   do {
     cfb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt((char *)str, sizeof(str), cstr, sizeof(cstr)));
+    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
   } while(0 == cfb.enc_postprocess(cstr, sizeof(cstr), out_str, sizeof(out_str)));
 
   for (int32_t i = 0; i < sizeof(NIST_AES_CFB_EXAM_PLAINTEXT); ++i) {
@@ -116,7 +116,7 @@ TEST_F(GTestCfb, Normal_aes_cfb_decrypt_001) {
   cfb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_CFB_EXAM_AES_IV, sizeof(NIST_AES_CFB_EXAM_AES_IV));
   do {
     cfb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt((char *)str, sizeof(str), cstr, sizeof(cstr)));
+    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
   } while(0 == cfb.enc_postprocess(cstr, sizeof(cstr), ciphertext, sizeof(ciphertext)));
 
   for (int32_t i = 0; i < sizeof(NIST_AES_CFB_EXAM_PLAINTEXT); ++i) {
@@ -128,7 +128,7 @@ TEST_F(GTestCfb, Normal_aes_cfb_decrypt_001) {
 
   do {
     cfb.dec_preprocess(ciphertext, sizeof(ciphertext), cstr, sizeof(cstr));
-    EXPECT_EQ(0, aes.encrypt((char *)cstr, sizeof(cstr), str, sizeof(str)));
+    EXPECT_EQ(0, aes.encrypt(cstr, sizeof(cstr), str, sizeof(str)));
   } while(0 == cfb.dec_postprocess(str, sizeof(str), plaintext, sizeof(plaintext)));
 
 
@@ -153,7 +153,7 @@ TEST_F(GTestCfb, Normal_aes_cfb_decrypt_002) {
   cfb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_CFB_EXAM_AES_IV, sizeof(NIST_AES_CFB_EXAM_AES_IV));
   do {
     cfb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt((char *)str, sizeof(str), cstr, sizeof(cstr)));
+    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
   } while(0 == cfb.enc_postprocess(cstr, sizeof(cstr), ciphertext, sizeof(ciphertext)));
 
   for (int32_t i = 0; i < sizeof(NIST_AES_CFB_EXAM_PLAINTEXT); ++i) {
@@ -165,7 +165,7 @@ TEST_F(GTestCfb, Normal_aes_cfb_decrypt_002) {
 
   do {
     cfb.dec_preprocess(ciphertext, sizeof(ciphertext), cstr, sizeof(cstr));
-    EXPECT_EQ(0, aes.encrypt((char *)cstr, sizeof(cstr), str, sizeof(str)));
+    EXPECT_EQ(0, aes.encrypt(cstr, sizeof(cstr), str, sizeof(str)));
   } while(0 == cfb.dec_postprocess(str, sizeof(str), plaintext, sizeof(plaintext)));
 
 

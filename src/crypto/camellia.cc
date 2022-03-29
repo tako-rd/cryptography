@@ -14,6 +14,24 @@ namespace cryptography {
 #define SUCCESS                 0
 #define FAILURE                 1
 
+#ifdef __LITTLE_ENDIAN__
+  #define ARRAY_128BIT_LEFT     1
+  #define ARRAY_128BIT_RIGHT    0
+
+  #define ARRAY_128BIT_LL       4
+  #define ARRAY_128BIT_LL       4
+
+#elif __BIG_ENDIAN__
+
+#endif
+
+#define SGM1  0xA09E667F3BCC908BULL
+#define SGM2  0xB67AE8584CAA73B2ULL
+#define SGM3  0xC6EF372FE94F82BEULL
+#define SGM4  0x54FF53A5F1D36F1CULL
+#define SGM5  0x10E527FADE682D1DULL
+#define SGM6  0xB05688C2B3E6C1FDULL
+
 static const uint8_t sbox1[256] = {
   0x70, 0x82, 0x2C, 0xEC, 0xB3, 0x27, 0xC0, 0xE5, 0xE4, 0x85, 0x57, 0x35, 0xEA, 0x0C, 0xAE, 0x41,
   0x23, 0xEF, 0x6B, 0x93, 0x45, 0x19, 0xA5, 0x21, 0xED, 0x0E, 0x4F, 0x4E, 0x1D, 0x65, 0x92, 0xBD,
@@ -149,6 +167,12 @@ inline void camellia::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *pt
 }
 
 inline void camellia::expand_key(const union_array_u256_t * const key, uint32_t *subkeys) const noexcept {
+  uint64_t kw[4] = {0};
+  uint64_t k[24] = {0};
+  uint64_t kl[6] = {0};
+  union_array_u128_t ka[2] = {0};
+  union_array_u128_t kb[2] = {0};
+
 
 }
 

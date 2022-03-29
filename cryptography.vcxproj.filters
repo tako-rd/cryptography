@@ -42,12 +42,6 @@
     <ClInclude Include="src\include\crypto\des.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\crypto\key_generator.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\key_ring.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
     <ClInclude Include="src\include\crypto\rsa.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
@@ -81,18 +75,24 @@
     <ClInclude Include="src\include\crypto\ctr.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\common\key_generator.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\common\key_ring.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\camellia.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\common\byte_utill.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\crypto\aes.cc">
       <Filter>src\crypto</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\des.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\key_generator.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\key_ring.cc">
       <Filter>src\crypto</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\rsa.cc">
@@ -120,6 +120,15 @@
       <Filter>src\crypto</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\ctr.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\key_generator.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\key_ring.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\camellia.cc">
       <Filter>src\crypto</Filter>
     </ClCompile>
   </ItemGroup>

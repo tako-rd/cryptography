@@ -19,7 +19,7 @@ int32_t ecb::initialize(const uint16_t type, uint8_t *, const uint64_t) noexcept
   switch(type_) {
     case DEFAULT:
       unit_size_ = AES_UNIT_SIZE;
-    case DES:
+    case SIMPLE_DES:
       unit_size_ = DES_UNIT_SIZE;
       break;
     case AES128:
@@ -36,6 +36,10 @@ int32_t ecb::initialize(const uint16_t type, uint8_t *, const uint64_t) noexcept
 int32_t ecb::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept {
   uint64_t cursor_end = cursor_ + unit_size_;
 
+  if (cbsize != unit_size_) {
+    return MODE_PROC_FAILURE;
+  }
+
   if (false == is_processing_) {
     inlen_ = psize;
     is_processing_ = true;
@@ -49,6 +53,10 @@ int32_t ecb::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf,
 
 int32_t ecb::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept {
   uint64_t cursor_end = cursor_ + unit_size_;
+
+  if (cbsize != unit_size_ && csize != inlen_) {
+    return MODE_PROC_FAILURE;
+  }
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ctext[outcsr] = cbuf[incsr];
@@ -68,6 +76,10 @@ int32_t ecb::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctex
 int32_t ecb::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept {
   uint64_t cursor_end = cursor_ + unit_size_;
 
+  if (pbsize != unit_size_) {
+    return MODE_PROC_FAILURE;
+  }
+
   if (false == is_processing_) {
     inlen_ = csize;
     is_processing_ = true;
@@ -81,6 +93,10 @@ int32_t ecb::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf,
 
 int32_t ecb::dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept {
   uint64_t cursor_end = cursor_ + unit_size_;
+
+  if (pbsize != unit_size_ && psize != inlen_) {
+    return MODE_PROC_FAILURE;
+  }
 
   for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
     ptext[outcsr] = pbuf[incsr];

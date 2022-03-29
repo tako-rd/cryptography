@@ -12,9 +12,9 @@
 
 #include <stdint.h>
 
-static const char TEST_STRING_SINGLE_BYTE_STRING[16]    = "ciphertext msg.";
-static const char TEST_STRING_MULTI_BYTE_STRING[16]     = "à√çÜï∂éöóÒÇ≈Ç∑.";
-static const char TEST_STRING_U8_MULTI_BYTE_STRING[16]  = u8"à√çÜï∂Ç≈Ç∑";
+static const uint8_t TEST_STRING_SINGLE_BYTE_STRING[16]    = "ciphertext msg.";
+static const uint8_t TEST_STRING_MULTI_BYTE_STRING[16]     = "à√çÜï∂éöóÒÇ≈Ç∑.";
+static const uint8_t TEST_STRING_U8_MULTI_BYTE_STRING[16]  = u8"à√çÜï∂Ç≈Ç∑";
 
 /**************************************/
 /*   DEFINITIONS FOR AES 128 TESTS.   */

@@ -362,8 +362,8 @@ int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
   mode_ = mode;
   enable_intrinsic_func_ = enable_intrinsic;
 
-  switch (mode_ & EXTRACT_TYPE) {
-    case (AES128):
+  switch (((mode_ & EXTRACT_TYPE) >> 8)) {
+    case (AES128 >> 8):
       if (AES128_KEY_BYTE_SIZE != klen) { return FAILURE; }
       nr_ = AES128_ROUNDS;
       nk_ = AES128_KEY_CONV_SIZE;
@@ -374,7 +374,7 @@ int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
       expand_key(karray, subkeys_);
       has_subkeys_ = true;
       break;
-    case (AES192):
+    case (AES192 >> 8):
       if (AES192_KEY_BYTE_SIZE != klen) { return FAILURE; }
       nr_ = AES192_ROUNDS;
       nk_ = AES192_KEY_CONV_SIZE;
@@ -385,7 +385,7 @@ int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
       expand_key(karray, subkeys_);
       has_subkeys_ = true;
       break;
-    case (AES256):
+    case (AES256 >> 8):
       if (AES256_KEY_BYTE_SIZE != klen) { return FAILURE; }
       nr_ = AES256_ROUNDS;
       nk_ = AES256_KEY_CONV_SIZE;
@@ -400,7 +400,7 @@ int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
       break;
   }
 
-  /* Clear on-memory data. */
+  /* Clear stack data. */
   memset(&karray, 0xcc, sizeof(karray));
 
   /* TODO: Implement Key Expansion using SSE2 and AES-NI. */
@@ -425,8 +425,7 @@ int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
   return SUCCESS;
 }
 
-int32_t aes::encrypt(const char * const ptext, const uint64_t plen, 
-                     uint8_t *ctext, const uint64_t clen) {
+int32_t aes::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
   if (16 != plen || 16 != clen) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -436,10 +435,8 @@ int32_t aes::encrypt(const char * const ptext, const uint64_t plen,
   return SUCCESS;
 }
 
-int32_t aes::decrypt(const uint8_t * const ctext, const uint64_t clen, 
-                     char *ptext, const uint64_t plen) {
+int32_t aes::decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) {
   if (16 != plen || 16 != clen) { return FAILURE; }
-
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);
   } else {
@@ -489,7 +486,7 @@ std::vector<uint8_t> aes::get_encskeys_for_unit_test() {
 }
 #endif
 
-inline void aes::no_intrinsic_encrypt(const char * const ptext, uint8_t *ctext) const noexcept {
+inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   const uint32_t nr = nr_;
   union_array_u128_t tmppln = {0};
 
@@ -515,7 +512,7 @@ inline void aes::no_intrinsic_encrypt(const char * const ptext, uint8_t *ctext) 
   }
 }
 
-inline void aes::no_intrinsic_decrypt(const uint8_t * const ctext, char *ptext) const noexcept {
+inline void aes::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   const uint32_t nr = nr_;
   union_array_u128_t tmpcphr = {0};
 
@@ -537,11 +534,11 @@ inline void aes::no_intrinsic_decrypt(const uint8_t * const ctext, char *ptext) 
   add_round_key(0, &tmpcphr);
 
   for (uint32_t i = 0; i < 16; ++i) {
-    ptext[i] = (char)tmpcphr.u8[i];
+    ptext[i] = tmpcphr.u8[i];
   }
 }
 
-inline void aes::intrinsic_encrypt(const char * const ptext, uint8_t *ctext) const noexcept { 
+inline void aes::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept { 
   const uint32_t nr = nr_;
 
   __m128i st = _mm_loadu_si128((__m128i*)ptext);
@@ -553,7 +550,7 @@ inline void aes::intrinsic_encrypt(const char * const ptext, uint8_t *ctext) con
   _mm_storeu_si128((__m128i*)ctext, _mm_aesenclast_si128(st, encskeys_[nr]));
 }
 
-inline void aes::intrinsic_decrypt(const uint8_t * const ctext, char *ptext) const noexcept {
+inline void aes::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   const uint32_t nr = nr_;
 
   __m128i st = _mm_loadu_si128((__m128i*)ctext);
@@ -565,7 +562,7 @@ inline void aes::intrinsic_decrypt(const uint8_t * const ctext, char *ptext) con
   _mm_storeu_si128((__m128i*)ptext, _mm_aesdeclast_si128(st, decskeys_[0]));
 }
 
-inline void aes::expand_key(const union_array_u256_t  key, uint32_t *subkeys) const noexcept {
+inline void aes::expand_key(const union_array_u256_t key, uint32_t *subkeys) const noexcept {
   const uint32_t nk = nk_; /* Cache member variables in local variables. */
   const uint32_t nr = nr_;
   const uint32_t nkr = 4 * (nr + 1);

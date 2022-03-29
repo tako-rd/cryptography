@@ -224,7 +224,7 @@ int32_t des::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
   return SUCCESS;
 }
 
-int32_t des::encrypt(const char * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
+int32_t des::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
   if (8 != plen || 8 != clen) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -234,7 +234,7 @@ int32_t des::encrypt(const char * const ptext, const uint64_t plen, uint8_t *cte
   return SUCCESS;
 }
 
-int32_t des::decrypt(const uint8_t * const ctext, const uint64_t clen, char *ptext, const uint64_t plen) {
+int32_t des::decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) {
   if (8 != plen || 8 != clen) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);
@@ -245,7 +245,7 @@ int32_t des::decrypt(const uint8_t * const ctext, const uint64_t clen, char *pte
 }
 
 void des::clear() {
-  mode_ = DES;
+  mode_ = SIMPLE_DES;
   has_subkeys_ = false;
   enable_intrinsic_func_ = false;
 
@@ -253,7 +253,7 @@ void des::clear() {
   memset(decrypto_subkeys_, 0xcc, sizeof(decrypto_subkeys_));
 }
 
-inline void des::no_intrinsic_encrypt(const char * const ptext, uint8_t *ctext) const noexcept {
+inline void des::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   union_array_u64_t enc_words64bit = {0};
 
   enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[0]) << 56;
@@ -293,7 +293,7 @@ inline void des::no_intrinsic_encrypt(const char * const ptext, uint8_t *ctext) 
   ctext[7] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_1) >>  0);
 }
 
-inline void des::no_intrinsic_decrypt(const uint8_t * const ctext, char *ptext) const noexcept {
+inline void des::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   union_array_u64_t dec_words64bit = {0};
 
   dec_words64bit.u64 |= (uint64_t)(ctext[0]) << 56;
@@ -333,15 +333,15 @@ inline void des::no_intrinsic_decrypt(const uint8_t * const ctext, char *ptext) 
   ptext[7] = char((dec_words64bit.u64 & EXTRACT_BYTE_1) >>  0);
 }
 
-inline void des::intrinsic_encrypt(const char * const ptext, uint8_t *ctext) const noexcept {
+inline void des::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
 
 }
 
-inline void des::intrinsic_decrypt(const uint8_t * const ctext, char *ptext) const noexcept {
+inline void des::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
 
 }
 
-void des::create_encrypto_subkeys(const uint64_t key, uint64_t *subkeys) {
+inline void des::create_encrypto_subkeys(const uint64_t key, uint64_t *subkeys) const noexcept {
   uint32_t lkey = 0;
   uint32_t rkey = 0;
 
@@ -361,7 +361,7 @@ void des::create_encrypto_subkeys(const uint64_t key, uint64_t *subkeys) {
   }
 }
 
-void des::create_decrypto_subkeys(const uint64_t key, uint64_t *subkeys) {
+inline void des::create_decrypto_subkeys(const uint64_t key, uint64_t *subkeys) const noexcept {
   uint32_t lkey = 0;
   uint32_t rkey = 0;
 

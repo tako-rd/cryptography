@@ -17,15 +17,15 @@ namespace cryptography {
 
 class aes final : algorithm<aes> { 
  public:
-  aes() : mode_(AES256), subkeys_{0}, encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false), enable_intrinsic_func_(false) {};
+  aes() noexcept : mode_(AES256), subkeys_{0}, encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~aes();
 
   int32_t initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic);
 
-  int32_t encrypt(const char * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen);
+  int32_t encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen);
 
-  int32_t decrypt(const uint8_t * const ctext, const uint64_t clen, char *ptext, const uint64_t plen);
+  int32_t decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen);
 
   void clear();
 
@@ -36,13 +36,13 @@ class aes final : algorithm<aes> {
 #endif
 
  private:
-  void no_intrinsic_encrypt(const char * const ptext, uint8_t *ctext) const noexcept;
+  void no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
 
-  void no_intrinsic_decrypt(const uint8_t * const ctext, char *ptext) const noexcept;
+  void no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
-  void intrinsic_encrypt(const char * const ptext, uint8_t *ctext) const noexcept;
+  void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
 
-  void intrinsic_decrypt(const uint8_t * const ctext, char *ptext) const noexcept;
+  void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
   void expand_key(const union_array_u256_t key, uint32_t *subkeys) const noexcept;
 

@@ -113,9 +113,7 @@ class cpu {
   cpuinfo_t extened_features_eax7_;
 
   cpuinfo_t extened_features_eax8_1_;
-
 };
-
 
 }
 

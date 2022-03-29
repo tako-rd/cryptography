@@ -21,8 +21,8 @@ static const char DES_TEST_PLAINTEXT_02[8] = "ABCDEFG";
 static const uint8_t DES_TEST_KEY_03[8]       = {0b10000001, 0b01000001, 0b00100001, 0b00010001, 0b00001001, 0b00000101, 0b00000011, 0b11111111};
 static const uint8_t DES_TEST_PLAINTEXT_03[8] = {0b11111111, 0b00000000, 0b10101010, 0b01010101, 0b00000000, 0b11111111, 0b01010101, 0b10101010};
 
-static const char DES_TEST_STRING_SINGLE_BYTE_STRING[8]    = "cipher.";
-static const char DES_TEST_STRING_MULTI_BYTE_STRING[8]     = "à√çÜï∂.";
-static const char DES_TEST_STRING_U8_MULTI_BYTE_STRING[8]  = u8"à√çÜ.";
+static const uint8_t DES_TEST_STRING_SINGLE_BYTE_STRING[8]    = "cipher.";
+static const uint8_t DES_TEST_STRING_MULTI_BYTE_STRING[8]     = "à√çÜï∂.";
+static const uint8_t DES_TEST_STRING_U8_MULTI_BYTE_STRING[8]  = u8"à√çÜ.";
 
 #endif

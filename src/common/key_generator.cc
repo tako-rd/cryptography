@@ -45,7 +45,7 @@ std::vector<uint8_t> key_generator::generate(const uint16_t schm) {
   std::vector<uint8_t> key = {0};
 
   switch (schm) {
-    case DES:
+    case SIMPLE_DES:
       key = gen_des_key();
       break;
     case AES128:

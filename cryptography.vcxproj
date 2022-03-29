@@ -20,18 +20,20 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\include\common\base64.h" />
+    <ClInclude Include="src\include\common\byte_utill.h" />
     <ClInclude Include="src\include\common\cpu.h" />
+    <ClInclude Include="src\include\common\key_generator.h" />
+    <ClInclude Include="src\include\common\key_ring.h" />
     <ClInclude Include="src\include\common\padding.h" />
     <ClInclude Include="src\include\cryptography.h" />
     <ClInclude Include="src\include\crypto\aes.h" />
     <ClInclude Include="src\include\crypto\algorithm.h" />
+    <ClInclude Include="src\include\crypto\camellia.h" />
     <ClInclude Include="src\include\crypto\cbc.h" />
     <ClInclude Include="src\include\crypto\cfb.h" />
     <ClInclude Include="src\include\crypto\ctr.h" />
     <ClInclude Include="src\include\crypto\des.h" />
     <ClInclude Include="src\include\crypto\ecb.h" />
-    <ClInclude Include="src\include\crypto\key_generator.h" />
-    <ClInclude Include="src\include\crypto\key_ring.h" />
     <ClInclude Include="src\include\crypto\block_cipher.h" />
     <ClInclude Include="src\include\crypto\mode.h" />
     <ClInclude Include="src\include\crypto\ofb.h" />
@@ -41,15 +43,16 @@
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc" />
     <ClCompile Include="src\common\cpu.cc" />
+    <ClCompile Include="src\common\key_generator.cc" />
+    <ClCompile Include="src\common\key_ring.cc" />
     <ClCompile Include="src\common\padding.cc" />
     <ClCompile Include="src\crypto\aes.cc" />
+    <ClCompile Include="src\crypto\camellia.cc" />
     <ClCompile Include="src\crypto\cbc.cc" />
     <ClCompile Include="src\crypto\cfb.cc" />
     <ClCompile Include="src\crypto\ctr.cc" />
     <ClCompile Include="src\crypto\des.cc" />
     <ClCompile Include="src\crypto\ecb.cc" />
-    <ClCompile Include="src\crypto\key_generator.cc" />
-    <ClCompile Include="src\crypto\key_ring.cc" />
     <ClCompile Include="src\crypto\ofb.cc" />
     <ClCompile Include="src\crypto\rsa.cc" />
   </ItemGroup>
@@ -84,7 +87,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -191,7 +194,7 @@
       <LanguageStandard_C>Default</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
       <OpenMPSupport>false</OpenMPSupport>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput>All</AssemblerOutput>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
@@ -213,16 +216,18 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CallingConvention>StdCall</CallingConvention>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)/src/include/hash;$(MSBuildProjectDirectory)/src/include/crypto;$(MSBuildProjectDirectory)/src/include/common;$(MSBuildProjectDirectory)/src/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <TreatWarningAsError>true</TreatWarningAsError>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <TreatWarningAsError>false</TreatWarningAsError>
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Full</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput>All</AssemblerOutput>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RemoveUnreferencedCodeData>true</RemoveUnreferencedCodeData>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
@@ -232,6 +237,9 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <LinkTimeCodeGeneration>false</LinkTimeCodeGeneration>
+    </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

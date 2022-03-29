@@ -53,7 +53,7 @@ class camellia final : public algorithm<camellia> {
 
   void p_function() noexcept;
 
-  union_array_u128_t subkeys_[24];
+  uint64_t subkeys_[34];
 
   uint16_t mode_;
 
