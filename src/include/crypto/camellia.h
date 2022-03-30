@@ -14,13 +14,15 @@
 #include <vector>
 
 #include "defs.h"
+#include "bit_utill.h"
+#include "byte_utill.h"
 #include "block_cipher.h"
 
 namespace cryptography {
 
 class camellia final : public algorithm<camellia> {
  public:
-  camellia() noexcept : mode_(CAMELLIA256), subkeys_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  camellia() noexcept : mode_(CAMELLIA256), n6r_(4), kw_{0}, k_{0}, kl_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~camellia() {};
 
@@ -41,21 +43,31 @@ class camellia final : public algorithm<camellia> {
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
-  void expand_key(const union_array_u256_t * const key, uint32_t *subkeys) const noexcept;
+  void expand_128bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept;
 
-  void f_function() noexcept;
+  void expand_192bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept;
 
-  void fl_function() noexcept;
+  void expand_256bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept;
 
-  void inv_fl_function() noexcept;
+  uint64_t f_function(const uint64_t in, const uint64_t key) const noexcept;
 
-  void s_function() noexcept;
+  uint64_t fl_function(const uint64_t x, const uint64_t kl) const noexcept;
 
-  void p_function() noexcept;
+  uint64_t inv_fl_function(const uint64_t y, const uint64_t kl) const noexcept;
 
-  uint64_t subkeys_[34];
+  void s_function(uint8_t *state) const noexcept;
+
+  void p_function(uint8_t *state) const noexcept;
 
   uint16_t mode_;
+
+  uint32_t n6r_;
+
+  uint64_t kw_[4];
+
+  uint64_t k_[24];
+
+  uint64_t kl_[6];
 
   bool has_subkeys_;
 

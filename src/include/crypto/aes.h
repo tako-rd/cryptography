@@ -11,6 +11,9 @@
 #define AES_H
 
 #include "defs.h"
+#include "bit_utill.h"
+#include "byte_utill.h"
+
 #include "block_cipher.h"
 
 namespace cryptography {

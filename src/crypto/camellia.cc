@@ -8,6 +8,7 @@
 */
 
 #include "camellia.h"
+#include "byte_utill.h"
 
 namespace cryptography {
 
@@ -31,6 +32,20 @@ namespace cryptography {
 #define SGM4  0x54FF53A5F1D36F1CULL
 #define SGM5  0x10E527FADE682D1DULL
 #define SGM6  0xB05688C2B3E6C1FDULL
+
+#define SGM1L  0xA09E667FU
+#define SGM1R  0x3BCC908BU
+#define SGM2L  0xB67AE858U
+#define SGM2R  0x4CAA73B2U
+#define SGM3L  0xC6EF372FU
+#define SGM3R  0xE94F82BEU
+#define SGM4L  0x54FF53A5U
+#define SGM4R  0xF1D36F1CU
+#define SGM5L  0x10E527FAU
+#define SGM5R  0xDE682D1DU
+#define SGM6L  0xB05688C2U
+#define SGM6R  0xB3E6C1FDU
+
 
 static const uint8_t sbox1[256] = {
   0x70, 0x82, 0x2C, 0xEC, 0xB3, 0x27, 0xC0, 0xE5, 0xE4, 0x85, 0x57, 0x35, 0xEA, 0x0C, 0xAE, 0x41,
@@ -123,11 +138,14 @@ int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint
   enable_intrinsic_func_ = enable_intrinsic;
 
   switch (((mode_ & EXTRACT_TYPE) >> 8)) {
-    case (CAMELLIA128 >> 8):    
+    case (CAMELLIA128 >> 8):
+      n6r_ = 3; 
       break;
     case (CAMELLIA192 >> 8):    
+      n6r_ = 4; 
       break;
     case (CAMELLIA256 >> 8):    
+      n6r_ = 4; 
       break;
     default:
       break;
@@ -152,6 +170,8 @@ void camellia::clear() noexcept {
 
 inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
 
+
+
 }
 
 inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
@@ -166,34 +186,329 @@ inline void camellia::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *pt
 
 }
 
-inline void camellia::expand_key(const union_array_u256_t * const key, uint32_t *subkeys) const noexcept {
-  uint64_t kw[4] = {0};
-  uint64_t k[24] = {0};
-  uint64_t kl[6] = {0};
-  union_array_u128_t ka[2] = {0};
-  union_array_u128_t kb[2] = {0};
+inline void camellia::expand_128bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept {
+  uint64_t kr[2] = {0};
+  uint64_t kl[2] = {0};
+  uint64_t ka[2] = {0};
+  uint64_t tk[2] = {0};
 
+  kl[0] = key[0];
+  kl[1] = key[1];
+  kr[0] = 0;
+  kr[1] = 0;
 
+  tk[0] = key[0];
+  tk[1] = key[1];
+
+  tk[0] = f_function(tk[0], SGM1);
+  tk[1] ^= tk[0];
+
+  tk[1] = f_function(tk[1], SGM2);
+  tk[0] ^= tk[1];
+
+  tk[0] = kl[0];
+  tk[1] = kl[1];
+
+  tk[0] = f_function(tk[0], SGM3);
+  tk[1] ^= tk[0];
+
+  tk[1] = f_function(tk[1], SGM4);
+  tk[0] ^=  tk[1];
+
+  ka[0] = tk[0];
+  ka[1] = tk[1];
+
+  kw_[0] = kl[0];
+  kw_[1] = kl[1];
+  
+  k_[0] = ka[0];
+  k_[1] = ka[1];
+  k_[2] = ROTATE_RIGHT64(kl[0], 15);
+  k_[3] = ROTATE_RIGHT64(kl[1], 15);
+  k_[4] = ROTATE_RIGHT64(ka[0], 15);
+  k_[5] = ROTATE_RIGHT64(ka[1], 15);
+
+  kl_[0] = ROTATE_RIGHT64(ka[0], 30);
+  kl_[1] = ROTATE_RIGHT64(ka[1], 30);
+
+  k_[6] = ROTATE_RIGHT64(kl[0], 45);
+  k_[7] = ROTATE_RIGHT64(kl[1], 45);
+  k_[8] = ROTATE_RIGHT64(ka[0], 45);
+  k_[9] = ROTATE_RIGHT64(ka[1], 60);
+  k_[10] = ROTATE_RIGHT64(kl[0], 60);
+  k_[11] = ROTATE_RIGHT64(kl[1], 60);
+
+  kl_[2] = ROTATE_RIGHT64(kl[0], 77);
+  kl_[3] = ROTATE_RIGHT64(kl[1], 77);
+
+  k_[12] = ROTATE_RIGHT64(kl[0], 94);
+  k_[13] = ROTATE_RIGHT64(kl[1], 94);
+  k_[14] = ROTATE_RIGHT64(ka[0], 94);
+  k_[15] = ROTATE_RIGHT64(ka[1], 94);
+  k_[16] = ROTATE_RIGHT64(kl[0], 111);
+  k_[17] = ROTATE_RIGHT64(kl[1], 111);
+
+  kw_[2] = ROTATE_RIGHT64(ka[0], 111);
+  kw_[3] = ROTATE_RIGHT64(ka[1], 111);
 }
 
-inline void camellia::f_function() noexcept {
+inline void camellia::expand_192bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept {
+  uint64_t kr[2] = {0};
+  uint64_t kl[2] = {0};
+  uint64_t ka[2] = {0};
+  uint64_t kb[2] = {0};
+  uint64_t tk[2] = {0};
 
+  kl[0] = key[0];
+  kl[1] = key[1];
+  kr[0] = key[2];
+  kr[1] = ~key[2];
+
+  tk[0] = kl[0] ^ kr[0];
+  tk[1] = kl[1] ^ kr[1];
+
+  tk[0] = f_function(tk[0], SGM1);
+  tk[1] ^= tk[0];
+
+  tk[1] = f_function(tk[1], SGM2);
+  tk[0] ^= tk[1];
+
+  tk[0] = kl[0];
+  tk[1] = kl[1];
+
+  tk[0] = f_function(tk[0], SGM3);
+  tk[1] ^= tk[0];
+
+  tk[1] = f_function(tk[1], SGM4);
+  tk[0] ^= tk[1];
+
+  ka[0] = tk[0]; 
+  ka[1] = tk[1]; 
+
+  tk[0] ^= kr[0];
+  tk[1] ^= kr[1];
+
+  tk[0] = f_function(tk[0], SGM5);
+  tk[1] ^= tk[0];
+
+  tk[1] = f_function(tk[1], SGM6);
+  tk[0] ^= tk[1];
+
+  kb[0] = tk[0]; 
+  kb[1] = tk[1]; 
+
+  kw_[0] = kl[0];
+  kw_[1] = kl[1];
+  
+  k_[0] = kb[0];
+  k_[1] = kb[1];
+  k_[2] = ROTATE_RIGHT64(kr[0], 15);
+  k_[3] = ROTATE_RIGHT64(kr[1], 15);
+  k_[4] = ROTATE_RIGHT64(ka[0], 15);
+  k_[5] = ROTATE_RIGHT64(ka[1], 15);
+
+  kl_[0] = ROTATE_RIGHT64(kr[0], 30);
+  kl_[1] = ROTATE_RIGHT64(kr[1], 30);
+
+  k_[6] = ROTATE_RIGHT64(kb[0], 30);
+  k_[7] = ROTATE_RIGHT64(kb[1], 30);
+  k_[8] = ROTATE_RIGHT64(kl[0], 45);
+  k_[9] = ROTATE_RIGHT64(kl[1], 45);
+  k_[10] = ROTATE_RIGHT64(ka[0], 45);
+  k_[11] = ROTATE_RIGHT64(ka[1], 45);
+
+  kl_[2] = ROTATE_RIGHT64(kl[0], 60);
+  kl_[3] = ROTATE_RIGHT64(kl[1], 60);
+
+  k_[12] = ROTATE_RIGHT64(kr[0], 60);
+  k_[13] = ROTATE_RIGHT64(kr[1], 60);
+  k_[14] = ROTATE_RIGHT64(kb[0], 60);
+  k_[15] = ROTATE_RIGHT64(kb[1], 60);
+  k_[16] = ROTATE_RIGHT64(kl[0], 77);
+  k_[17] = ROTATE_RIGHT64(kl[1], 77);
+
+  kl_[4] = ROTATE_RIGHT64(ka[0], 77);
+  kl_[5] = ROTATE_RIGHT64(ka[1], 77);
+
+  k_[18] = ROTATE_RIGHT64(kr[0], 94);
+  k_[19] = ROTATE_RIGHT64(kr[1], 94);
+  k_[20] = ROTATE_RIGHT64(ka[0], 94);
+  k_[21] = ROTATE_RIGHT64(ka[1], 94);
+  k_[22] = ROTATE_RIGHT64(kl[0], 111);
+  k_[23] = ROTATE_RIGHT64(kl[1], 111);
+
+  kw_[2] = ROTATE_RIGHT64(kb[0], 111);
+  kw_[3] = ROTATE_RIGHT64(kb[1], 111);
 }
 
-inline void camellia::fl_function() noexcept {
+inline void camellia::expand_256bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept {
+  uint64_t kr[2] = {0};
+  uint64_t kl[2] = {0};
+  uint64_t ka[2] = {0};
+  uint64_t kb[2] = {0};
+  uint64_t tk[2] = {0};
 
+  kl[0] = key[0];
+  kl[1] = key[1];
+  kr[0] = key[2];
+  kr[1] = key[3];
+
+  tk[0] = kl[0] ^ kr[0];
+  tk[1] = kl[1] ^ kr[1];
+
+  tk[0] = f_function(tk[0], SGM1);
+  tk[1] ^= tk[0];
+
+  tk[1] = f_function(tk[1], SGM2);
+  tk[0] ^= tk[1];
+
+  tk[0] = kl[0];
+  tk[1] = kl[1];
+
+  tk[0] = f_function(tk[0], SGM3);
+  tk[1] ^= tk[0];
+
+  tk[1] = f_function(tk[1], SGM4);
+  tk[0] ^= tk[1];
+
+  ka[0] = tk[0]; 
+  ka[1] = tk[1]; 
+
+  tk[0] ^= kr[0];
+  tk[1] ^= kr[1];
+
+  tk[0] = f_function(tk[0], SGM5);
+  tk[1] ^= tk[0];
+
+  tk[1] = f_function(tk[1], SGM6);
+  tk[0] ^= tk[1];
+
+  kb[0] = tk[0]; 
+  kb[1] = tk[1]; 
+
+  kw_[0] = kl[0];
+  kw_[1] = kl[1];
+
+  k_[0] = kb[0];
+  k_[1] = kb[1];
+  k_[2] = ROTATE_RIGHT64(kr[0], 15);
+  k_[3] = ROTATE_RIGHT64(kr[1], 15);
+  k_[4] = ROTATE_RIGHT64(ka[0], 15);
+  k_[5] = ROTATE_RIGHT64(ka[1], 15);
+
+  kl_[0] = ROTATE_RIGHT64(kr[0], 30);
+  kl_[1] = ROTATE_RIGHT64(kr[1], 30);
+
+  k_[6] = ROTATE_RIGHT64(kb[0], 30);
+  k_[7] = ROTATE_RIGHT64(kb[1], 30);
+  k_[8] = ROTATE_RIGHT64(kl[0], 45);
+  k_[9] = ROTATE_RIGHT64(kl[1], 45);
+  k_[10] = ROTATE_RIGHT64(ka[0], 45);
+  k_[11] = ROTATE_RIGHT64(ka[1], 45);
+
+  kl_[2] = ROTATE_RIGHT64(kl[0], 60);
+  kl_[3] = ROTATE_RIGHT64(kl[1], 60);
+
+  k_[12] = ROTATE_RIGHT64(kr[0], 60);
+  k_[13] = ROTATE_RIGHT64(kr[1], 60);
+  k_[14] = ROTATE_RIGHT64(kb[0], 60);
+  k_[15] = ROTATE_RIGHT64(kb[1], 60);
+  k_[16] = ROTATE_RIGHT64(kl[0], 77);
+  k_[17] = ROTATE_RIGHT64(kl[1], 77);
+
+  kl_[4] = ROTATE_RIGHT64(ka[0], 77);
+  kl_[5] = ROTATE_RIGHT64(ka[1], 77);
+
+  k_[18] = ROTATE_RIGHT64(kr[0], 94);
+  k_[19] = ROTATE_RIGHT64(kr[1], 94);
+  k_[20] = ROTATE_RIGHT64(ka[0], 94);
+  k_[21] = ROTATE_RIGHT64(ka[1], 94);
+  k_[22] = ROTATE_RIGHT64(kl[0], 111);
+  k_[23] = ROTATE_RIGHT64(kl[1], 111);
+
+  kw_[2] = ROTATE_RIGHT64(kb[0], 111);
+  kw_[3] = ROTATE_RIGHT64(kb[1], 111);
 }
 
-inline void camellia::inv_fl_function() noexcept {
 
+inline uint64_t camellia::f_function(const uint64_t in, const uint64_t key) const noexcept {
+  uint8_t in8bit[8] = {0};
+  uint8_t key8bit[8] = {0};
+  uint64_t result = 0;
+
+  BIGENDIAN_U64_TO_U8(in, in8bit);
+  BIGENDIAN_U64_TO_U8(key, key8bit);
+
+  in8bit[0] ^= key8bit[0];
+  in8bit[1] ^= key8bit[1];
+  in8bit[2] ^= key8bit[2];
+  in8bit[3] ^= key8bit[3];
+  in8bit[4] ^= key8bit[4];
+  in8bit[5] ^= key8bit[5];
+  in8bit[6] ^= key8bit[6];
+  in8bit[7] ^= key8bit[7];
+  
+  s_function(in8bit);
+  p_function(in8bit);
+
+  BIGENDIAN_U8_TO_U64(in8bit, result);
+
+  return result;
 }
 
-inline void camellia::s_function() noexcept {
+inline uint64_t camellia::fl_function(const uint64_t x, const uint64_t kl) const noexcept {
+  uint32_t xl = (uint32_t)(x >> 32);
+  uint32_t xr = (uint32_t)(x & 0x0000'FFFF);
+  uint32_t kll = (uint32_t)(kl >> 32);
+  uint32_t klr = (uint32_t)(kl & 0x0000'FFFF);
 
+  xr ^= ROTATE_LEFT32((xl & kll), 1);
+  xl ^= xr | klr;
+
+  return ((uint64_t)xl << 32) | (uint64_t)xr; 
 }
 
-inline void camellia::p_function() noexcept {
+inline uint64_t camellia::inv_fl_function(const uint64_t y, const uint64_t kl) const noexcept {
+  uint32_t yl = (uint32_t)(y >> 32);
+  uint32_t yr = (uint32_t)(y & 0x0000'FFFF);
+  uint32_t kll = (uint32_t)(kl >> 32);
+  uint32_t klr = (uint32_t)(kl & 0x0000'FFFF);
 
+  yl ^= yr | klr;
+  yr ^= ROTATE_LEFT32((yl & kll), 1);
+
+  return ((uint64_t)yl << 32) | (uint64_t)yr; 
+}
+
+inline void camellia::s_function(uint8_t *state) const noexcept {
+  state[0] = sbox1[state[0]];
+  state[1] = sbox2[state[1]];
+  state[2] = sbox3[state[2]];
+  state[3] = sbox4[state[3]];
+  state[4] = sbox2[state[4]];
+  state[5] = sbox3[state[5]];
+  state[6] = sbox4[state[6]];
+  state[7] = sbox1[state[7]];
+}
+
+inline void camellia::p_function(uint8_t *state) const noexcept {
+  state[0] = state[0] ^ state[5];
+  state[1] = state[1] ^ state[6];
+  state[2] = state[2] ^ state[7];
+  state[3] = state[3] ^ state[4];
+  state[4] = state[4] ^ state[2];
+  state[5] = state[5] ^ state[3];
+  state[6] = state[6] ^ state[0];
+  state[7] = state[7] ^ state[1];
+
+  state[4] = state[0] ^ state[7];
+  state[5] = state[1] ^ state[4];
+  state[6] = state[2] ^ state[5];
+  state[7] = state[3] ^ state[6];
+  state[0] = state[4] ^ state[3];
+  state[1] = state[5] ^ state[0];
+  state[2] = state[6] ^ state[1];
+  state[3] = state[7] ^ state[3];
 }
 
 }

@@ -30,9 +30,6 @@
     <ClInclude Include="src\include\cryptography.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\defs.h">
-      <Filter>include</Filter>
-    </ClInclude>
     <ClInclude Include="src\include\common\base64.h">
       <Filter>include\common</Filter>
     </ClInclude>
@@ -85,6 +82,12 @@
       <Filter>include\crypto</Filter>
     </ClInclude>
     <ClInclude Include="src\include\common\byte_utill.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\common\bit_utill.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\defs.h">
       <Filter>include\common</Filter>
     </ClInclude>
   </ItemGroup>
