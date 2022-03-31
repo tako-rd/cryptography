@@ -7,8 +7,8 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include <cstring>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "defs.h"
 
@@ -16,57 +16,141 @@
 #define BYTE_UTILL_H
 
 #ifdef __LITTLE_ENDIAN__
+# ifdef _MSC_VER
+
+#   define BIGENDIAN_U32_TO_U8(value, outptr)       value   = _byteswap_ulong(value); \
+                                                    outptr  = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U32(value, outptr)       outptr  = (uint32_t *)&value;  \
+                                                    *outptr = _byteswap_ulong(*outptr);
+
+#   define BIGENDIAN_U64_TO_U8(value, outptr)       value   = _byteswap_uint64(value);  \
+                                                    outptr  = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U64(value, outptr)       outptr  = (uint64_t *)&value;  \
+                                                    *outptr = _byteswap_uint64(*outptr);
+
+#   define BIGENDIAN_U128_TO_U8(value, outptr)      *(value)     = _byteswap_uint64(*value);  \
+                                                    *(value + 1) = _byteswap_uint64(*(value + 1));  \
+                                                    outptr       = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U128(value, outptr)      outptr        = (uint64_t *)value; \
+                                                    *(outptr)     = _byteswap_uint64(*outptr);  \
+                                                    *(outptr + 1) = _byteswap_uint64(*(outptr + 1));
+
+#   define BIGENDIAN_U192_TO_U8(value, outptr)      *(value)     = _byteswap_uint64(*value);  \
+                                                    *(value + 1) = _byteswap_uint64(*(value + 1));  \
+                                                    *(value + 2) = _byteswap_uint64(*(value + 2));  \
+                                                    outptr       = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U192(value, outptr)      outptr        = (uint64_t *)value; \
+                                                    *(outptr)     = _byteswap_uint64(*outptr);  \
+                                                    *(outptr + 1) = _byteswap_uint64(*(outptr + 1));  \
+                                                    *(outptr + 2) = _byteswap_uint64(*(outptr + 2));
+
+#   define BIGENDIAN_U256_TO_U8(value, outptr)      *(value)     = _byteswap_uint64(*value);  \
+                                                    *(value + 1) = _byteswap_uint64(*(value + 1));  \
+                                                    *(value + 2) = _byteswap_uint64(*(value + 2));  \
+                                                    *(value + 3) = _byteswap_uint64(*(value + 3));  \
+                                                    outptr       = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U256(value, outptr)      outptr        = (uint64_t *)value; \
+                                                    *(outptr)     = _byteswap_uint64(*outptr);  \
+                                                    *(outptr + 1) = _byteswap_uint64(*(outptr + 1));  \
+                                                    *(outptr + 2) = _byteswap_uint64(*(outptr + 2));  \
+                                                    *(outptr + 3) = _byteswap_uint64(*(outptr + 3));
+
+#   ifdef _WIN64 
+#   elif  _WIN32
+#   endif
+
+# elif  __GNUC__
+
+#   define BIGENDIAN_U32_TO_U8(value, outptr)       value   = __builtin_bswap32(value); \
+                                                    outptr  = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U32(value, outptr)       outptr  = (uint32_t *)&value;  \
+                                                    *outptr = __builtin_bswap32(*outptr);
+
+#   define BIGENDIAN_U64_TO_U8(value, outptr)       value   = __builtin_bswap64(value);  \
+                                                    outptr  = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U64(value, outptr)       outptr  = (uint64_t *)&value;  \
+                                                    *outptr = __builtin_bswap64(*outptr);
+
+#   define BIGENDIAN_U128_TO_U8(value, outptr)      *(value)     = __builtin_bswap64(*value);  \
+                                                    *(value + 1) = __builtin_bswap64(*(value + 1));  \
+                                                    outptr       = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U128(value, outptr)      outptr        = (uint64_t *)value; \
+                                                    *(outptr)     = __builtin_bswap64(*outptr);  \
+                                                    *(outptr + 1) = __builtin_bswap64(*(outptr + 1));
+
+#   define BIGENDIAN_U192_TO_U8(value, outptr)      *(value)     = __builtin_bswap64(*value);  \
+                                                    *(value + 1) = __builtin_bswap64(*(value + 1));  \
+                                                    *(value + 2) = __builtin_bswap64(*(value + 2));  \
+                                                    outptr       = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U192(value, outptr)      outptr        = (uint64_t *)value; \
+                                                    *(outptr)     = __builtin_bswap64(*outptr);  \
+                                                    *(outptr + 1) = __builtin_bswap64(*(outptr + 1));  \
+                                                    *(outptr + 2) = __builtin_bswap64(*(outptr + 2));
+
+#   define BIGENDIAN_U256_TO_U8(value, outptr)      *(value)     = __builtin_bswap64(*value);  \
+                                                    *(value + 1) = __builtin_bswap64(*(value + 1));  \
+                                                    *(value + 2) = __builtin_bswap64(*(value + 2));  \
+                                                    *(value + 3) = __builtin_bswap64(*(value + 3));  \
+                                                    outptr       = (uint8_t *)&value;
+
+#   define BIGENDIAN_U8_TO_U256(value, outptr)      outptr        = (uint64_t *)value; \
+                                                    *(outptr)     = __builtin_bswap64(*outptr);  \
+                                                    *(outptr + 1) = __builtin_bswap64(*(outptr + 1));  \
+                                                    *(outptr + 2) = __builtin_bswap64(*(outptr + 2));  \
+                                                    *(outptr + 3) = __builtin_bswap64(*(outptr + 3));
+
+#   ifdef __x86_64__ 
+#   else 
+#   endif
+# endif
 
 #elif __BIG_ENDIAN__
+# ifdef _MSC_VER
+
+#   define BIGENDIAN_U32_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U32(value, outptr)       outptr = (uint32_t *)&value;
+#   define BIGENDIAN_U64_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U64(value, outptr)       outptr = (uint64_t *)&value;
+#   define BIGENDIAN_U128_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U128(value, outptr)      outptr = (uint64_t *)value;
+#   define BIGENDIAN_U192_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U192(value, outptr)      outptr = (uint64_t *)value;
+#   define BIGENDIAN_U256_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U256(value, outptr)      outptr = (uint64_t *)value;
+
+#   ifdef _WIN64 
+#   elif  _WIN32
+#   endif
+                                          
+# elif  __GNUC__
+
+#   define BIGENDIAN_U32_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U32(value, outptr)       outptr = (uint32_t *)&value;
+#   define BIGENDIAN_U64_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U64(value, outptr)       outptr = (uint64_t *)&value;
+#   define BIGENDIAN_U128_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U128(value, outptr)      outptr = (uint64_t *)value;
+#   define BIGENDIAN_U192_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U192(value, outptr)      outptr = (uint64_t *)value;
+#   define BIGENDIAN_U256_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U256(value, outptr)      outptr = (uint64_t *)value;
+
+#   ifdef __x86_64__ 
+#   else 
+#   endif
+
+# endif
 
 #endif
-
-/* Convert types while preserving big endianness as follows.                                */
-/* src type      dst type  src data                 [0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]  */
-/* uint16_t  to  uint8_t : 0x1122              ->   0x11 0x22                               */
-/* uint32_t  to  uint8_t : 0x11223344          ->   0x11 0x22 0x33 0x44                     */
-/* uint64_t  to  uint8_t : 0x1122334455667788  ->   0x11 0x22 0x33 0x44 0x55 0x66 0x77 0x88 */
-/* ... After that, the same as above.                                                           */
-#define BIGENDIAN_U16_TO_U8(u16val, u8array)   u8array[0] = (uint8_t)((u64val & 0xFF00) >> 8); \
-                                               u8array[1] = (uint8_t)( u64val & 0x00FF);
-
-#define BIGENDIAN_U32_TO_U8(u32val, u8array)   u8array[0] = (uint8_t)((u64val & 0xFF00'0000) >> 24); \
-                                               u8array[1] = (uint8_t)((u64val & 0x00FF'0000) >> 16); \
-                                               u8array[2] = (uint8_t)((u64val & 0x0000'FF00) >>  8); \
-                                               u8array[3] = (uint8_t)( u64val & 0x0000'00FF);
-
-
-#define BIGENDIAN_U64_TO_U8(u64val, u8array)   u8array[0] = (uint8_t)((u64val & 0xFF00'0000'0000'0000) >> 56); \
-                                               u8array[1] = (uint8_t)((u64val & 0x00FF'0000'0000'0000) >> 48); \
-                                               u8array[2] = (uint8_t)((u64val & 0x0000'FF00'0000'0000) >> 40); \
-                                               u8array[3] = (uint8_t)((u64val & 0x0000'00FF'0000'0000) >> 32); \
-                                               u8array[4] = (uint8_t)((u64val & 0x0000'0000'FF00'0000) >> 24); \
-                                               u8array[5] = (uint8_t)((u64val & 0x0000'0000'00FF'0000) >> 16); \
-                                               u8array[6] = (uint8_t)((u64val & 0x0000'0000'0000'FF00) >>  8); \
-                                               u8array[7] = (uint8_t)( u64val & 0x0000'0000'0000'00FF);
-
-/* Convert types while preserving big endianness as follows.                                */
-/* src type      dst type   [0]  [1]  [2]  [3]  [4]  [5]  [6]  [7]       src data           */
-/* uint8_t   to  uint16_t : 0x11 0x22                                ->  0x1122             */
-/* uint8_t   to  uint32_t : 0x11 0x22 0x33 0x44                      ->  0x11223344         */
-/* uint8_t   to  uint64_t : 0x11 0x22 0x33 0x44 0x55 0x66 0x77 0x88  ->  0x1122334455667788 */
-/* ... After that, the same as above.                                                           */
-#define BIGENDIAN_U8_TO_U16(u8array, u16val)   u16val = ((uint16_t)u8array[0] <<  8)  | \
-                                                        ((uint16_t)u8array[1])
-
-#define BIGENDIAN_U8_TO_U32(u8array, u32val)   u32val = ((uint32_t)u8array[0] << 24)  | \
-                                                        ((uint32_t)u8array[1] << 16)  | \
-                                                        ((uint32_t)u8array[2] <<  8)  | \
-                                                        ((uint32_t)u8array[3])
-
-#define BIGENDIAN_U8_TO_U64(u8array, u64val)   u64val = ((uint64_t)u8array[0] << 56)  | \
-                                                        ((uint64_t)u8array[1] << 48)  | \
-                                                        ((uint64_t)u8array[2] << 40)  | \
-                                                        ((uint64_t)u8array[3] << 32)  | \
-                                                        ((uint64_t)u8array[4] << 24)  | \
-                                                        ((uint64_t)u8array[5] << 16)  | \
-                                                        ((uint64_t)u8array[6] <<  8)  | \
-                                                        ((uint64_t)u8array[7])
 
 typedef union union_unsigned_int_32bit_array {
   uint32_t u32;
@@ -90,5 +174,6 @@ typedef union union_unsigned_int_256bit_array {
   uint32_t u32[8];
   uint8_t  u8[32];
 } union_array_u256_t;
+
 
 #endif

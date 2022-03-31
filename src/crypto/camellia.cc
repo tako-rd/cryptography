@@ -8,6 +8,7 @@
 */
 
 #include "camellia.h"
+#include "bit_utill.h"
 #include "byte_utill.h"
 
 namespace cryptography {
@@ -124,9 +125,11 @@ static const uint8_t sbox4[256] = {
   0x07, 0x55, 0xEE, 0x0A, 0x49, 0x68, 0x38, 0xA4, 0x28, 0x7B, 0xC9, 0xC1, 0xE3, 0xF4, 0xC7, 0x9E,
 };
 
+static const uint8_t left_rschd[7]  = {0, 1, 0, 1, 0, 1};
+static const uint8_t right_rschd[7] = {1, 0, 1, 0, 1, 0};
 
 int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic) {
-  union_array_u256_t karray = {0};
+  uint64_t *tmpkey = nullptr;
 
   if (CAMELLIA128 != (mode & EXTRACT_TYPE) &&
       CAMELLIA192 != (mode & EXTRACT_TYPE) &&
@@ -139,21 +142,29 @@ int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint
 
   switch (((mode_ & EXTRACT_TYPE) >> 8)) {
     case (CAMELLIA128 >> 8):
-      n6r_ = 3; 
+      BIGENDIAN_U8_TO_U128(key, tmpkey);
+      expand_128bit_key(tmpkey);
+      memset(&tmpkey, 0xcc, 16);
+      has_subkeys_ = true;
+      n6r_ = 3;
       break;
     case (CAMELLIA192 >> 8):    
-      n6r_ = 4; 
+      BIGENDIAN_U8_TO_U192(key, tmpkey);
+      expand_192bit_key(tmpkey);
+      memset(&tmpkey, 0xcc, 24);
+      has_subkeys_ = true;
+      n6r_ = 4;
       break;
-    case (CAMELLIA256 >> 8):    
-      n6r_ = 4; 
+    case (CAMELLIA256 >> 8):
+      BIGENDIAN_U8_TO_U256(key, tmpkey);
+      expand_256bit_key(tmpkey);
+      memset(&tmpkey, 0xcc, 32);
+      has_subkeys_ = true;
+      n6r_ = 4;
       break;
     default:
       break;
   }
-
-  /* Clear stack data. */
-  memset(&karray, 0xcc, sizeof(karray));
-
 }
 
 int32_t camellia::encrypt(const char * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
@@ -165,12 +176,55 @@ int32_t camellia::decrypt(const uint8_t * const ctext, const uint64_t clen, char
 }
 
 void camellia::clear() noexcept {
-
+  memset(kw_, 0x00, sizeof(kw_));
+  memset(k_, 0x00, sizeof(k_));
+  memset(kl_, 0x00, sizeof(kl_));
+  has_subkeys_ = false;
 }
 
 inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+  uint64_t tmptext[2]= {0};
+  uint64_t *tmpptr = nullptr;
+  uint64_t tmpsawp = 0;
+  uint32_t kpos = 0, klpos = 0;
+  uint8_t *outptr = nullptr;
 
+  BIGENDIAN_U8_TO_U128(ptext, tmpptr);
 
+  tmptext[0] = tmpptr[0];
+  tmptext[1] = tmpptr[1];
+
+  tmptext[0] ^= kw_[0];
+  tmptext[1] ^= kw_[1];
+
+  for (uint32_t round = 0; round < n6r_; ++round) {
+
+    for (uint32_t inrnd = 0; inrnd < 6; ++inrnd) {
+      tmptext[right_rschd[inrnd]] ^= f_function(tmptext[left_rschd[inrnd]], k_[kpos]);
+      ++kpos;
+    }
+
+    if (n6r_ != round) {
+      fl_function(tmptext[0], kl_[klpos]);
+      ++klpos;
+
+      inv_fl_function(tmptext[1], kl_[klpos]);
+      ++klpos;
+    }
+  }
+
+  tmpsawp = tmptext[1];
+  tmptext[1] = tmptext[0];
+  tmptext[1] = tmpsawp;
+
+  tmptext[0] ^= kw_[2];
+  tmptext[1] ^= kw_[3];
+
+  BIGENDIAN_U128_TO_U8(tmptext, outptr);
+
+  for (uint32_t j = 0; j < 16; ++j) {
+    ctext[j] = outptr[j];
+  }
 
 }
 
@@ -186,7 +240,7 @@ inline void camellia::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *pt
 
 }
 
-inline void camellia::expand_128bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept {
+inline void camellia::expand_128bit_key(const uint64_t * const key) noexcept {
   uint64_t kr[2] = {0};
   uint64_t kl[2] = {0};
   uint64_t ka[2] = {0};
@@ -252,7 +306,7 @@ inline void camellia::expand_128bit_key(const uint64_t * const key, uint64_t *su
   kw_[3] = ROTATE_RIGHT64(ka[1], 111);
 }
 
-inline void camellia::expand_192bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept {
+inline void camellia::expand_192bit_key(const uint64_t * const key) noexcept {
   uint64_t kr[2] = {0};
   uint64_t kl[2] = {0};
   uint64_t ka[2] = {0};
@@ -341,7 +395,7 @@ inline void camellia::expand_192bit_key(const uint64_t * const key, uint64_t *su
   kw_[3] = ROTATE_RIGHT64(kb[1], 111);
 }
 
-inline void camellia::expand_256bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept {
+inline void camellia::expand_256bit_key(const uint64_t * const key) noexcept {
   uint64_t kr[2] = {0};
   uint64_t kl[2] = {0};
   uint64_t ka[2] = {0};
@@ -431,10 +485,10 @@ inline void camellia::expand_256bit_key(const uint64_t * const key, uint64_t *su
 }
 
 
-inline uint64_t camellia::f_function(const uint64_t in, const uint64_t key) const noexcept {
-  uint8_t in8bit[8] = {0};
-  uint8_t key8bit[8] = {0};
-  uint64_t result = 0;
+inline uint64_t camellia::f_function(uint64_t in, uint64_t key) const noexcept {
+  uint8_t *in8bit = nullptr;
+  uint8_t *key8bit = nullptr;
+  uint64_t *result = nullptr;
 
   BIGENDIAN_U64_TO_U8(in, in8bit);
   BIGENDIAN_U64_TO_U8(key, key8bit);
@@ -453,7 +507,7 @@ inline uint64_t camellia::f_function(const uint64_t in, const uint64_t key) cons
 
   BIGENDIAN_U8_TO_U64(in8bit, result);
 
-  return result;
+  return *result;
 }
 
 inline uint64_t camellia::fl_function(const uint64_t x, const uint64_t kl) const noexcept {

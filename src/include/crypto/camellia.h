@@ -14,8 +14,6 @@
 #include <vector>
 
 #include "defs.h"
-#include "bit_utill.h"
-#include "byte_utill.h"
 #include "block_cipher.h"
 
 namespace cryptography {
@@ -43,13 +41,13 @@ class camellia final : public algorithm<camellia> {
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
-  void expand_128bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept;
+  void expand_128bit_key(const uint64_t * const key) noexcept;
 
-  void expand_192bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept;
+  void expand_192bit_key(const uint64_t * const key) noexcept;
 
-  void expand_256bit_key(const uint64_t * const key, uint64_t *subkeys) noexcept;
+  void expand_256bit_key(const uint64_t * const key) noexcept;
 
-  uint64_t f_function(const uint64_t in, const uint64_t key) const noexcept;
+  uint64_t f_function(uint64_t in, uint64_t key) const noexcept;
 
   uint64_t fl_function(const uint64_t x, const uint64_t kl) const noexcept;
 
