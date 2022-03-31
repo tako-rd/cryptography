@@ -144,22 +144,28 @@ int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint
     case (CAMELLIA128 >> 8):
       BIGENDIAN_U8_TO_U128(key, tmpkey);
       expand_128bit_key(tmpkey);
-      memset(&tmpkey, 0xcc, 16);
+      memset(&tmpkey, 0xCC, 16);
       has_subkeys_ = true;
+      nk_ = 17;
+      nkl_ = 3;
       n6r_ = 3;
       break;
     case (CAMELLIA192 >> 8):    
       BIGENDIAN_U8_TO_U192(key, tmpkey);
       expand_192bit_key(tmpkey);
-      memset(&tmpkey, 0xcc, 24);
+      memset(&tmpkey, 0xCC, 24);
       has_subkeys_ = true;
+      nk_ = 23;
+      nkl_ = 5;
       n6r_ = 4;
       break;
     case (CAMELLIA256 >> 8):
       BIGENDIAN_U8_TO_U256(key, tmpkey);
       expand_256bit_key(tmpkey);
-      memset(&tmpkey, 0xcc, 32);
+      memset(&tmpkey, 0xCC, 32);
       has_subkeys_ = true;
+      nk_ = 23;
+      nkl_ = 5;
       n6r_ = 4;
       break;
     default:
@@ -167,18 +173,30 @@ int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint
   }
 }
 
-int32_t camellia::encrypt(const char * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
-  return 1;
+int32_t camellia::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
+  if (16 != plen || 16 != clen) { return FAILURE; }
+  if (true == enable_intrinsic_func_) {
+    intrinsic_encrypt(ptext, ctext);
+  } else {
+    no_intrinsic_encrypt(ptext, ctext);
+  }
+  return SUCCESS;
 }
 
-int32_t camellia::decrypt(const uint8_t * const ctext, const uint64_t clen, char *ptext, const uint64_t plen) {
-  return 1;
+int32_t camellia::decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) {
+  if (16 != plen || 16 != clen) { return FAILURE; }
+  if (true == enable_intrinsic_func_) {
+    intrinsic_decrypt(ctext, ptext);
+  } else {
+    no_intrinsic_decrypt(ctext, ptext);
+  }
+  return SUCCESS;
 }
 
 void camellia::clear() noexcept {
-  memset(kw_, 0x00, sizeof(kw_));
-  memset(k_, 0x00, sizeof(k_));
-  memset(kl_, 0x00, sizeof(kl_));
+  memset(kw_, 0xCC, sizeof(kw_));
+  memset(k_, 0xCC, sizeof(k_));
+  memset(kl_, 0xCC, sizeof(kl_));
   has_subkeys_ = false;
 }
 
@@ -225,11 +243,51 @@ inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t 
   for (uint32_t j = 0; j < 16; ++j) {
     ctext[j] = outptr[j];
   }
-
 }
 
 inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+  uint64_t tmptext[2]= {0};
+  uint64_t *tmpptr = nullptr;
+  uint64_t tmpsawp = 0;
+  uint32_t kpos = nk_, klpos = nkl_;
+  uint8_t *outptr = nullptr;
 
+  BIGENDIAN_U8_TO_U128(ctext, tmpptr);
+
+  tmptext[0] = tmpptr[0];
+  tmptext[1] = tmpptr[1];
+
+  tmptext[0] ^= kw_[2];
+  tmptext[1] ^= kw_[3];
+
+  for (uint32_t round = 0; round < n6r_; ++round) {
+
+    for (uint32_t inrnd = 0; inrnd < 6; ++inrnd) {
+      tmptext[right_rschd[inrnd]] ^= f_function(tmptext[left_rschd[inrnd]], k_[kpos]);
+      --kpos;
+    }
+
+    if (n6r_ != round) {
+      fl_function(tmptext[0], kl_[klpos]);
+      --klpos;
+
+      inv_fl_function(tmptext[1], kl_[klpos]);
+      --klpos;
+    }
+  }
+
+  tmpsawp = tmptext[1];
+  tmptext[1] = tmptext[0];
+  tmptext[1] = tmpsawp;
+
+  tmptext[0] ^= kw_[0];
+  tmptext[1] ^= kw_[1];
+
+  BIGENDIAN_U128_TO_U8(tmptext, outptr);
+
+  for (uint32_t j = 0; j < 16; ++j) {
+    ptext[j] = outptr[j];
+  }
 }
 
 inline void camellia::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {

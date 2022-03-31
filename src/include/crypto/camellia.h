@@ -20,15 +20,15 @@ namespace cryptography {
 
 class camellia final : public algorithm<camellia> {
  public:
-  camellia() noexcept : mode_(CAMELLIA256), n6r_(4), kw_{0}, k_{0}, kl_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  camellia() noexcept : mode_(CAMELLIA256), nk_(0), nkl_(0), n6r_(4), kw_{0}, k_{0}, kl_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~camellia() {};
 
   int32_t initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic);
 
-  int32_t encrypt(const char * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen);
+  int32_t encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen);
 
-  int32_t decrypt(const uint8_t * const ctext, const uint64_t clen, char *ptext, const uint64_t plen);
+  int32_t decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen);
 
   void clear() noexcept;
 
@@ -58,6 +58,10 @@ class camellia final : public algorithm<camellia> {
   void p_function(uint8_t *state) const noexcept;
 
   uint16_t mode_;
+
+  uint32_t nk_;
+
+  uint32_t nkl_;
 
   uint32_t n6r_;
 

@@ -79,6 +79,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\src\include\common;$(MSBuildProjectDirectory)\..\src\include\hash;$(MSBuildProjectDirectory)\..\src\include\crypto;$(MSBuildProjectDirectory)\..\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -96,6 +97,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level3</WarningLevel>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\src\include\common;$(MSBuildProjectDirectory)\..\src\include\hash;$(MSBuildProjectDirectory)\..\src\include\crypto;$(MSBuildProjectDirectory)\..\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -114,6 +116,7 @@
       <Optimization>Disabled</Optimization>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\src\include\common;$(MSBuildProjectDirectory)\..\src\include\hash;$(MSBuildProjectDirectory)\..\src\include\crypto;$(MSBuildProjectDirectory)\..\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
