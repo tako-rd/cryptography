@@ -18,6 +18,9 @@
 #ifdef __LITTLE_ENDIAN__
 # ifdef _MSC_VER
 
+/**********************************************************/
+/* Change the data type while maintaining big endianness. */
+/**********************************************************/
 #   define BIGENDIAN_U32_TO_U8(value, outptr)       value   = _byteswap_ulong(value); \
                                                     outptr  = (uint8_t *)&value;
 
@@ -60,12 +63,54 @@
                                                     *(outptr + 2) = _byteswap_uint64(*(outptr + 2));  \
                                                     *(outptr + 3) = _byteswap_uint64(*(outptr + 3));
 
+/*******************************************************************/
+/* Change the data type and copy while maintaining big endianness. */
+/*******************************************************************/
+#   define BIGENDIAN_U64_TO_U8_COPY(value, outval)  value   = _byteswap_uint64(value);  \
+                                                    memcpy(outval, value, 8);
+
+#   define BIGENDIAN_U8_TO_U64_COPY(value, outval)  memcpy(outval, value, 8);  \
+                                                    outval = _byteswap_uint64(outval);
+
+#   define BIGENDIAN_U128_TO_U8_COPY(value, outval) *(value)     = _byteswap_uint64(*value);  \
+                                                    *(value + 1) = _byteswap_uint64(*(value + 1));  \
+                                                    memcpy(outval, value, 16);
+
+#   define BIGENDIAN_U8_TO_U128_COPY(value, outval) memcpy(outval, value, 16); \
+                                                    *(outval)     = _byteswap_uint64(*outval);  \
+                                                    *(outval + 1) = _byteswap_uint64(*(outval + 1));
+
+#   define BIGENDIAN_U192_TO_U8_COPY(value, outval) *(value)     = _byteswap_uint64(*value);  \
+                                                    *(value + 1) = _byteswap_uint64(*(value + 1));  \
+                                                    *(value + 2) = _byteswap_uint64(*(value + 2));  \
+                                                    memcpy(outval, value, 24);
+
+#   define BIGENDIAN_U8_TO_U192_COPY(value, outval) memcpy(outval, value, 24); \
+                                                    *(outval)     = _byteswap_uint64(*outval);  \
+                                                    *(outval + 1) = _byteswap_uint64(*(outval + 1));  \
+                                                    *(outval + 2) = _byteswap_uint64(*(outval + 2));
+
+#   define BIGENDIAN_U256_TO_U8_COPY(value, outval) *(value)     = _byteswap_uint64(*value);  \
+                                                    *(value + 1) = _byteswap_uint64(*(value + 1));  \
+                                                    *(value + 2) = _byteswap_uint64(*(value + 2));  \
+                                                    *(value + 3) = _byteswap_uint64(*(value + 3));  \
+                                                    memcpy(outval, value, 32);
+
+#   define BIGENDIAN_U8_TO_U256_COPY(value, outval) memcpy(outval, value, 32); \
+                                                    *(outval)     = _byteswap_uint64(*outval);  \
+                                                    *(outval + 1) = _byteswap_uint64(*(outval + 1));  \
+                                                    *(outval + 2) = _byteswap_uint64(*(outval + 2));  \
+                                                    *(outval + 3) = _byteswap_uint64(*(outval + 3));
+
 #   ifdef _WIN64 
 #   elif  _WIN32
 #   endif
 
 # elif  __GNUC__
 
+/**********************************************************/
+/* Change the data type while maintaining big endianness. */
+/**********************************************************/
 #   define BIGENDIAN_U32_TO_U8(value, outptr)       value   = __builtin_bswap32(value); \
                                                     outptr  = (uint8_t *)&value;
 

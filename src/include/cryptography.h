@@ -10,7 +10,7 @@
 #ifndef CRYPTOGRAPHY_H
 #define CRYPTOGRAPHY_H
 
-#include "defs.h"
+#include "common/defs.h"
 #include "common/cpu.h"
 #include "common/base64.h"
 #include "crypto/aes.h"

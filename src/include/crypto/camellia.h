@@ -59,11 +59,11 @@ class camellia final : public algorithm<camellia> {
 
   uint16_t mode_;
 
-  uint32_t nk_;
+  int32_t nk_;
 
-  uint32_t nkl_;
+  int32_t nkl_;
 
-  uint32_t n6r_;
+  int32_t n6r_;
 
   uint64_t kw_[4];
 

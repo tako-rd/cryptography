@@ -37,6 +37,9 @@
     <Filter Include="crypto\gtest_ctr">
       <UniqueIdentifier>{74d8320b-5e77-41ec-bf09-dc9d22f8d31a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\gtest_camelia">
+      <UniqueIdentifier>{16fc8f9e-4f55-42a5-93ab-81bbfc2ed35e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -87,6 +90,12 @@
     <ClInclude Include="crypto\gtest_ctr\gtest_ctr_defs.h">
       <Filter>crypto\gtest_ctr</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_camellia\gtest_camellia_defs.h">
+      <Filter>crypto\gtest_camelia</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_camellia\gtest_camellia128.h">
+      <Filter>crypto\gtest_camelia</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">
@@ -115,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_ctr\gtest_ctr.cc">
       <Filter>crypto\gtest_ctr</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_camellia\gtest_camellia128.cc">
+      <Filter>crypto\gtest_camelia</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

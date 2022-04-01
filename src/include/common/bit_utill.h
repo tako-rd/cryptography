@@ -16,15 +16,16 @@
 
 #ifdef _MSC_VER
 
-# define ROTATE_LEFT32(val, shift)          _rotl(val, shift)
-# define ROTATE_RIGHT32(val, shift)         _rotr(val, shift)
-# define ROTATE_LEFT64(val, shift)          _rotl64(val, shift)
-# define ROTATE_RIGHT64(val, shift)         _rotr64(val, shift)
+# define ROTATE_LEFT32(val, shift)          _rotl((val), (shift))
+# define ROTATE_RIGHT32(val, shift)         _rotr((val), (shift))
 
-# define POPCOUNT32(val)                    __popcnt(val)
+# define ROTATE_LEFT64(val, shift)          _rotl64((val), (shift))
+# define ROTATE_RIGHT64(val, shift)         _rotr64((val), (shift))
+
+# define POPCOUNT32(val)                    __popcnt((val))
 
 # ifdef _WIN64
-#   define POPCOUNT64(val)                  __popcnt64(val)
+#   define POPCOUNT64(val)                  __popcnt64((val))
 # elif _WIN32
 #   define POPCOUNT64(val)                  (uint64_t)(__popcnt((uint32_t)((val) >> 32                  )) + \
                                                        __popcnt((uint32_t)((val) & 0x0000'0000'FFFF'FFFF)))
