@@ -200,7 +200,7 @@ des::~des() {
   memset(decrypto_subkeys_, 0xcc, sizeof(decrypto_subkeys_));
 }
 
-int32_t des::initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic) {
+int32_t des::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) {
   uint64_t tmpkey = {0};
 
   if (8 != klen) { return FAILURE; }
@@ -224,7 +224,7 @@ int32_t des::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
   return SUCCESS;
 }
 
-int32_t des::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
+int32_t des::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *ctext, const uint32_t clen) {
   if (8 != plen || 8 != clen) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -234,7 +234,7 @@ int32_t des::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *
   return SUCCESS;
 }
 
-int32_t des::decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) {
+int32_t des::decrypt(const uint8_t * const ctext, const uint32_t clen, uint8_t *ptext, const uint32_t plen) {
   if (8 != plen || 8 != clen) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);

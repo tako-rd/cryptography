@@ -28,25 +28,27 @@ public:
 
   ~mode() {};
 
-  int32_t initialize(const uint16_t type, uint8_t *iv, const uint64_t iv_size) noexcept {
+  int32_t initialize(const uint16_t type, uint8_t *iv, const uint32_t iv_size) noexcept {
     return static_cast<Mode &>(this)->initialize(type, iv, iv_size);
   };
 
-  int32_t enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept {
+  int32_t enc_preprocess(uint8_t *ptext, const uint32_t psize, uint8_t *cbuf, const uint32_t cbsize) noexcept {
     return static_cast<Mode &>(this)->enc_preprocess(ptext, psize, cbuf, cbsize);
   };
 
-  int32_t enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept {
+  int32_t enc_postprocess(uint8_t *cbuf, const uint32_t cbsize, uint8_t *ctext, const uint32_t csize) noexcept {
     return static_cast<Mode &>(this)->enc_postprocess(cbuf, cbsize, ctext, csize);
   };
 
-  int32_t dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept {
+  int32_t dec_preprocess(uint8_t *ctext, const uint32_t csize, uint8_t *pbuf, const uint32_t pbsize) noexcept {
     return static_cast<Mode &>(this)->dec_preprocess(ctext, csize, pbuf, pbsize);
   };
 
-  int32_t dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept {
+  int32_t dec_postprocess(uint8_t *pbuf, const uint32_t pbsize, uint8_t *ptext, const uint32_t psize) noexcept {
     return static_cast<Mode &>(this)->dec_postprocess(pbuf, pbsize, ptext, psize);
   };
+
+  
 };
 
 }

@@ -912,7 +912,7 @@ static const uint64_t sp32bit4404[256] = {
 static const uint8_t left_rschd[6]  = {0, 1, 0, 1, 0, 1};
 static const uint8_t right_rschd[6] = {1, 0, 1, 0, 1, 0};
 
-int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic) noexcept {
+int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
   uint64_t tmpkey[32] = {0};
 
   if (CAMELLIA128 != (mode & EXTRACT_TYPE) &&
@@ -958,7 +958,7 @@ int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint
   return SUCCESS;
 }
 
-int32_t camellia::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) noexcept {
+int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *ctext, const uint32_t clen) noexcept {
   if (16 != plen || 16 != clen) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; };
   if (true == enable_intrinsic_func_) {
@@ -969,7 +969,7 @@ int32_t camellia::encrypt(const uint8_t * const ptext, const uint64_t plen, uint
   return SUCCESS;
 }
 
-int32_t camellia::decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) noexcept {
+int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t clen, uint8_t *ptext, const uint32_t plen) noexcept {
   if (16 != plen || 16 != clen) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; };
   if (true == enable_intrinsic_func_) {
