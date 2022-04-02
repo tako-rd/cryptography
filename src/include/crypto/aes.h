@@ -24,20 +24,18 @@ class aes final : algorithm<aes> {
 
   ~aes();
 
-  int32_t initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic);
+  int32_t initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic) noexcept;
 
-  int32_t encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen);
+  int32_t encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) noexcept;
 
-  int32_t decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen);
+  int32_t decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) noexcept;
 
-  void clear();
-
+  void clear() noexcept;
 #ifdef ENABLE_FUNCTIONS_FOR_GTEST
   std::vector<uint8_t> get_subkeys_for_unit_test();
 
   std::vector<uint8_t> get_encskeys_for_unit_test();
 #endif
-
  private:
   void no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
 

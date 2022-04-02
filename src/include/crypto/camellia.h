@@ -24,14 +24,18 @@ class camellia final : public algorithm<camellia> {
 
   ~camellia() {};
 
-  int32_t initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic);
+  int32_t initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic) noexcept;
 
-  int32_t encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen);
+  int32_t encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) noexcept;
 
-  int32_t decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen);
+  int32_t decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) noexcept;
 
   void clear() noexcept;
+#if 0
+  uint32_t calculate_sp32bit(const uint8_t x, const uint32_t sp_number) const noexcept;
 
+  uint64_t calculate_sp64bit(const uint8_t x, const uint32_t sp_number) const noexcept;
+#endif
  private:
   void no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
 
@@ -41,11 +45,9 @@ class camellia final : public algorithm<camellia> {
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
-  void expand_128bit_key(const uint64_t * const key) noexcept;
+  void expand_128bit_key(const uint64_t * const key, uint64_t *kw, uint64_t *k, uint64_t *kl) const noexcept;
 
-  void expand_192bit_key(const uint64_t * const key) noexcept;
-
-  void expand_256bit_key(const uint64_t * const key) noexcept;
+  void expand_192bit_or_256bit_key(const uint64_t * const key, uint64_t *kw, uint64_t *k, uint64_t *kl) const noexcept;
 
   uint64_t f_function(uint64_t in, uint64_t key) const noexcept;
 
@@ -53,10 +55,10 @@ class camellia final : public algorithm<camellia> {
 
   uint64_t inv_fl_function(const uint64_t y, const uint64_t kl) const noexcept;
 
-  void s_function(uint8_t *state) const noexcept;
-
-  void p_function(uint8_t *state) const noexcept;
-
+  void s_function(uint8_t *x) const noexcept;
+#if !defined(_WIN64) && !defined(__x86_64__)
+  void p_function(uint8_t *x) const noexcept;
+#endif
   uint16_t mode_;
 
   int32_t nk_;

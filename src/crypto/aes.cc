@@ -350,7 +350,7 @@ aes::~aes() {
   memset(&decskeys_, 0xcc, sizeof(decskeys_));
 }
 
-int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic) {
+int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t klen, bool enable_intrinsic) noexcept {
   union_array_u256_t karray = {0};
 
   if (AES128 != (mode & EXTRACT_TYPE) &&
@@ -425,7 +425,7 @@ int32_t aes::initialize(const uint16_t mode, const uint8_t *key, const uint64_t 
   return SUCCESS;
 }
 
-int32_t aes::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) {
+int32_t aes::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *ctext, const uint64_t clen) noexcept {
   if (16 != plen || 16 != clen) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -435,7 +435,7 @@ int32_t aes::encrypt(const uint8_t * const ptext, const uint64_t plen, uint8_t *
   return SUCCESS;
 }
 
-int32_t aes::decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) {
+int32_t aes::decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *ptext, const uint64_t plen) noexcept {
   if (16 != plen || 16 != clen) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);
@@ -445,7 +445,7 @@ int32_t aes::decrypt(const uint8_t * const ctext, const uint64_t clen, uint8_t *
   return SUCCESS;
 }
 
-void aes::clear() {
+void aes::clear() noexcept {
   mode_ = AES256;
   nr_ = 0;
   nk_ = 0;

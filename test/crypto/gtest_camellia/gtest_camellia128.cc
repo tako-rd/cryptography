@@ -65,3 +65,36 @@ TEST_F(GTestCamellia128, Normal_encrypt_to_decrypt_003) {
   }
 
 }
+#if 0
+TEST_F(GTestCamellia128, calculate_sp32bit) {
+  cryptography::camellia camellia;
+
+  for (uint32_t i = 0; i < 4; ++i) {
+    printf("-------- calculate %d sbox --------\n", i + 1);
+
+    for (uint32_t j = 0; j <= 255; j += 4) {
+      printf("%03d : 0x%08x, 0x%08x, 0x%08x, 0x%08x,\n", j, 
+                                                         camellia.calculate_sp32bit(((uint8_t)j), i),
+                                                         camellia.calculate_sp32bit(((uint8_t)j + 1), i),
+                                                         camellia.calculate_sp32bit(((uint8_t)j + 2), i),
+                                                         camellia.calculate_sp32bit(((uint8_t)j + 3), i));
+    }
+  }
+}
+
+TEST_F(GTestCamellia128, calculate_sp64bit) {
+  cryptography::camellia camellia;
+ 
+  for (uint32_t i = 0; i < 8; ++i) {
+    printf("-------- calculate %d sbox --------\n", i + 1);
+
+    for (uint32_t j = 0; j <= 255; j += 4) {
+      printf("%03d : 0x%016llx, 0x%016llx, 0x%016llx, 0x%016llx,\n", j, 
+                                                                     camellia.calculate_sp64bit(((uint8_t)j), i),
+                                                                     camellia.calculate_sp64bit(((uint8_t)j + 1), i),
+                                                                     camellia.calculate_sp64bit(((uint8_t)j + 2), i),
+                                                                     camellia.calculate_sp64bit(((uint8_t)j + 3), i));
+    }
+  }
+}
+#endif
