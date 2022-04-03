@@ -416,3 +416,35 @@ TEST_F(GTestAes128, Normal_intrinsic_encrypt_to_no_intrinsic_decrypt_003) {
     EXPECT_EQ(TEST_STRING_U8_MULTI_BYTE_STRING[i], plaintext[i]);
   }
 }
+#if 0
+TEST_F(GTestAes128, generate_mixed_sbox) {
+  cryptography::aes aes;
+
+  for (int32_t i = 0; i < 4; ++i) {
+    printf("--------- generate mixed sbox %d ---------\n", i + 1);
+    for (int32_t j = 0; j < 256; j += 4) {
+      printf("%03d : 0x%08x, 0x%08x, 0x%08x, 0x%08x,\n", j,
+                                                         aes.calc_mixed_sbox(j, i),
+                                                         aes.calc_mixed_sbox(j + 1, i),
+                                                         aes.calc_mixed_sbox(j + 2, i),
+                                                         aes.calc_mixed_sbox(j + 3, i));
+    }
+  }
+
+}
+
+TEST_F(GTestAes128, generate_mixed_invsbox) {
+  cryptography::aes aes;
+
+  for (int32_t i = 0; i < 4; ++i) {
+    printf("--------- generate mixed invsbox %d ---------\n", i + 1);
+    for (int32_t j = 0; j < 256; j += 4) {
+      printf("%03d : 0x%08x, 0x%08x, 0x%08x, 0x%08x,\n", j,
+                                                         aes.calc_mixed_invsbox(j, i),
+                                                         aes.calc_mixed_invsbox(j + 1, i),
+                                                         aes.calc_mixed_invsbox(j + 2, i),
+                                                         aes.calc_mixed_invsbox(j + 3, i));
+    }
+  }
+}
+#endif

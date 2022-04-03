@@ -67,7 +67,7 @@ class des final : public algorithm<des> {
 
   uint64_t decrypto_subkeys_[16];
 
-  uint16_t mode_;
+  uint32_t mode_;
 
   bool has_subkeys_;
 

@@ -11,12 +11,12 @@
 #define AES_H
 
 #include "defs.h"
-#include "bit_utill.h"
-#include "byte_utill.h"
 
 #include "block_cipher.h"
 
 namespace cryptography {
+
+#define HIGH_SPEED_AES    1
 
 class aes final : algorithm<aes> { 
  public:
@@ -35,6 +35,12 @@ class aes final : algorithm<aes> {
   std::vector<uint8_t> get_subkeys_for_unit_test();
 
   std::vector<uint8_t> get_encskeys_for_unit_test();
+#endif
+
+#if 1
+  uint32_t calc_mixed_sbox(uint8_t x, uint32_t column);
+  
+  uint32_t calc_mixed_invsbox(uint8_t x, uint32_t column);
 #endif
  private:
   void no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
