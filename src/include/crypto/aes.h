@@ -16,7 +16,7 @@
 
 namespace cryptography {
 
-#define HIGH_SPEED_AES    1
+#define HIGH_SPEED_AES_MODE    1
 
 class aes final : algorithm<aes> { 
  public:
