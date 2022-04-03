@@ -601,7 +601,6 @@ static const uint8_t sbox2[256] = {
   0x80, 0x50, 0xA7, 0xF6, 0x77, 0x93, 0x86, 0x83, 0x2A, 0xC7, 0x5B, 0xE9, 0xEE, 0x8F, 0x01, 0x3D,
 };
 
-
 static const uint8_t sbox3[256] = {
   0x38, 0x41, 0x16, 0x76, 0xD9, 0x93, 0x60, 0xF2, 0x72, 0xC2, 0xAB, 0x9A, 0x75, 0x06, 0x57, 0xA0,
   0x91, 0xF7, 0xB5, 0xC9, 0xA2, 0x8C, 0xD2, 0x90, 0xF6, 0x07, 0xA7, 0x27, 0x8E, 0xB2, 0x49, 0xDE,
@@ -926,7 +925,7 @@ int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint
 
   switch (((mode_ & EXTRACT_TYPE) >> 8)) {
     case (CAMELLIA128 >> 8):
-      BIGENDIAN_U8_TO_U128_COPY(key, tmpkey);
+      BIGENDIAN_64BIT_U8_TO_U128_COPY(key, tmpkey);
       expand_128bit_key(tmpkey, kw_, k_, kl_);
       memset(&tmpkey, 0xCC, 16);
       has_subkeys_ = true;
@@ -935,7 +934,7 @@ int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint
       n6r_ = 2;
       break;
     case (CAMELLIA192 >> 8):    
-      BIGENDIAN_U8_TO_U192_COPY(key, tmpkey);
+      BIGENDIAN_64BIT_U8_TO_U192_COPY(key, tmpkey);
       expand_192bit_or_256bit_key(tmpkey, kw_, k_, kl_);
       memset(&tmpkey, 0xCC, 24);
       has_subkeys_ = true;
@@ -944,7 +943,7 @@ int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint
       n6r_ = 3;
       break;
     case (CAMELLIA256 >> 8):
-      BIGENDIAN_U8_TO_U256_COPY(key, tmpkey);
+      BIGENDIAN_64BIT_U8_TO_U256_COPY(key, tmpkey);
       expand_192bit_or_256bit_key(tmpkey, kw_, k_, kl_);
       memset(&tmpkey, 0xCC, 32);
       has_subkeys_ = true;
@@ -997,7 +996,7 @@ inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t 
   uint64_t out[2] = {0};
   int32_t kpos = 0, klpos = 0;
   
-  BIGENDIAN_U8_TO_U128_COPY(ptext, tmptext);
+  BIGENDIAN_64BIT_U8_TO_U128_COPY(ptext, tmptext);
 
   tmptext[0] ^= kw_[0];
   tmptext[1] ^= kw_[1];
@@ -1021,7 +1020,7 @@ inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t 
   out[0] = tmptext[1] ^ kw_[2];
   out[1] = tmptext[0] ^ kw_[3];
 
-  BIGENDIAN_U128_TO_U8_COPY(out, ctext);
+  BIGENDIAN_64BIT_U128_TO_U8_COPY(out, ctext);
 }
 
 inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
@@ -1029,7 +1028,7 @@ inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t 
   uint64_t out[2] = {0};
   int32_t kpos = nk_, klpos = nkl_;
 
-  BIGENDIAN_U8_TO_U128_COPY(ctext, tmptext);
+  BIGENDIAN_64BIT_U8_TO_U128_COPY(ctext, tmptext);
 
   tmptext[0] ^= kw_[2];
   tmptext[1] ^= kw_[3];
@@ -1053,7 +1052,7 @@ inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t 
   out[0] = tmptext[1] ^ kw_[0];
   out[1] = tmptext[0] ^ kw_[1];
 
-  BIGENDIAN_U128_TO_U8_COPY(out, ptext);
+  BIGENDIAN_64BIT_U128_TO_U8_COPY(out, ptext);
 }
 
 inline void camellia::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -1248,13 +1247,13 @@ inline uint64_t camellia::f_function(uint64_t in, uint64_t key) const noexcept {
 
   tmpy = in ^ key;
 
-  BIGENDIAN_U64_TO_U8(tmpy, y);
+  BIGENDIAN_64BIT_U64_TO_U8(tmpy, y);
 
   s_function(y);
 #if !defined(_WIN64) && !defined(__x86_64__)
   p_function(y);
 #endif
-  BIGENDIAN_U8_TO_U64(*y, zd);
+  BIGENDIAN_64BIT_U8_TO_U64(*y, zd);
 
   return *zd;
 }
@@ -1292,7 +1291,7 @@ inline void camellia::s_function(uint8_t *x) const noexcept {
   tmpy ^= sp64bit7[x[6]];
   tmpy ^= sp64bit8[x[7]];
 
-  BIGENDIAN_U64_TO_U8_COPY(tmpy, x);
+  BIGENDIAN_64BIT_U64_TO_U8_COPY(tmpy, x);
 }
 #else
 inline void camellia::s_function(uint8_t *x) const noexcept {

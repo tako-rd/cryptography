@@ -8,10 +8,13 @@
 */
 
 #include "aes.h"
+#include "bit_utill.h"
+#include "byte_utill.h"
 
 namespace cryptography {
 
-#define AES_SENTENCE_SIZE       128
+#define SUCCESS                 0
+#define FAILURE                 1
 
 #define AES128_ROUNDS           10
 #define AES192_ROUNDS           12
@@ -25,9 +28,19 @@ namespace cryptography {
 #define AES192_KEY_CONV_SIZE    6
 #define AES256_KEY_CONV_SIZE    8
 
-#define SUCCESS                 0
-#define FAILURE                 1
-
+#if defined(_MSC_VER)
+# if defined(_WIN64)
+#   define BYTE_SWAP32(x)       _byteswap_ulong((x))     
+# else
+#   define BYTE_SWAP32(x)       (x)
+#endif
+#elif defined(__GNUC__)
+# if defined(__x86_64__)
+# define BYTE_SWAP32(x)         __builtin_bswap32((x))
+# else
+#   define BYTE_SWAP32(x)       (x)
+# endif
+#endif
 static const uint8_t sbox[256] = {
   0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 
   0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 
@@ -67,8 +80,8 @@ static const uint8_t invsbox[256] = {
 };
 
 static const uint32_t rcon[11] = {
-  0x0000'0000, 0x0000'0001, 0x0000'0002, 0x0000'0004, 0x0000'0008, 0x0000'0010, 
-  0x0000'0020, 0x0000'0040, 0x0000'0080, 0x0000'001b, 0x0000'0036,
+  0x0000'0000, 0x0100'0000, 0x0200'0000, 0x0400'0000, 0x0800'0000, 0x1000'0000, 
+  0x2000'0000, 0x4000'0000, 0x8000'0000, 0x1b00'0000, 0x3600'0000,
 };
 
 static const uint8_t lut_gf_mult[15][256] = {
@@ -351,7 +364,7 @@ aes::~aes() {
 }
 
 int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
-  union_array_u256_t karray = {0};
+  uint32_t k[8] = {0};
 
   if (AES128 != (mode & EXTRACT_TYPE) &&
       AES192 != (mode & EXTRACT_TYPE) &&
@@ -368,10 +381,8 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       nr_ = AES128_ROUNDS;
       nk_ = AES128_KEY_CONV_SIZE;
 
-      for (uint32_t i = 0; i < 16; ++i) { 
-        karray.u8[i] = key[i]; 
-      }
-      expand_key(karray, subkeys_);
+      BIGENDIAN_32BIT_U8_TO_U128_COPY(key, k);
+      expand_key(k, subkeys_);
       has_subkeys_ = true;
       break;
     case (AES192 >> 8):
@@ -379,10 +390,8 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       nr_ = AES192_ROUNDS;
       nk_ = AES192_KEY_CONV_SIZE;
 
-      for (uint32_t i = 0; i < 24; ++i) { 
-        karray.u8[i] = key[i]; 
-      }
-      expand_key(karray, subkeys_);
+      BIGENDIAN_32BIT_U8_TO_U192_COPY(key, k);
+      expand_key(k, subkeys_);
       has_subkeys_ = true;
       break;
     case (AES256 >> 8):
@@ -390,10 +399,8 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       nr_ = AES256_ROUNDS;
       nk_ = AES256_KEY_CONV_SIZE;
 
-      for (uint32_t i = 0; i < 32; ++i) { 
-        karray.u8[i] = key[i]; 
-      }
-      expand_key(karray, subkeys_);
+      BIGENDIAN_32BIT_U8_TO_U256_COPY(key, k);
+      expand_key(k, subkeys_);
       has_subkeys_ = true;
       break;
     default:
@@ -401,17 +408,19 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
   }
 
   /* Clear stack data. */
-  memset(&karray, 0xcc, sizeof(karray));
+  memset(&k, 0xcc, sizeof(k));
 
   /* TODO: Implement Key Expansion using SSE2 and AES-NI. */
   if (true == enable_intrinsic_func_) {
-    for (uint32_t r = 0; r < nr_ + 1; ++r) {
+    for (int32_t r = 0; r < nr_ + 1; ++r) {
       uint32_t ALIGNAS(32) tmpkey[4] = {0}; 
 
-      tmpkey[0] = subkeys_[(4 * r)];
-      tmpkey[1] = subkeys_[(4 * r) + 1];
-      tmpkey[2] = subkeys_[(4 * r) + 2];
-      tmpkey[3] = subkeys_[(4 * r) + 3];
+      /* Due to the AES-NI specifications,                         */ 
+      /* the endian must be the same as the operating environment. */
+      tmpkey[0] = BYTE_SWAP32(subkeys_[(4 * r)]);
+      tmpkey[1] = BYTE_SWAP32(subkeys_[(4 * r) + 1]);
+      tmpkey[2] = BYTE_SWAP32(subkeys_[(4 * r) + 2]);
+      tmpkey[3] = BYTE_SWAP32(subkeys_[(4 * r) + 3]);
 
       if (0 == r || nr_ == r) {
         encskeys_[r] = _mm_loadu_si128((__m128i*)tmpkey); 
@@ -427,6 +436,7 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
 
 int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *ctext, const uint32_t clen) noexcept {
   if (16 != plen || 16 != clen) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
   } else {
@@ -437,6 +447,7 @@ int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *
 
 int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t clen, uint8_t *ptext, const uint32_t plen) noexcept {
   if (16 != plen || 16 != clen) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);
   } else {
@@ -462,14 +473,15 @@ void aes::clear() noexcept {
 std::vector<uint8_t> aes::get_subkeys_for_unit_test() {
   std::vector<uint8_t> skeys;
 
-  for (uint64_t cnt = 0; cnt < sizeof(subkeys_) / sizeof(uint32_t); ++cnt) {
-    union_array_u32_t skey32bit = {0};
+  for (uint32_t cnt = 0; cnt < sizeof(subkeys_) / sizeof(uint32_t); ++cnt) {
+    uint8_t skey[4] = {0};
 
-    skey32bit.u32 = subkeys_[cnt];
-    skeys.push_back(skey32bit.u8[0]);
-    skeys.push_back(skey32bit.u8[1]);
-    skeys.push_back(skey32bit.u8[2]);
-    skeys.push_back(skey32bit.u8[3]);
+    BIGENDIAN_U32_TO_U8_COPY(subkeys_[cnt], skey);
+
+    skeys.push_back(skey[0]);
+    skeys.push_back(skey[1]);
+    skeys.push_back(skey[2]);
+    skeys.push_back(skey[3]);
   }
   return skeys;
 }
@@ -477,8 +489,8 @@ std::vector<uint8_t> aes::get_subkeys_for_unit_test() {
 std::vector<uint8_t> aes::get_encskeys_for_unit_test() {
   std::vector<uint8_t> skeys;
 
-  for (uint64_t i = 0; i < sizeof(encskeys_) / sizeof(__m128i); ++i) {
-    for (uint64_t j = 0; j < 16; ++j) {
+  for (uint32_t i = 0; i < sizeof(encskeys_) / sizeof(__m128i); ++i) {
+    for (uint32_t j = 0; j < 16; ++j) {
       skeys.push_back((uint8_t)(encskeys_[i]).m128i_i8[j]);
     }
   }
@@ -488,54 +500,46 @@ std::vector<uint8_t> aes::get_encskeys_for_unit_test() {
 
 inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   const uint32_t nr = nr_;
-  union_array_u128_t tmppln = {0};
+  uint8_t tmppln[16] = {0};
 
-  for (uint32_t i = 0; i < 16; ++i) {
-    tmppln.u8[i] = ptext[i];
-  }
+  memcpy(tmppln, ptext, 16);
 
-  add_round_key(0, &tmppln);
+  add_round_key(0, tmppln);
 
   for (uint32_t round = 1; round < nr; ++round) {
-    sub_bytes(&tmppln);
-    shift_rows(&tmppln);
-    mix_columns(&tmppln);
-    add_round_key(round, &tmppln);
+    sub_bytes(tmppln);
+    shift_rows(tmppln);
+    mix_columns(tmppln);
+    add_round_key(round, tmppln);
   }
 
-  sub_bytes(&tmppln);
-  shift_rows(&tmppln);
-  add_round_key(nr, &tmppln);
+  sub_bytes(tmppln);
+  shift_rows(tmppln);
+  add_round_key(nr, tmppln);
 
-  for (uint32_t i = 0; i < 16; ++i) {
-    ctext[i] = tmppln.u8[i];
-  }
+  memcpy(ctext, tmppln, 16);
 }
 
 inline void aes::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   const uint32_t nr = nr_;
-  union_array_u128_t tmpcphr = {0};
+  uint8_t tmpcphr[16] = {0};
 
-  for (uint32_t i = 0; i < 16; ++i) {
-    tmpcphr.u8[i] = ctext[i];
-  }
+  memcpy(tmpcphr, ctext, 16);
 
-  add_round_key(nr, &tmpcphr);
+  add_round_key(nr, tmpcphr);
 
   for (uint32_t round = nr - 1; round > 0; --round) {
-    inv_shift_rows(&tmpcphr);
-    inv_sub_bytes(&tmpcphr);
-    add_round_key(round, &tmpcphr);
-    inv_mix_columns(&tmpcphr);
+    inv_shift_rows(tmpcphr);
+    inv_sub_bytes(tmpcphr);
+    add_round_key(round, tmpcphr);
+    inv_mix_columns(tmpcphr);
   }
 
-  inv_shift_rows(&tmpcphr);
-  inv_sub_bytes(&tmpcphr);
-  add_round_key(0, &tmpcphr);
+  inv_shift_rows(tmpcphr);
+  inv_sub_bytes(tmpcphr);
+  add_round_key(0, tmpcphr);
 
-  for (uint32_t i = 0; i < 16; ++i) {
-    ptext[i] = tmpcphr.u8[i];
-  }
+  memcpy(ptext, tmpcphr, 16);
 }
 
 inline void aes::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept { 
@@ -562,184 +566,192 @@ inline void aes::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) 
   _mm_storeu_si128((__m128i*)ptext, _mm_aesdeclast_si128(st, decskeys_[0]));
 }
 
-inline void aes::expand_key(const union_array_u256_t key, uint32_t *subkeys) const noexcept {
-  const uint32_t nk = nk_; /* Cache member variables in local variables. */
-  const uint32_t nr = nr_;
-  const uint32_t nkr = 4 * (nr + 1);
+inline void aes::expand_key(const uint32_t * const key, uint32_t *subkeys) const noexcept {
+  const uint32_t nkr = 4 * (nr_ + 1);
   uint32_t tmp = 0;
 
-  for (uint32_t i = 0; i < nk; ++i) {
-    subkeys[i] = key.u32[i];
-  }
+  memcpy(subkeys, key, (4 * nk_));
 
-  for (uint32_t j = nk; j < nkr; ++j) {
+  for (uint32_t j = nk_; j < nkr; ++j) {
     tmp = subkeys[j - 1];
 
-    if (0 == (j % nk)) {
-      tmp = sub_word(rot_word(tmp)) ^ rcon[j / nk];
+    if (0 == (j % nk_)) {
+      tmp = sub_word(rot_word(tmp)) ^ rcon[j / nk_];
 
-    } else if (nk > 6 && 4 == (j % nk)) {
+    } else if (nk_ > 6 && 4 == (j % nk_)) {
       tmp = sub_word(tmp);
 
     }
-    subkeys[j] = subkeys[j - nk] ^ tmp;
+    subkeys[j] = subkeys[j - nk_] ^ tmp;
   }
 }
 
-inline uint32_t aes::rot_word(const uint32_t word) const noexcept {
-  union_array_u32_t in  = {word};
-  union_array_u32_t out = {0};
+inline uint32_t aes::rot_word(uint32_t word) const noexcept {
+  uint32_t out = 0;
+  uint8_t *tmp_p = nullptr;
+  uint8_t tmp[4] = {0};
 
-  out.u8[0] = in.u8[1];
-  out.u8[1] = in.u8[2];
-  out.u8[2] = in.u8[3];
-  out.u8[3] = in.u8[0];
+  BIGENDIAN_U32_TO_U8(word, tmp_p);
 
-  return out.u32;
+  tmp[0] = tmp_p[1];
+  tmp[1] = tmp_p[2];
+  tmp[2] = tmp_p[3];
+  tmp[3] = tmp_p[0];
+
+  BIGENDIAN_U8_TO_U32_COPY(tmp, out);
+
+  return out;
 }
 
-inline uint32_t aes::sub_word(const uint32_t word) const noexcept {
-  union_array_u32_t in  = {word};
-  union_array_u32_t out = {0};
+inline uint32_t aes::sub_word(uint32_t word) const noexcept {
+  uint32_t out = 0;
+  uint8_t *tmp = nullptr;
 
-  out.u8[0] = sbox[in.u8[0]];
-  out.u8[1] = sbox[in.u8[1]];
-  out.u8[2] = sbox[in.u8[2]];
-  out.u8[3] = sbox[in.u8[3]];
+  BIGENDIAN_U32_TO_U8(word, tmp);
 
-  return out.u32;
+  tmp[0] = sbox[tmp[0]];
+  tmp[1] = sbox[tmp[1]];
+  tmp[2] = sbox[tmp[2]];
+  tmp[3] = sbox[tmp[3]];
+
+  BIGENDIAN_U8_TO_U32_COPY(tmp, out);
+
+  return out;
 }
 
-inline void aes::sub_bytes(union_array_u128_t *words) const noexcept {
+inline void aes::sub_bytes(uint8_t *words) const noexcept {
   for (uint32_t i = 0; i < 16; i +=4) {
-    words->u8[i]     = sbox[words->u8[i]];
-    words->u8[i + 1] = sbox[words->u8[i + 1]];
-    words->u8[i + 2] = sbox[words->u8[i + 2]];
-    words->u8[i + 3] = sbox[words->u8[i + 3]];
+    words[i]     = sbox[words[i]];
+    words[i + 1] = sbox[words[i + 1]];
+    words[i + 2] = sbox[words[i + 2]];
+    words[i + 3] = sbox[words[i + 3]];
   }
 }
 
-inline void aes::inv_sub_bytes(union_array_u128_t *words) const noexcept {
+inline void aes::inv_sub_bytes(uint8_t *words) const noexcept {
   for (uint32_t i = 0; i < 16; i +=4) {
-    words->u8[i]     = invsbox[words->u8[i]];
-    words->u8[i + 1] = invsbox[words->u8[i + 1]];
-    words->u8[i + 2] = invsbox[words->u8[i + 2]];
-    words->u8[i + 3] = invsbox[words->u8[i + 3]];
+    words[i]     = invsbox[words[i]];
+    words[i + 1] = invsbox[words[i + 1]];
+    words[i + 2] = invsbox[words[i + 2]];
+    words[i + 3] = invsbox[words[i + 3]];
   }
 }
 
-inline void aes::shift_rows(union_array_u128_t *words) const noexcept {
-  union_array_u128_t tmp = *words;
+inline void aes::shift_rows(uint8_t *words) const noexcept {
+  uint8_t tmp[16] = {0};
 
-  words->u8[1]  = tmp.u8[5];
-  words->u8[5]  = tmp.u8[9];
-  words->u8[9]  = tmp.u8[13];
-  words->u8[13] = tmp.u8[1];
+  memcpy(tmp, words, 16);
 
-  words->u8[2]  = tmp.u8[10];
-  words->u8[6]  = tmp.u8[14];
-  words->u8[10] = tmp.u8[2];
-  words->u8[14] = tmp.u8[6];
+  words[1]  = tmp[5];
+  words[5]  = tmp[9];
+  words[9]  = tmp[13];
+  words[13] = tmp[1];
 
-  words->u8[3]  = tmp.u8[15];
-  words->u8[7]  = tmp.u8[3];
-  words->u8[11] = tmp.u8[7];
-  words->u8[15] = tmp.u8[11];
+  words[2]  = tmp[10];
+  words[6]  = tmp[14];
+  words[10] = tmp[2];
+  words[14] = tmp[6];
+
+  words[3]  = tmp[15];
+  words[7]  = tmp[3];
+  words[11] = tmp[7];
+  words[15] = tmp[11];
 }
 
-inline void aes::inv_shift_rows(union_array_u128_t *words) const noexcept {
-  union_array_u128_t tmp = *words;
+inline void aes::inv_shift_rows(uint8_t *words) const noexcept {
+  uint8_t tmp[16] = {0};
 
-  words->u8[1]  = tmp.u8[13];
-  words->u8[5]  = tmp.u8[1];
-  words->u8[9]  = tmp.u8[5];
-  words->u8[13] = tmp.u8[9];
+  memcpy(tmp, words, 16);
 
-  words->u8[2]  = tmp.u8[10];
-  words->u8[6]  = tmp.u8[14];
-  words->u8[10] = tmp.u8[2];
-  words->u8[14] = tmp.u8[6];
+  words[1]  = tmp[13];
+  words[5]  = tmp[1];
+  words[9]  = tmp[5];
+  words[13] = tmp[9];
 
-  words->u8[3]  = tmp.u8[7];
-  words->u8[7]  = tmp.u8[11];
-  words->u8[11] = tmp.u8[15];
-  words->u8[15] = tmp.u8[3];
+  words[2]  = tmp[10];
+  words[6]  = tmp[14];
+  words[10] = tmp[2];
+  words[14] = tmp[6];
+
+  words[3]  = tmp[7];
+  words[7]  = tmp[11];
+  words[11] = tmp[15];
+  words[15] = tmp[3];
 }
 
-inline void aes::mix_columns(union_array_u128_t *words) const noexcept {
-  union_array_u128_t tmp = {0};
+inline void aes::mix_columns(uint8_t *words) const noexcept {
+  uint8_t tmp[16] = {0};
   
   /* Line 1 */
-  tmp.u8[0]  = gf_mult(0x02, words->u8[0]) ^ gf_mult(0x03, words->u8[1])   ^               words->u8[2]   ^               words->u8[3];
-  tmp.u8[1]  =               words->u8[0]  ^ gf_mult(0x02, words->u8[1])   ^ gf_mult(0x03, words->u8[2])  ^               words->u8[3];
-  tmp.u8[2]  =               words->u8[0]  ^               words->u8[1]    ^ gf_mult(0x02, words->u8[2])  ^ gf_mult(0x03, words->u8[3]);
-  tmp.u8[3]  = gf_mult(0x03, words->u8[0]) ^               words->u8[1]    ^               words->u8[2]   ^ gf_mult(0x02, words->u8[3]);
-                                                                                                                
-  /* Line 2 */                                                                                                  
-  tmp.u8[4]  = gf_mult(0x02, words->u8[4]) ^ gf_mult(0x03, words->u8[5])   ^               words->u8[6]   ^               words->u8[7];
-  tmp.u8[5]  =               words->u8[4]  ^ gf_mult(0x02, words->u8[5])   ^ gf_mult(0x03, words->u8[6])  ^               words->u8[7];
-  tmp.u8[6]  =               words->u8[4]  ^               words->u8[5]    ^ gf_mult(0x02, words->u8[6])  ^ gf_mult(0x03, words->u8[7]);
-  tmp.u8[7]  = gf_mult(0x03, words->u8[4]) ^               words->u8[5]    ^               words->u8[6]   ^ gf_mult(0x02, words->u8[7]);
-                                                                                 
-  /* Line 3 */                                                                   
-  tmp.u8[8]  = gf_mult(0x02, words->u8[8]) ^ gf_mult(0x03, words->u8[9])   ^               words->u8[10]  ^               words->u8[11];
-  tmp.u8[9]  =               words->u8[8]  ^ gf_mult(0x02, words->u8[9])   ^ gf_mult(0x03, words->u8[10]) ^               words->u8[11];
-  tmp.u8[10] =               words->u8[8]  ^               words->u8[9]    ^ gf_mult(0x02, words->u8[10]) ^ gf_mult(0x03, words->u8[11]);
-  tmp.u8[11] = gf_mult(0x03, words->u8[8]) ^               words->u8[9]    ^               words->u8[10]  ^ gf_mult(0x02, words->u8[11]);
+  tmp[0]  = gf_mult(0x02, words[0]) ^ gf_mult(0x03, words[1])   ^               words[2]   ^               words[3];
+  tmp[1]  =               words[0]  ^ gf_mult(0x02, words[1])   ^ gf_mult(0x03, words[2])  ^               words[3];
+  tmp[2]  =               words[0]  ^               words[1]    ^ gf_mult(0x02, words[2])  ^ gf_mult(0x03, words[3]);
+  tmp[3]  = gf_mult(0x03, words[0]) ^               words[1]    ^               words[2]   ^ gf_mult(0x02, words[3]);
+                                                                                                    
+  /* Line 2 */                                                                                      
+  tmp[4]  = gf_mult(0x02, words[4]) ^ gf_mult(0x03, words[5])   ^               words[6]   ^               words[7];
+  tmp[5]  =               words[4]  ^ gf_mult(0x02, words[5])   ^ gf_mult(0x03, words[6])  ^               words[7];
+  tmp[6]  =               words[4]  ^               words[5]    ^ gf_mult(0x02, words[6])  ^ gf_mult(0x03, words[7]);
+  tmp[7]  = gf_mult(0x03, words[4]) ^               words[5]    ^               words[6]   ^ gf_mult(0x02, words[7]);
+                                                                         
+  /* Line 3 */                                                           
+  tmp[8]  = gf_mult(0x02, words[8]) ^ gf_mult(0x03, words[9])   ^               words[10]  ^               words[11];
+  tmp[9]  =               words[8]  ^ gf_mult(0x02, words[9])   ^ gf_mult(0x03, words[10]) ^               words[11];
+  tmp[10] =               words[8]  ^               words[9]    ^ gf_mult(0x02, words[10]) ^ gf_mult(0x03, words[11]);
+  tmp[11] = gf_mult(0x03, words[8]) ^               words[9]    ^               words[10]  ^ gf_mult(0x02, words[11]);
 
   /* Line 4 */
-  tmp.u8[12] = gf_mult(0x02, words->u8[12]) ^ gf_mult(0x03, words->u8[13]) ^               words->u8[14]  ^               words->u8[15];
-  tmp.u8[13] =               words->u8[12]  ^ gf_mult(0x02, words->u8[13]) ^ gf_mult(0x03, words->u8[14]) ^               words->u8[15];
-  tmp.u8[14] =               words->u8[12]  ^               words->u8[13]  ^ gf_mult(0x02, words->u8[14]) ^ gf_mult(0x03, words->u8[15]);
-  tmp.u8[15] = gf_mult(0x03, words->u8[12]) ^               words->u8[13]  ^               words->u8[14]  ^ gf_mult(0x02, words->u8[15]);
+  tmp[12] = gf_mult(0x02, words[12]) ^ gf_mult(0x03, words[13]) ^               words[14]  ^               words[15];
+  tmp[13] =               words[12]  ^ gf_mult(0x02, words[13]) ^ gf_mult(0x03, words[14]) ^               words[15];
+  tmp[14] =               words[12]  ^               words[13]  ^ gf_mult(0x02, words[14]) ^ gf_mult(0x03, words[15]);
+  tmp[15] = gf_mult(0x03, words[12]) ^               words[13]  ^               words[14]  ^ gf_mult(0x02, words[15]);
 
-  words->u32[0] = tmp.u32[0];
-  words->u32[1] = tmp.u32[1];
-  words->u32[2] = tmp.u32[2];
-  words->u32[3] = tmp.u32[3];
+  memcpy(words, tmp, 16);
 }
 
-inline void aes::inv_mix_columns(union_array_u128_t *words) const noexcept {
-  union_array_u128_t tmp = {0};
+inline void aes::inv_mix_columns(uint8_t *words) const noexcept {
+  uint8_t tmp[16] = {0};
 
   /* Line 1 */
-  tmp.u8[0]  = gf_mult(0x0e, words->u8[0])  ^ gf_mult(0x0b, words->u8[1])  ^ gf_mult(0x0d, words->u8[2])  ^ gf_mult(0x09, words->u8[3]);
-  tmp.u8[1]  = gf_mult(0x09, words->u8[0])  ^ gf_mult(0x0e, words->u8[1])  ^ gf_mult(0x0b, words->u8[2])  ^ gf_mult(0x0d, words->u8[3]);
-  tmp.u8[2]  = gf_mult(0x0d, words->u8[0])  ^ gf_mult(0x09, words->u8[1])  ^ gf_mult(0x0e, words->u8[2])  ^ gf_mult(0x0b, words->u8[3]);
-  tmp.u8[3]  = gf_mult(0x0b, words->u8[0])  ^ gf_mult(0x0d, words->u8[1])  ^ gf_mult(0x09, words->u8[2])  ^ gf_mult(0x0e, words->u8[3]);
-                                                                                                         
-  /* Line 2 */                                                                                           
-  tmp.u8[4]  = gf_mult(0x0e, words->u8[4])  ^ gf_mult(0x0b, words->u8[5])  ^ gf_mult(0x0d, words->u8[6])  ^ gf_mult(0x09, words->u8[7]);
-  tmp.u8[5]  = gf_mult(0x09, words->u8[4])  ^ gf_mult(0x0e, words->u8[5])  ^ gf_mult(0x0b, words->u8[6])  ^ gf_mult(0x0d, words->u8[7]);
-  tmp.u8[6]  = gf_mult(0x0d, words->u8[4])  ^ gf_mult(0x09, words->u8[5])  ^ gf_mult(0x0e, words->u8[6])  ^ gf_mult(0x0b, words->u8[7]);
-  tmp.u8[7]  = gf_mult(0x0b, words->u8[4])  ^ gf_mult(0x0d, words->u8[5])  ^ gf_mult(0x09, words->u8[6])  ^ gf_mult(0x0e, words->u8[7]);
-                                                                           
-  /* Line 3 */                                                             
-  tmp.u8[8]  = gf_mult(0x0e, words->u8[8])  ^ gf_mult(0x0b, words->u8[9])  ^ gf_mult(0x0d, words->u8[10]) ^ gf_mult(0x09, words->u8[11]);
-  tmp.u8[9]  = gf_mult(0x09, words->u8[8])  ^ gf_mult(0x0e, words->u8[9])  ^ gf_mult(0x0b, words->u8[10]) ^ gf_mult(0x0d, words->u8[11]);
-  tmp.u8[10] = gf_mult(0x0d, words->u8[8])  ^ gf_mult(0x09, words->u8[9])  ^ gf_mult(0x0e, words->u8[10]) ^ gf_mult(0x0b, words->u8[11]);
-  tmp.u8[11] = gf_mult(0x0b, words->u8[8])  ^ gf_mult(0x0d, words->u8[9])  ^ gf_mult(0x09, words->u8[10]) ^ gf_mult(0x0e, words->u8[11]);
+  tmp[0]  = gf_mult(0x0e, words[0])  ^ gf_mult(0x0b, words[1])  ^ gf_mult(0x0d, words[2])  ^ gf_mult(0x09, words[3]);
+  tmp[1]  = gf_mult(0x09, words[0])  ^ gf_mult(0x0e, words[1])  ^ gf_mult(0x0b, words[2])  ^ gf_mult(0x0d, words[3]);
+  tmp[2]  = gf_mult(0x0d, words[0])  ^ gf_mult(0x09, words[1])  ^ gf_mult(0x0e, words[2])  ^ gf_mult(0x0b, words[3]);
+  tmp[3]  = gf_mult(0x0b, words[0])  ^ gf_mult(0x0d, words[1])  ^ gf_mult(0x09, words[2])  ^ gf_mult(0x0e, words[3]);
+                                                                                             
+  /* Line 2 */                                                                               
+  tmp[4]  = gf_mult(0x0e, words[4])  ^ gf_mult(0x0b, words[5])  ^ gf_mult(0x0d, words[6])  ^ gf_mult(0x09, words[7]);
+  tmp[5]  = gf_mult(0x09, words[4])  ^ gf_mult(0x0e, words[5])  ^ gf_mult(0x0b, words[6])  ^ gf_mult(0x0d, words[7]);
+  tmp[6]  = gf_mult(0x0d, words[4])  ^ gf_mult(0x09, words[5])  ^ gf_mult(0x0e, words[6])  ^ gf_mult(0x0b, words[7]);
+  tmp[7]  = gf_mult(0x0b, words[4])  ^ gf_mult(0x0d, words[5])  ^ gf_mult(0x09, words[6])  ^ gf_mult(0x0e, words[7]);
+                                                                   
+  /* Line 3 */                                                     
+  tmp[8]  = gf_mult(0x0e, words[8])  ^ gf_mult(0x0b, words[9])  ^ gf_mult(0x0d, words[10]) ^ gf_mult(0x09, words[11]);
+  tmp[9]  = gf_mult(0x09, words[8])  ^ gf_mult(0x0e, words[9])  ^ gf_mult(0x0b, words[10]) ^ gf_mult(0x0d, words[11]);
+  tmp[10] = gf_mult(0x0d, words[8])  ^ gf_mult(0x09, words[9])  ^ gf_mult(0x0e, words[10]) ^ gf_mult(0x0b, words[11]);
+  tmp[11] = gf_mult(0x0b, words[8])  ^ gf_mult(0x0d, words[9])  ^ gf_mult(0x09, words[10]) ^ gf_mult(0x0e, words[11]);
 
   /* Line 4 */
-  tmp.u8[12] = gf_mult(0x0e, words->u8[12]) ^ gf_mult(0x0b, words->u8[13]) ^ gf_mult(0x0d, words->u8[14]) ^ gf_mult(0x09, words->u8[15]);
-  tmp.u8[13] = gf_mult(0x09, words->u8[12]) ^ gf_mult(0x0e, words->u8[13]) ^ gf_mult(0x0b, words->u8[14]) ^ gf_mult(0x0d, words->u8[15]);
-  tmp.u8[14] = gf_mult(0x0d, words->u8[12]) ^ gf_mult(0x09, words->u8[13]) ^ gf_mult(0x0e, words->u8[14]) ^ gf_mult(0x0b, words->u8[15]);
-  tmp.u8[15] = gf_mult(0x0b, words->u8[12]) ^ gf_mult(0x0d, words->u8[13]) ^ gf_mult(0x09, words->u8[14]) ^ gf_mult(0x0e, words->u8[15]);
+  tmp[12] = gf_mult(0x0e, words[12]) ^ gf_mult(0x0b, words[13]) ^ gf_mult(0x0d, words[14]) ^ gf_mult(0x09, words[15]);
+  tmp[13] = gf_mult(0x09, words[12]) ^ gf_mult(0x0e, words[13]) ^ gf_mult(0x0b, words[14]) ^ gf_mult(0x0d, words[15]);
+  tmp[14] = gf_mult(0x0d, words[12]) ^ gf_mult(0x09, words[13]) ^ gf_mult(0x0e, words[14]) ^ gf_mult(0x0b, words[15]);
+  tmp[15] = gf_mult(0x0b, words[12]) ^ gf_mult(0x0d, words[13]) ^ gf_mult(0x09, words[14]) ^ gf_mult(0x0e, words[15]);
 
-  words->u32[0] = tmp.u32[0];
-  words->u32[1] = tmp.u32[1];
-  words->u32[2] = tmp.u32[2];
-  words->u32[3] = tmp.u32[3];
+  memcpy(words, tmp, 16);
 }
 
 
-inline void aes::add_round_key(const uint32_t nr, union_array_u128_t *word) const noexcept {
+inline void aes::add_round_key(const uint32_t nr, uint8_t *word) const noexcept {
   const uint32_t kpos = 4 * nr;
+  uint32_t tmp[4] = {0};
 
-  word->u32[0] = word->u32[0] ^ subkeys_[kpos    ];
-  word->u32[1] = word->u32[1] ^ subkeys_[kpos + 1];
-  word->u32[2] = word->u32[2] ^ subkeys_[kpos + 2];
-  word->u32[3] = word->u32[3] ^ subkeys_[kpos + 3];
+  BIGENDIAN_32BIT_U8_TO_U128_COPY(word, tmp);
+
+  tmp[0] = tmp[0] ^ subkeys_[kpos    ];
+  tmp[1] = tmp[1] ^ subkeys_[kpos + 1];
+  tmp[2] = tmp[2] ^ subkeys_[kpos + 2];
+  tmp[3] = tmp[3] ^ subkeys_[kpos + 3];
+
+  BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp, word);
 }
 
 inline uint8_t aes::gf_mult(uint8_t x, uint8_t y) const noexcept {

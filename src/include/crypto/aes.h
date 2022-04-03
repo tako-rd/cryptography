@@ -45,25 +45,25 @@ class aes final : algorithm<aes> {
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
-  void expand_key(const union_array_u256_t key, uint32_t *subkeys) const noexcept;
+  void expand_key(const uint32_t * const key, uint32_t *subkeys) const noexcept;
 
-  uint32_t rot_word(const uint32_t word) const noexcept;
+  uint32_t rot_word(uint32_t word) const noexcept;
 
-  uint32_t sub_word(const uint32_t word) const noexcept;
+  uint32_t sub_word(uint32_t word) const noexcept;
 
-  void sub_bytes(union_array_u128_t *words) const noexcept;
+  void sub_bytes(uint8_t *words) const noexcept;
 
-  void inv_sub_bytes(union_array_u128_t *words) const noexcept;
+  void inv_sub_bytes(uint8_t *words) const noexcept;
 
-  void shift_rows(union_array_u128_t *words) const noexcept;
+  void shift_rows(uint8_t *words) const noexcept;
 
-  void inv_shift_rows(union_array_u128_t *words) const noexcept;
+  void inv_shift_rows(uint8_t *words) const noexcept;
 
-  void mix_columns(union_array_u128_t *words) const noexcept;
+  void mix_columns(uint8_t *words) const noexcept;
 
-  void inv_mix_columns(union_array_u128_t *words) const noexcept;
+  void inv_mix_columns(uint8_t *words) const noexcept;
 
-  void add_round_key(const uint32_t nr, union_array_u128_t *word) const noexcept;
+  void add_round_key(const uint32_t nr, uint8_t *word) const noexcept;
 
   uint8_t gf_mult(uint8_t x, uint8_t y) const noexcept;
 
