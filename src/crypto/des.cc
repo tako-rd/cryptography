@@ -8,6 +8,8 @@
  */
 
 #include "des.h"
+#include "bit_utill.h"
+#include "byte_utill.h"
 
 namespace cryptography {
 
@@ -190,9 +192,11 @@ static const uint8_t shift[16] = {
   0x01, 0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x01,
 };
 
-static const uint8_t lr_swap_schedule[2][16] = {
-  {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1},   /* Left swap schedule in little endian.  */
-  {0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0},   /* Right swap schedule in little endian. */
+static const uint8_t left_rschd[16] = {
+  1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+};
+static const uint8_t right_rschd[16] = {
+  0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1,
 };
 
 des::~des() {
@@ -254,83 +258,53 @@ void des::clear() {
 }
 
 inline void des::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
-  union_array_u64_t enc_words64bit = {0};
+  uint32_t tmppln32bit[2] = {0};
+  uint32_t out[2] = {0};
+  uint8_t tmp8bit[8] = {0};
+  
+  memcpy(tmp8bit, ptext, 8);
+  BIGENDIAN_32BIT_U8_TO_U64_COPY(tmp8bit, tmppln32bit);
 
-  enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[0]) << 56;
-  enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[1]) << 48;
-  enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[2]) << 40;
-  enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[3]) << 32;
-  enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[4]) << 24;
-  enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[5]) << 16;
-  enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[6]) <<  8;
-  enc_words64bit.u64 |= (uint64_t)((uint8_t)ptext[7]) <<  0;
-
-  initialize_permute(&enc_words64bit);
+  initialize_permute(tmppln32bit);
 
   for (int8_t stg = 0; stg < 16; ++stg) {
-    uint32_t swp_rtext = 0;
     uint32_t roundtext = 0;
 
-    round(encrypto_subkeys_[stg], enc_words64bit.u32[RIGHT_TEXT], roundtext);
-    enc_words64bit.u32[LEFT_TEXT] ^= roundtext;
-
-    if (15 > stg) {
-      swp_rtext = enc_words64bit.u32[RIGHT_TEXT];
-      enc_words64bit.u32[RIGHT_TEXT] = enc_words64bit.u32[LEFT_TEXT];
-      enc_words64bit.u32[LEFT_TEXT] = swp_rtext;
-    }
+    round(encrypto_subkeys_[stg], tmppln32bit[right_rschd[stg]], roundtext);
+    tmppln32bit[left_rschd[stg]] ^= roundtext;
   }
 
-  finalize_permute(&enc_words64bit);
+  out[0] = tmppln32bit[1];
+  out[1] = tmppln32bit[0];
 
-  ctext[0] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_8) >> 56);
-  ctext[1] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_7) >> 48);
-  ctext[2] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_6) >> 40);
-  ctext[3] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_5) >> 32);
-  ctext[4] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_4) >> 24);
-  ctext[5] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_3) >> 16);
-  ctext[6] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_2) >>  8);
-  ctext[7] = uint8_t((enc_words64bit.u64 & EXTRACT_BYTE_1) >>  0);
+  finalize_permute(out);
+
+  BIGENDIAN_32BIT_U64_TO_U8_COPY(out, ctext);
 }
 
 inline void des::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
-  union_array_u64_t dec_words64bit = {0};
+  uint32_t tmpcphr32bit[2] = {0};
+  uint32_t out[2] = {0};
+  uint8_t tmp8bit[8] = {0};
 
-  dec_words64bit.u64 |= (uint64_t)(ctext[0]) << 56;
-  dec_words64bit.u64 |= (uint64_t)(ctext[1]) << 48;
-  dec_words64bit.u64 |= (uint64_t)(ctext[2]) << 40;
-  dec_words64bit.u64 |= (uint64_t)(ctext[3]) << 32;
-  dec_words64bit.u64 |= (uint64_t)(ctext[4]) << 24;
-  dec_words64bit.u64 |= (uint64_t)(ctext[5]) << 16;
-  dec_words64bit.u64 |= (uint64_t)(ctext[6]) <<  8;
-  dec_words64bit.u64 |= (uint64_t)(ctext[7]) <<  0;
+  memcpy(tmp8bit, ctext, 8);
+  BIGENDIAN_32BIT_U8_TO_U64_COPY(tmp8bit, tmpcphr32bit);
 
-  initialize_permute(&dec_words64bit);
+  initialize_permute(tmpcphr32bit);
 
   for (int8_t stg = 0; stg < 16; ++stg) {
-    uint32_t swp_rtext = 0;
     uint32_t roundtext = 0;
 
-    round(decrypto_subkeys_[stg], dec_words64bit.u32[RIGHT_TEXT], roundtext);
-    dec_words64bit.u32[LEFT_TEXT] ^= roundtext;
-
-    if (15 > stg) {
-      swp_rtext = dec_words64bit.u32[RIGHT_TEXT];
-      dec_words64bit.u32[RIGHT_TEXT] = dec_words64bit.u32[LEFT_TEXT];
-      dec_words64bit.u32[LEFT_TEXT] = swp_rtext;
-    }
+    round(decrypto_subkeys_[stg], tmpcphr32bit[right_rschd[stg]], roundtext);
+    tmpcphr32bit[left_rschd[stg]] ^= roundtext;
   }
 
-  finalize_permute(&dec_words64bit);
+  out[0] = tmpcphr32bit[1];
+  out[1] = tmpcphr32bit[0];
 
-  ptext[0] = char((dec_words64bit.u64 & EXTRACT_BYTE_8) >> 56);
-  ptext[1] = char((dec_words64bit.u64 & EXTRACT_BYTE_7) >> 48);
-  ptext[2] = char((dec_words64bit.u64 & EXTRACT_BYTE_6) >> 40);
-  ptext[3] = char((dec_words64bit.u64 & EXTRACT_BYTE_5) >> 32);
-  ptext[4] = char((dec_words64bit.u64 & EXTRACT_BYTE_4) >> 24);
-  ptext[5] = char((dec_words64bit.u64 & EXTRACT_BYTE_3) >> 16);
-  ptext[6] = char((dec_words64bit.u64 & EXTRACT_BYTE_2) >>  8);
-  ptext[7] = char((dec_words64bit.u64 & EXTRACT_BYTE_1) >>  0);
+  finalize_permute(out);
+
+  BIGENDIAN_32BIT_U64_TO_U8_COPY(out, ptext);
 }
 
 inline void des::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -423,36 +397,40 @@ inline void des::permuted_choice2(const uint32_t left, const uint32_t right, uin
   subkey >>= 16;
 }
 
-inline void des::initialize_permute(union_array_u64_t *text) const noexcept {
-  union_array_u64_t iptext = {0};
+inline void des::initialize_permute(uint32_t *text) const noexcept {
+  uint64_t iptext = 0;
+  uint64_t tmp = (uint64_t)text[0] << 32 | (uint64_t)text[1];
 
   for (int8_t bits = 0; bits < sizeof(ip); bits += 8) {
-    iptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64((uint64_t)text->u64, ip[bits]    ,  bits);
-    iptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64((uint64_t)text->u64, ip[bits + 1], (bits + 1));
-    iptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64((uint64_t)text->u64, ip[bits + 2], (bits + 2));
-    iptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64((uint64_t)text->u64, ip[bits + 3], (bits + 3));
-    iptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64((uint64_t)text->u64, ip[bits + 4], (bits + 4));
-    iptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64((uint64_t)text->u64, ip[bits + 5], (bits + 5));
-    iptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64((uint64_t)text->u64, ip[bits + 6], (bits + 6));
-    iptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64((uint64_t)text->u64, ip[bits + 7], (bits + 7));
+    iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits]    ,  bits);
+    iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 1], (bits + 1));
+    iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 2], (bits + 2));
+    iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 3], (bits + 3));
+    iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 4], (bits + 4));
+    iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 5], (bits + 5));
+    iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 6], (bits + 6));
+    iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 7], (bits + 7));
   }
-  text->u64 = iptext.u64;
+  text[0] = iptext >> 32;
+  text[1] = iptext & 0x0000'0000'FFFF'FFFF;
 }
 
-inline void des::finalize_permute(union_array_u64_t *text) const noexcept {
-  union_array_u64_t fptext = {0};
+inline void des::finalize_permute(uint32_t *text) const noexcept {
+  uint64_t fptext = 0;
+  uint64_t tmp = (uint64_t)text[0] << 32 | (uint64_t)text[1];
 
   for (int8_t bits = 0; bits < sizeof(invip); bits += 8) {
-    fptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64(text->u64, invip[bits]    ,  bits);
-    fptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64(text->u64, invip[bits + 1], (bits + 1));
-    fptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64(text->u64, invip[bits + 2], (bits + 2));
-    fptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64(text->u64, invip[bits + 3], (bits + 3));
-    fptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64(text->u64, invip[bits + 4], (bits + 4));
-    fptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64(text->u64, invip[bits + 5], (bits + 5));
-    fptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64(text->u64, invip[bits + 6], (bits + 6));
-    fptext.u64 |= EXTRACT_AND_SET_BIT_LEFT64(text->u64, invip[bits + 7], (bits + 7));
+    fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits]    ,  bits);
+    fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 1], (bits + 1));
+    fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 2], (bits + 2));
+    fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 3], (bits + 3));
+    fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 4], (bits + 4));
+    fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 5], (bits + 5));
+    fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 6], (bits + 6));
+    fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 7], (bits + 7));
   }
-  text->u64 = fptext.u64;
+  text[0] = fptext >> 32;
+  text[1] = fptext & 0x0000'0000'FFFF'FFFF;
 }
 
 void des::round(const uint64_t subkey, const uint32_t rtext, uint32_t &roundtext) const noexcept {

@@ -183,7 +183,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;CRYPTOGRAPHY_DEBUG;ENABLE_FUNCTIONS_FOR_GTEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -191,7 +191,6 @@
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\src\hash;$(MSBuildProjectDirectory)\src\crypto;$(MSBuildProjectDirectory)\src\common;$(MSBuildProjectDirectory)\src\include\hash;$(MSBuildProjectDirectory)\src\include\crypto;$(MSBuildProjectDirectory)\src\include\common;$(MSBuildProjectDirectory)\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <CallingConvention>StdCall</CallingConvention>
-      <AdditionalOptions>/DCRYPTOGRAPHY_DEBUG /DENABLE_FUNCTIONS_FOR_GTEST %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
       <OpenMPSupport>false</OpenMPSupport>

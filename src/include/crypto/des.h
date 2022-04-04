@@ -14,8 +14,6 @@
 #include <vector>
 
 #include "defs.h"
-#include "bit_utill.h"
-#include "byte_utill.h"
 #include "block_cipher.h"
 
 namespace cryptography {
@@ -53,9 +51,9 @@ class des final : public algorithm<des> {
 
   void permuted_choice2(const uint32_t left, const uint32_t right, uint64_t &subkey) const noexcept;
 
-  void initialize_permute(union_array_u64_t *text) const noexcept;
+  void initialize_permute(uint32_t *text) const noexcept;
 
-  void finalize_permute(union_array_u64_t *text) const noexcept;
+  void finalize_permute(uint32_t *text) const noexcept;
 
   void round(const uint64_t subkey, const uint32_t rtext, uint32_t &roundtext) const noexcept;
 

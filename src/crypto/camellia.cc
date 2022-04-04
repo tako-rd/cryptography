@@ -1001,9 +1001,9 @@ inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t 
   tmptext[0] ^= kw_[0];
   tmptext[1] ^= kw_[1];
 
-  for (uint32_t round = 0; round <= n6r_; ++round) {
+  for (int32_t round = 0; round <= n6r_; ++round) {
 
-    for (uint32_t inrnd = 0; inrnd < 6; ++inrnd) {
+    for (int32_t inrnd = 0; inrnd < 6; ++inrnd) {
       tmptext[right_rschd[inrnd]] ^= f_function(tmptext[left_rschd[inrnd]], k_[kpos]);
       ++kpos;
     }
@@ -1033,9 +1033,9 @@ inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t 
   tmptext[0] ^= kw_[2];
   tmptext[1] ^= kw_[3];
 
-  for (uint32_t round = 0; round <= n6r_; ++round) {
+  for (int32_t round = 0; round <= n6r_; ++round) {
 
-    for (uint32_t inrnd = 0; inrnd < 6; ++inrnd) {
+    for (int32_t inrnd = 0; inrnd < 6; ++inrnd) {
       tmptext[right_rschd[inrnd]] ^= f_function(tmptext[left_rschd[inrnd]], k_[kpos]);
       --kpos;
     }
