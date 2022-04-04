@@ -354,7 +354,7 @@ static const uint8_t lut_gf_mult[15][256] = {
   }
 };
 #else
-static const uint32_t mixed_sbox2113[256] = {
+static const uint32_t mixed_sbox_2113[256] = {
   0xc66363a5, 0xf87c7c84, 0xee777799, 0xf67b7b8d,
   0xfff2f20d, 0xd66b6bbd, 0xde6f6fb1, 0x91c5c554,
   0x60303050, 0x02010103, 0xce6767a9, 0x562b2b7d,
@@ -421,7 +421,7 @@ static const uint32_t mixed_sbox2113[256] = {
   0x7bb0b0cb, 0xa85454fc, 0x6dbbbbd6, 0x2c16163a,
 };
 
-static const uint32_t mixed_sbox3211[256] = {
+static const uint32_t mixed_sbox_3211[256] = {
   0xa5c66363, 0x84f87c7c, 0x99ee7777, 0x8df67b7b,
   0x0dfff2f2, 0xbdd66b6b, 0xb1de6f6f, 0x5491c5c5,
   0x50603030, 0x03020101, 0xa9ce6767, 0x7d562b2b,
@@ -488,7 +488,7 @@ static const uint32_t mixed_sbox3211[256] = {
   0xcb7bb0b0, 0xfca85454, 0xd66dbbbb, 0x3a2c1616,
 };
 
-static const uint32_t mixed_sbox1321[256] = {
+static const uint32_t mixed_sbox_1321[256] = {
   0x63a5c663, 0x7c84f87c, 0x7799ee77, 0x7b8df67b,
   0xf20dfff2, 0x6bbdd66b, 0x6fb1de6f, 0xc55491c5,
   0x30506030, 0x01030201, 0x67a9ce67, 0x2b7d562b,
@@ -555,7 +555,7 @@ static const uint32_t mixed_sbox1321[256] = {
   0xb0cb7bb0, 0x54fca854, 0xbbd66dbb, 0x163a2c16,
 };
 
-static const uint32_t mixed_sbox1132[256] = {
+static const uint32_t mixed_sbox_1132[256] = {
   0x6363a5c6, 0x7c7c84f8, 0x777799ee, 0x7b7b8df6,
   0xf2f20dff, 0x6b6bbdd6, 0x6f6fb1de, 0xc5c55491,
   0x30305060, 0x01010302, 0x6767a9ce, 0x2b2b7d56,
@@ -896,9 +896,10 @@ static const uint32_t rcon[11] = {
 };
 
 aes::~aes() {
-  memset(&subkeys_, 0xcc, sizeof(subkeys_));
-  memset(&encskeys_, 0xcc, sizeof(encskeys_));
-  memset(&decskeys_, 0xcc, sizeof(decskeys_));
+  memset(&encskeys32bit_, 0xCC, sizeof(encskeys32bit_));
+  memset(&decskeys32bit_, 0xCC, sizeof(decskeys32bit_));
+  memset(&encskeys_, 0xCC, sizeof(encskeys_));
+  memset(&decskeys_, 0xCC, sizeof(decskeys_));
 }
 
 int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
@@ -920,7 +921,7 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       nk_ = AES128_KEY_CONV_SIZE;
 
       BIGENDIAN_32BIT_U8_TO_U128_COPY(key, k);
-      expand_key(k, subkeys_);
+      expand_key(k, encskeys32bit_, decskeys32bit_);
       has_subkeys_ = true;
       break;
     case (AES192 >> 8):
@@ -929,7 +930,7 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       nk_ = AES192_KEY_CONV_SIZE;
 
       BIGENDIAN_32BIT_U8_TO_U192_COPY(key, k);
-      expand_key(k, subkeys_);
+      expand_key(k, encskeys32bit_, decskeys32bit_);
       has_subkeys_ = true;
       break;
     case (AES256 >> 8):
@@ -938,7 +939,7 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       nk_ = AES256_KEY_CONV_SIZE;
 
       BIGENDIAN_32BIT_U8_TO_U256_COPY(key, k);
-      expand_key(k, subkeys_);
+      expand_key(k, encskeys32bit_, decskeys32bit_);
       has_subkeys_ = true;
       break;
     default:
@@ -946,25 +947,25 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
   }
 
   /* Clear stack data. */
-  memset(&k, 0xcc, sizeof(k));
+  memset(&k, 0xCC, sizeof(k));
 
   /* TODO: Implement Key Expansion using SSE2 and AES-NI. */
   if (true == enable_intrinsic_func_) {
     for (int32_t r = 0; r < nr_ + 1; ++r) {
-      uint32_t ALIGNAS(32) tmpkey[4] = {0}; 
+      __m128i ALIGNAS(32) tmpkey = {0}; 
 
       /* Due to the AES-NI specifications,                         */ 
       /* the endian must be the same as the operating environment. */
-      tmpkey[0] = BYTE_SWAP32(subkeys_[(4 * r)]);
-      tmpkey[1] = BYTE_SWAP32(subkeys_[(4 * r) + 1]);
-      tmpkey[2] = BYTE_SWAP32(subkeys_[(4 * r) + 2]);
-      tmpkey[3] = BYTE_SWAP32(subkeys_[(4 * r) + 3]);
+      tmpkey.m128i_i32[0] = BYTE_SWAP32(encskeys32bit_[(4 * r)]);
+      tmpkey.m128i_i32[1] = BYTE_SWAP32(encskeys32bit_[(4 * r) + 1]);
+      tmpkey.m128i_i32[2] = BYTE_SWAP32(encskeys32bit_[(4 * r) + 2]);
+      tmpkey.m128i_i32[3] = BYTE_SWAP32(encskeys32bit_[(4 * r) + 3]);
 
       if (0 == r || nr_ == r) {
-        encskeys_[r] = _mm_loadu_si128((__m128i*)tmpkey); 
-        decskeys_[r] = _mm_loadu_si128((__m128i*)tmpkey); 
+        encskeys_[r] = tmpkey; 
+        decskeys_[r] = tmpkey; 
       } else {
-        encskeys_[r] = _mm_loadu_si128((__m128i*)tmpkey); 
+        encskeys_[r] = _mm_loadu_si128(&tmpkey); 
         decskeys_[r] = _mm_aesimc_si128(encskeys_[r]); 
       }
     }
@@ -1001,7 +1002,7 @@ void aes::clear() noexcept {
   has_subkeys_ = false;
   enable_intrinsic_func_ = false;
 
-  memset(&subkeys_, 0xCC, sizeof(subkeys_));
+  memset(&encskeys32bit_, 0xCC, sizeof(encskeys32bit_));
   memset(&encskeys_, 0xCC, sizeof(encskeys_));
   memset(&decskeys_, 0xCC, sizeof(decskeys_));
 }
@@ -1010,10 +1011,10 @@ void aes::clear() noexcept {
 std::vector<uint8_t> aes::get_subkeys_for_unit_test() {
   std::vector<uint8_t> skeys;
 
-  for (uint32_t cnt = 0; cnt < sizeof(subkeys_) / sizeof(uint32_t); ++cnt) {
+  for (uint32_t cnt = 0; cnt < sizeof(encskeys32bit_) / sizeof(uint32_t); ++cnt) {
     uint8_t skey[4] = {0};
 
-    BIGENDIAN_U32_TO_U8_COPY(subkeys_[cnt], skey);
+    BIGENDIAN_U32_TO_U8_COPY(encskeys32bit_[cnt], skey);
 
     skeys.push_back(skey[0]);
     skeys.push_back(skey[1]);
@@ -1040,15 +1041,14 @@ inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctex
   uint32_t tmp32pln[4] = {0};
   uint8_t tmppln[16] = {0};
 
-
   memcpy(tmppln, ptext, 16);
 #if defined(HIGH_SPEED_AES_MODE)
   BIGENDIAN_32BIT_U8_TO_U128_COPY(tmppln, tmp32pln);
 
-  tmp32pln[0] = tmp32pln[0] ^ subkeys_[kpos    ];
-  tmp32pln[1] = tmp32pln[1] ^ subkeys_[kpos + 1];
-  tmp32pln[2] = tmp32pln[2] ^ subkeys_[kpos + 2];
-  tmp32pln[3] = tmp32pln[3] ^ subkeys_[kpos + 3];
+  tmp32pln[0] = tmp32pln[0] ^ encskeys32bit_[kpos    ];
+  tmp32pln[1] = tmp32pln[1] ^ encskeys32bit_[kpos + 1];
+  tmp32pln[2] = tmp32pln[2] ^ encskeys32bit_[kpos + 2];
+  tmp32pln[3] = tmp32pln[3] ^ encskeys32bit_[kpos + 3];
 
   BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp32pln, tmppln);
 #else
@@ -1059,10 +1059,10 @@ inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctex
 #if defined(HIGH_SPEED_AES_MODE)
     kpos = 4 * round;
 
-    tmp32pln[0] = mixed_sbox2113[tmppln[0]]  ^ mixed_sbox3211[tmppln[5]]  ^ mixed_sbox1321[tmppln[10]] ^ mixed_sbox1132[tmppln[15]] ^ subkeys_[kpos    ];
-    tmp32pln[1] = mixed_sbox2113[tmppln[4]]  ^ mixed_sbox3211[tmppln[9]]  ^ mixed_sbox1321[tmppln[14]] ^ mixed_sbox1132[tmppln[3]]  ^ subkeys_[kpos + 1];
-    tmp32pln[2] = mixed_sbox2113[tmppln[8]]  ^ mixed_sbox3211[tmppln[13]] ^ mixed_sbox1321[tmppln[2]]  ^ mixed_sbox1132[tmppln[7]]  ^ subkeys_[kpos + 2];
-    tmp32pln[3] = mixed_sbox2113[tmppln[12]] ^ mixed_sbox3211[tmppln[1]]  ^ mixed_sbox1321[tmppln[6]]  ^ mixed_sbox1132[tmppln[11]] ^ subkeys_[kpos + 3];
+    tmp32pln[0] = mixed_sbox_2113[tmppln[0]]  ^ mixed_sbox_3211[tmppln[5]]  ^ mixed_sbox_1321[tmppln[10]] ^ mixed_sbox_1132[tmppln[15]] ^ encskeys32bit_[kpos    ];
+    tmp32pln[1] = mixed_sbox_2113[tmppln[4]]  ^ mixed_sbox_3211[tmppln[9]]  ^ mixed_sbox_1321[tmppln[14]] ^ mixed_sbox_1132[tmppln[3]]  ^ encskeys32bit_[kpos + 1];
+    tmp32pln[2] = mixed_sbox_2113[tmppln[8]]  ^ mixed_sbox_3211[tmppln[13]] ^ mixed_sbox_1321[tmppln[2]]  ^ mixed_sbox_1132[tmppln[7]]  ^ encskeys32bit_[kpos + 2];
+    tmp32pln[3] = mixed_sbox_2113[tmppln[12]] ^ mixed_sbox_3211[tmppln[1]]  ^ mixed_sbox_1321[tmppln[6]]  ^ mixed_sbox_1132[tmppln[11]] ^ encskeys32bit_[kpos + 3];
 
     BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp32pln, tmppln);
 #else
@@ -1076,25 +1076,46 @@ inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctex
 #if defined(HIGH_SPEED_AES_MODE)
   kpos = 4 * nr_;
 
-  ctext[0]  = sbox[tmppln[0]]  ^ (uint8_t)((subkeys_[kpos]     >> 24) & 0x0000'00FF);
-  ctext[4]  = sbox[tmppln[4]]  ^ (uint8_t)((subkeys_[kpos + 1] >> 24) & 0x0000'00FF);
-  ctext[8]  = sbox[tmppln[8]]  ^ (uint8_t)((subkeys_[kpos + 2] >> 24) & 0x0000'00FF);
-  ctext[12] = sbox[tmppln[12]] ^ (uint8_t)((subkeys_[kpos + 3] >> 24) & 0x0000'00FF);
+//  ctext[0]  = sbox[tmppln[0]]  ^ (uint8_t)((encskeys32bit_[kpos]     >> 24) & 0x0000'00FF);
+//  ctext[4]  = sbox[tmppln[4]]  ^ (uint8_t)((encskeys32bit_[kpos + 1] >> 24) & 0x0000'00FF);
+//  ctext[8]  = sbox[tmppln[8]]  ^ (uint8_t)((encskeys32bit_[kpos + 2] >> 24) & 0x0000'00FF);
+//  ctext[12] = sbox[tmppln[12]] ^ (uint8_t)((encskeys32bit_[kpos + 3] >> 24) & 0x0000'00FF);
+//
+//  ctext[1]  = sbox[tmppln[5]]  ^ (uint8_t)((encskeys32bit_[kpos]     >> 16) & 0x0000'00FF);
+//  ctext[5]  = sbox[tmppln[9]]  ^ (uint8_t)((encskeys32bit_[kpos + 1] >> 16) & 0x0000'00FF);
+//  ctext[9]  = sbox[tmppln[13]] ^ (uint8_t)((encskeys32bit_[kpos + 2] >> 16) & 0x0000'00FF);
+//  ctext[13] = sbox[tmppln[1]]  ^ (uint8_t)((encskeys32bit_[kpos + 3] >> 16) & 0x0000'00FF);
+//
+//  ctext[2]  = sbox[tmppln[10]] ^ (uint8_t)((encskeys32bit_[kpos]     >>  8) & 0x0000'00FF);
+//  ctext[6]  = sbox[tmppln[14]] ^ (uint8_t)((encskeys32bit_[kpos + 1] >>  8) & 0x0000'00FF);
+//  ctext[10] = sbox[tmppln[2]]  ^ (uint8_t)((encskeys32bit_[kpos + 2] >>  8) & 0x0000'00FF);
+//  ctext[14] = sbox[tmppln[6]]  ^ (uint8_t)((encskeys32bit_[kpos + 3] >>  8) & 0x0000'00FF);
+//
+//  ctext[3]  = sbox[tmppln[15]] ^ (uint8_t)( encskeys32bit_[kpos]     & 0x0000'00FF);
+//  ctext[7]  = sbox[tmppln[3]]  ^ (uint8_t)( encskeys32bit_[kpos + 1] & 0x0000'00FF);
+//  ctext[11] = sbox[tmppln[7]]  ^ (uint8_t)( encskeys32bit_[kpos + 2] & 0x0000'00FF);
+//  ctext[15] = sbox[tmppln[11]] ^ (uint8_t)( encskeys32bit_[kpos + 3] & 0x0000'00FF);
 
-  ctext[1]  = sbox[tmppln[5]]  ^ (uint8_t)((subkeys_[kpos]     >> 16) & 0x0000'00FF);
-  ctext[5]  = sbox[tmppln[9]]  ^ (uint8_t)((subkeys_[kpos + 1] >> 16) & 0x0000'00FF);
-  ctext[9]  = sbox[tmppln[13]] ^ (uint8_t)((subkeys_[kpos + 2] >> 16) & 0x0000'00FF);
-  ctext[13] = sbox[tmppln[1]]  ^ (uint8_t)((subkeys_[kpos + 3] >> 16) & 0x0000'00FF);
+  ctext[0]  = sbox[tmppln[0]]  ^ (uint8_t)((encskeys32bit_[kpos]     >> 24) & 0x0000'00FF);
+  ctext[1]  = sbox[tmppln[5]]  ^ (uint8_t)((encskeys32bit_[kpos]     >> 16) & 0x0000'00FF);
+  ctext[2]  = sbox[tmppln[10]] ^ (uint8_t)((encskeys32bit_[kpos]     >>  8) & 0x0000'00FF);
+  ctext[3]  = sbox[tmppln[15]] ^ (uint8_t)( encskeys32bit_[kpos]            & 0x0000'00FF);
 
-  ctext[2]  = sbox[tmppln[10]] ^ (uint8_t)((subkeys_[kpos]     >>  8) & 0x0000'00FF);
-  ctext[6]  = sbox[tmppln[14]] ^ (uint8_t)((subkeys_[kpos + 1] >>  8) & 0x0000'00FF);
-  ctext[10] = sbox[tmppln[2]]  ^ (uint8_t)((subkeys_[kpos + 2] >>  8) & 0x0000'00FF);
-  ctext[14] = sbox[tmppln[6]]  ^ (uint8_t)((subkeys_[kpos + 3] >>  8) & 0x0000'00FF);
+  ctext[4]  = sbox[tmppln[4]]  ^ (uint8_t)((encskeys32bit_[kpos + 1] >> 24) & 0x0000'00FF);
+  ctext[5]  = sbox[tmppln[9]]  ^ (uint8_t)((encskeys32bit_[kpos + 1] >> 16) & 0x0000'00FF);
+  ctext[6]  = sbox[tmppln[14]] ^ (uint8_t)((encskeys32bit_[kpos + 1] >>  8) & 0x0000'00FF);
+  ctext[7]  = sbox[tmppln[3]]  ^ (uint8_t)( encskeys32bit_[kpos + 1]        & 0x0000'00FF);
 
-  ctext[3]  = sbox[tmppln[15]] ^ (uint8_t)( subkeys_[kpos]     & 0x0000'00FF);
-  ctext[7]  = sbox[tmppln[3]]  ^ (uint8_t)( subkeys_[kpos + 1] & 0x0000'00FF);
-  ctext[11] = sbox[tmppln[7]]  ^ (uint8_t)( subkeys_[kpos + 2] & 0x0000'00FF);
-  ctext[15] = sbox[tmppln[11]] ^ (uint8_t)( subkeys_[kpos + 3] & 0x0000'00FF);
+  ctext[8]  = sbox[tmppln[8]]  ^ (uint8_t)((encskeys32bit_[kpos + 2] >> 24) & 0x0000'00FF);
+  ctext[9]  = sbox[tmppln[13]] ^ (uint8_t)((encskeys32bit_[kpos + 2] >> 16) & 0x0000'00FF);
+  ctext[10] = sbox[tmppln[2]]  ^ (uint8_t)((encskeys32bit_[kpos + 2] >>  8) & 0x0000'00FF);
+  ctext[11] = sbox[tmppln[7]]  ^ (uint8_t)( encskeys32bit_[kpos + 2]        & 0x0000'00FF);
+
+  ctext[12] = sbox[tmppln[12]] ^ (uint8_t)((encskeys32bit_[kpos + 3] >> 24) & 0x0000'00FF);
+  ctext[13] = sbox[tmppln[1]]  ^ (uint8_t)((encskeys32bit_[kpos + 3] >> 16) & 0x0000'00FF);
+  ctext[14] = sbox[tmppln[6]]  ^ (uint8_t)((encskeys32bit_[kpos + 3] >>  8) & 0x0000'00FF);
+  ctext[15] = sbox[tmppln[11]] ^ (uint8_t)( encskeys32bit_[kpos + 3]        & 0x0000'00FF);
+
 #else
   sub_bytes(tmppln);
   shift_rows(tmppln);
@@ -1105,31 +1126,97 @@ inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctex
 }
 
 inline void aes::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
-  const uint32_t nr = nr_;
+  uint32_t kpos = 4 * nr_;
+  uint32_t tmp32cphr[4] = {0};
   uint8_t tmpcphr[16] = {0};
 
   memcpy(tmpcphr, ctext, 16);
+#if defined(HIGH_SPEED_AES_MODE)
+  BIGENDIAN_32BIT_U8_TO_U128_COPY(tmpcphr, tmp32cphr);
 
-  add_round_key(nr, tmpcphr);
+  tmp32cphr[0] = tmp32cphr[0] ^ decskeys32bit_[kpos    ];
+  tmp32cphr[1] = tmp32cphr[1] ^ decskeys32bit_[kpos + 1];
+  tmp32cphr[2] = tmp32cphr[2] ^ decskeys32bit_[kpos + 2];
+  tmp32cphr[3] = tmp32cphr[3] ^ decskeys32bit_[kpos + 3];
 
-  for (uint32_t round = nr - 1; round > 0; --round) {
+  BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp32cphr, tmpcphr);
+#else
+  add_round_key(nr_, tmpcphr);
+#endif
+
+  for (uint32_t round = nr_ - 1; round > 0; --round) {
+#if defined(HIGH_SPEED_AES_MODE)
+    kpos = 4 * round;
+
+    tmp32cphr[0] = mixed_invsbox_e9db[tmpcphr[0]]  ^ mixed_invsbox_be9d[tmpcphr[13]] ^ mixed_invsbox_dbe9[tmpcphr[10]] ^ mixed_invsbox_9dbe[tmpcphr[7]]  ^ decskeys32bit_[kpos    ];
+    tmp32cphr[1] = mixed_invsbox_e9db[tmpcphr[4]]  ^ mixed_invsbox_be9d[tmpcphr[1]]  ^ mixed_invsbox_dbe9[tmpcphr[14]] ^ mixed_invsbox_9dbe[tmpcphr[11]] ^ decskeys32bit_[kpos + 1];
+    tmp32cphr[2] = mixed_invsbox_e9db[tmpcphr[8]]  ^ mixed_invsbox_be9d[tmpcphr[5]]  ^ mixed_invsbox_dbe9[tmpcphr[2]]  ^ mixed_invsbox_9dbe[tmpcphr[15]] ^ decskeys32bit_[kpos + 2];
+    tmp32cphr[3] = mixed_invsbox_e9db[tmpcphr[12]] ^ mixed_invsbox_be9d[tmpcphr[9]]  ^ mixed_invsbox_dbe9[tmpcphr[6]]  ^ mixed_invsbox_9dbe[tmpcphr[3]]  ^ decskeys32bit_[kpos + 3];
+
+    BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp32cphr, tmpcphr);
+#else
     inv_shift_rows(tmpcphr);
     inv_sub_bytes(tmpcphr);
     add_round_key(round, tmpcphr);
     inv_mix_columns(tmpcphr);
+#endif
   }
 
+#if defined(HIGH_SPEED_AES_MODE)
+  kpos = 0;
+
+//  ptext[0]  = invsbox[tmpcphr[0]]  ^ (uint8_t)((decskeys32bit_[kpos]     >> 24) & 0x0000'00FF);
+//  ptext[4]  = invsbox[tmpcphr[4]]  ^ (uint8_t)((decskeys32bit_[kpos + 1] >> 24) & 0x0000'00FF);
+//  ptext[8]  = invsbox[tmpcphr[8]]  ^ (uint8_t)((decskeys32bit_[kpos + 2] >> 24) & 0x0000'00FF);
+//  ptext[12] = invsbox[tmpcphr[12]] ^ (uint8_t)((decskeys32bit_[kpos + 3] >> 24) & 0x0000'00FF);
+//
+//  ptext[1]  = invsbox[tmpcphr[13]] ^ (uint8_t)((decskeys32bit_[kpos]     >> 16) & 0x0000'00FF);
+//  ptext[5]  = invsbox[tmpcphr[1]]  ^ (uint8_t)((decskeys32bit_[kpos + 1] >> 16) & 0x0000'00FF);
+//  ptext[9]  = invsbox[tmpcphr[5]]  ^ (uint8_t)((decskeys32bit_[kpos + 2] >> 16) & 0x0000'00FF);
+//  ptext[13] = invsbox[tmpcphr[9]]  ^ (uint8_t)((decskeys32bit_[kpos + 3] >> 16) & 0x0000'00FF);
+//
+//  ptext[2]  = invsbox[tmpcphr[10]] ^ (uint8_t)((decskeys32bit_[kpos]     >>  8) & 0x0000'00FF);
+//  ptext[6]  = invsbox[tmpcphr[14]] ^ (uint8_t)((decskeys32bit_[kpos + 1] >>  8) & 0x0000'00FF);
+//  ptext[10] = invsbox[tmpcphr[2]]  ^ (uint8_t)((decskeys32bit_[kpos + 2] >>  8) & 0x0000'00FF);
+//  ptext[14] = invsbox[tmpcphr[6]]  ^ (uint8_t)((decskeys32bit_[kpos + 3] >>  8) & 0x0000'00FF);
+//
+//  ptext[3]  = invsbox[tmpcphr[7]]  ^ (uint8_t)( decskeys32bit_[kpos]     & 0x0000'00FF);
+//  ptext[7]  = invsbox[tmpcphr[11]] ^ (uint8_t)( decskeys32bit_[kpos + 1] & 0x0000'00FF);
+//  ptext[11] = invsbox[tmpcphr[15]] ^ (uint8_t)( decskeys32bit_[kpos + 2] & 0x0000'00FF);
+//  ptext[15] = invsbox[tmpcphr[3]]  ^ (uint8_t)( decskeys32bit_[kpos + 3] & 0x0000'00FF);
+
+  ptext[0]  = invsbox[tmpcphr[0]]  ^ (uint8_t)((decskeys32bit_[kpos]     >> 24) & 0x0000'00FF);
+  ptext[1]  = invsbox[tmpcphr[13]] ^ (uint8_t)((decskeys32bit_[kpos]     >> 16) & 0x0000'00FF);
+  ptext[2]  = invsbox[tmpcphr[10]] ^ (uint8_t)((decskeys32bit_[kpos]     >>  8) & 0x0000'00FF);
+  ptext[3]  = invsbox[tmpcphr[7]]  ^ (uint8_t)( decskeys32bit_[kpos]            & 0x0000'00FF);
+
+  ptext[4]  = invsbox[tmpcphr[4]]  ^ (uint8_t)((decskeys32bit_[kpos + 1] >> 24) & 0x0000'00FF);
+  ptext[5]  = invsbox[tmpcphr[1]]  ^ (uint8_t)((decskeys32bit_[kpos + 1] >> 16) & 0x0000'00FF);
+  ptext[6]  = invsbox[tmpcphr[14]] ^ (uint8_t)((decskeys32bit_[kpos + 1] >>  8) & 0x0000'00FF);
+  ptext[7]  = invsbox[tmpcphr[11]] ^ (uint8_t)( decskeys32bit_[kpos + 1]        & 0x0000'00FF);
+
+  ptext[8]  = invsbox[tmpcphr[8]]  ^ (uint8_t)((decskeys32bit_[kpos + 2] >> 24) & 0x0000'00FF);
+  ptext[9]  = invsbox[tmpcphr[5]]  ^ (uint8_t)((decskeys32bit_[kpos + 2] >> 16) & 0x0000'00FF);
+  ptext[10] = invsbox[tmpcphr[2]]  ^ (uint8_t)((decskeys32bit_[kpos + 2] >>  8) & 0x0000'00FF);
+  ptext[11] = invsbox[tmpcphr[15]] ^ (uint8_t)( decskeys32bit_[kpos + 2]        & 0x0000'00FF);
+
+  ptext[12] = invsbox[tmpcphr[12]] ^ (uint8_t)((decskeys32bit_[kpos + 3] >> 24) & 0x0000'00FF);
+  ptext[13] = invsbox[tmpcphr[9]]  ^ (uint8_t)((decskeys32bit_[kpos + 3] >> 16) & 0x0000'00FF);
+  ptext[14] = invsbox[tmpcphr[6]]  ^ (uint8_t)((decskeys32bit_[kpos + 3] >>  8) & 0x0000'00FF);
+  ptext[15] = invsbox[tmpcphr[3]]  ^ (uint8_t)( decskeys32bit_[kpos + 3]        & 0x0000'00FF);
+#else
   inv_shift_rows(tmpcphr);
   inv_sub_bytes(tmpcphr);
   add_round_key(0, tmpcphr);
 
   memcpy(ptext, tmpcphr, 16);
+#endif
 }
 
 inline void aes::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept { 
   const uint32_t nr = nr_;
-
   __m128i st = _mm_loadu_si128((__m128i*)ptext);
+
   st = _mm_xor_si128(st, encskeys_[0]);
 
   st = _mm_aesenc_si128(st, encskeys_[1]);
@@ -1141,6 +1228,7 @@ inline void aes::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) 
   st = _mm_aesenc_si128(st, encskeys_[7]);
   st = _mm_aesenc_si128(st, encskeys_[8]);
   st = _mm_aesenc_si128(st, encskeys_[9]);
+
   if (AES256 == mode_) {
     st = _mm_aesenc_si128(st, encskeys_[10]);
     st = _mm_aesenc_si128(st, encskeys_[11]);
@@ -1155,8 +1243,8 @@ inline void aes::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) 
 
 inline void aes::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   const uint32_t nr = nr_;
-
   __m128i st = _mm_loadu_si128((__m128i*)ctext);
+
   st = _mm_xor_si128(st, decskeys_[nr]);
   
   if (AES256 == mode_) {
@@ -1168,6 +1256,7 @@ inline void aes::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) 
     st = _mm_aesdec_si128(st, decskeys_[11]);
     st = _mm_aesdec_si128(st, decskeys_[10]);
   }
+
   st = _mm_aesdec_si128(st, decskeys_[9]);
   st = _mm_aesdec_si128(st, decskeys_[8]);
   st = _mm_aesdec_si128(st, decskeys_[7]);
@@ -1181,14 +1270,18 @@ inline void aes::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) 
   _mm_storeu_si128((__m128i*)ptext, _mm_aesdeclast_si128(st, decskeys_[0]));
 }
 
-inline void aes::expand_key(const uint32_t * const key, uint32_t *subkeys) const noexcept {
+inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) const noexcept {
   const uint32_t nkr = 4 * (nr_ + 1);
+  uint32_t kpos = 4 * nr_;
   uint32_t tmp = 0;
-
-  memcpy(subkeys, key, (4 * nk_));
+#if defined(HIGH_SPEED_AES_MODE)
+  uint32_t tmpdeckey[60] = {0};
+  uint8_t kbuf8bit[16] = {0};
+#endif
+  memcpy(encskeys, key, (4 * nk_));
 
   for (uint32_t j = nk_; j < nkr; ++j) {
-    tmp = subkeys[j - 1];
+    tmp = encskeys[j - 1];
 
     if (0 == (j % nk_)) {
       tmp = sub_word(rot_word(tmp)) ^ rcon[j / nk_];
@@ -1197,8 +1290,37 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *subkeys) const
       tmp = sub_word(tmp);
 
     }
-    subkeys[j] = subkeys[j - nk_] ^ tmp;
+    encskeys[j] = encskeys[j - nk_] ^ tmp;
   }
+#if defined(HIGH_SPEED_AES_MODE)
+  memcpy(tmpdeckey, encskeys, sizeof(uint32_t) * 60);
+  memcpy(decskeys, encskeys, sizeof(uint32_t) * 60);
+
+  for (uint32_t k = 1; k < nr_; ++k) {
+    kpos = 4 * k;
+
+    BIGENDIAN_32BIT_U128_TO_U8_COPY(&tmpdeckey[kpos], kbuf8bit);
+    decskeys[kpos]     = mixed_invsbox_e9db[sbox[kbuf8bit[0]]] ^ 
+                         mixed_invsbox_be9d[sbox[kbuf8bit[1]]] ^ 
+                         mixed_invsbox_dbe9[sbox[kbuf8bit[2]]] ^ 
+                         mixed_invsbox_9dbe[sbox[kbuf8bit[3]]];
+
+    decskeys[kpos + 1] = mixed_invsbox_e9db[sbox[kbuf8bit[4]]] ^ 
+                         mixed_invsbox_be9d[sbox[kbuf8bit[5]]] ^ 
+                         mixed_invsbox_dbe9[sbox[kbuf8bit[6]]] ^ 
+                         mixed_invsbox_9dbe[sbox[kbuf8bit[7]]];
+                         
+    decskeys[kpos + 2] = mixed_invsbox_e9db[sbox[kbuf8bit[8]]]  ^ 
+                         mixed_invsbox_be9d[sbox[kbuf8bit[9]]]  ^ 
+                         mixed_invsbox_dbe9[sbox[kbuf8bit[10]]] ^ 
+                         mixed_invsbox_9dbe[sbox[kbuf8bit[11]]];
+
+    decskeys[kpos + 3] = mixed_invsbox_e9db[sbox[kbuf8bit[12]]] ^ 
+                         mixed_invsbox_be9d[sbox[kbuf8bit[13]]] ^ 
+                         mixed_invsbox_dbe9[sbox[kbuf8bit[14]]] ^ 
+                         mixed_invsbox_9dbe[sbox[kbuf8bit[15]]];
+  }
+#endif
 }
 
 inline uint32_t aes::rot_word(uint32_t word) const noexcept {
@@ -1234,6 +1356,7 @@ inline uint32_t aes::sub_word(uint32_t word) const noexcept {
   return out;
 }
 
+#if !defined(HIGH_SPEED_AES_MODE)
 inline void aes::sub_bytes(uint8_t *words) const noexcept {
   for (uint32_t i = 0; i < 16; i +=4) {
     words[i]     = sbox[words[i]];
@@ -1361,10 +1484,10 @@ inline void aes::add_round_key(const uint32_t nr, uint8_t *word) const noexcept 
 
   BIGENDIAN_32BIT_U8_TO_U128_COPY(word, tmp);
 
-  tmp[0] = tmp[0] ^ subkeys_[kpos    ];
-  tmp[1] = tmp[1] ^ subkeys_[kpos + 1];
-  tmp[2] = tmp[2] ^ subkeys_[kpos + 2];
-  tmp[3] = tmp[3] ^ subkeys_[kpos + 3];
+  tmp[0] = tmp[0] ^ encskeys32bit_[kpos    ];
+  tmp[1] = tmp[1] ^ encskeys32bit_[kpos + 1];
+  tmp[2] = tmp[2] ^ encskeys32bit_[kpos + 2];
+  tmp[3] = tmp[3] ^ encskeys32bit_[kpos + 3];
 
   BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp, word);
 }
@@ -1372,6 +1495,7 @@ inline void aes::add_round_key(const uint32_t nr, uint8_t *word) const noexcept 
 inline uint8_t aes::gf_mult(uint8_t x, uint8_t y) const noexcept {
   return lut_gf_mult[x][y];
 }
+#endif
 
 #if 0
 inline uint8_t aes::gf_mult(uint8_t x, uint8_t y) const noexcept {
@@ -1389,7 +1513,7 @@ inline uint8_t aes::gf_mult(uint8_t x, uint8_t y) const noexcept {
 }
 #endif
 
-#if 1
+#if 0
 uint32_t aes::calc_mixed_sbox(uint8_t x, uint32_t column) {
   uint32_t msbox = 0;
 
