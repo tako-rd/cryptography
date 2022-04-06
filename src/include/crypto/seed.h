@@ -14,6 +14,8 @@
 
 namespace cryptography {
 
+#define HIGH_SPEED_SEED_MODE  1
+
 class seed final : public algorithm<seed> {
  public:
   seed() noexcept {};

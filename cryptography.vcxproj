@@ -161,7 +161,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CallingConvention>StdCall</CallingConvention>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)/src/include/hash;$(MSBuildProjectDirectory)/src/include/crypto;$(MSBuildProjectDirectory)/src/include/common;$(MSBuildProjectDirectory)/src/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -218,7 +218,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CallingConvention>StdCall</CallingConvention>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)/src/include/hash;$(MSBuildProjectDirectory)/src/include/crypto;$(MSBuildProjectDirectory)/src/include/common;$(MSBuildProjectDirectory)/src/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Full</Optimization>
