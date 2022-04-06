@@ -911,7 +911,7 @@ static const uint64_t sp32bit4404[256] = {
 static const uint8_t left_rschd[6]  = {0, 1, 0, 1, 0, 1};
 static const uint8_t right_rschd[6] = {1, 0, 1, 0, 1, 0};
 
-int32_t camellia::initialize(const uint16_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
+int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
   uint64_t tmpkey[32] = {0};
 
   if (CAMELLIA128 != (mode & EXTRACT_TYPE) &&

@@ -40,6 +40,7 @@
     <ClInclude Include="src\include\crypto\mode.h" />
     <ClInclude Include="src\include\crypto\ofb.h" />
     <ClInclude Include="src\include\crypto\rsa.h" />
+    <ClInclude Include="src\include\crypto\seed.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc" />
@@ -56,6 +57,7 @@
     <ClCompile Include="src\crypto\ecb.cc" />
     <ClCompile Include="src\crypto\ofb.cc" />
     <ClCompile Include="src\crypto\rsa.cc" />
+    <ClCompile Include="src\crypto\seed.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -160,7 +162,7 @@
       <CallingConvention>StdCall</CallingConvention>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)/src/include/hash;$(MSBuildProjectDirectory)/src/include/crypto;$(MSBuildProjectDirectory)/src/include/common;$(MSBuildProjectDirectory)/src/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Full</Optimization>
@@ -216,7 +218,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <CallingConvention>StdCall</CallingConvention>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)/src/include/hash;$(MSBuildProjectDirectory)/src/include/crypto;$(MSBuildProjectDirectory)/src/include/common;$(MSBuildProjectDirectory)/src/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
       <FloatingPointModel>Fast</FloatingPointModel>
       <Optimization>Full</Optimization>

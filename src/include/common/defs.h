@@ -87,10 +87,11 @@ typedef enum cipher_and_hash_type {
   CAMELLIA128  = 0x0500,
   CAMELLIA192  = 0x0600,
   CAMELLIA256  = 0x0700,
-  RSA          = 0x0800,
-  MD4          = 0x0900,
-  MD5          = 0x1000,
-  SHA          = 0x1100,
+  SEED         = 0x0800,
+  RSA          = 0x0900,
+  MD4          = 0x1000,
+  MD5          = 0x1100,
+  SHA          = 0x1200,
   EXTRACT_TYPE = 0xFF00
 } type_t;
 

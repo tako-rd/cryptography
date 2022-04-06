@@ -37,13 +37,15 @@ class seed final : public algorithm<seed> {
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
-  void expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) const noexcept;
+  void expand_key(const uint64_t * const key, uint64_t *skeys) const noexcept;
 
-  uint64_t f_function() const noexcept;
+  uint64_t f_function(uint64_t r, uint64_t k) const noexcept;
 
-  uint32_t g_function(const uint32_t * const r) const noexcept;
+  uint32_t g_function(uint32_t r) const noexcept;
 
   uint32_t mode_;
+
+  uint64_t subkey_[16];
 
   bool has_subkeys_;
 

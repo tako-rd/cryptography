@@ -57,20 +57,6 @@ namespace cryptography {
 #define SUCCESS                                           0
 #define FAILURE                                           1
 
-#ifdef __LITTLE_ENDIAN__
-  #define LEFT_TEXT                                       1
-  #define RIGHT_TEXT                                      0
-
-  #define LEFT                                            0
-  #define RIGHT                                           1
-#elif __BIG_ENDIAN__
-  #define LEFT_TEXT                                       0
-  #define RIGHT_TEXT                                      1
-
-  #define LEFT                                            0
-  #define RIGHT                                           1
-#endif
-
 static const uint8_t ip[64] = {
   0x3A, 0x32, 0x2A, 0x22, 0x1A, 0x12, 0x0A, 0x02,
   0x3C, 0x34, 0x2C, 0x24, 0x1C, 0x14, 0x0C, 0x04,

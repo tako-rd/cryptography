@@ -15,6 +15,7 @@
 #include "common/base64.h"
 #include "crypto/aes.h"
 #include "crypto/des.h"
+#include "crypto/camellia.h"
 #include "crypto/rsa.h"
 #include "crypto/block_cipher.h"
 

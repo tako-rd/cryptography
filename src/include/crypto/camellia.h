@@ -24,7 +24,7 @@ class camellia final : public algorithm<camellia> {
 
   ~camellia() {};
 
-  int32_t initialize(const uint16_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept;
+  int32_t initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept;
 
   int32_t encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *ctext, const uint32_t clen) noexcept;
 
@@ -59,7 +59,7 @@ class camellia final : public algorithm<camellia> {
 #if !defined(_WIN64) && !defined(__x86_64__)
   void p_function(uint8_t *x) const noexcept;
 #endif
-  uint16_t mode_;
+  uint32_t mode_;
 
   int32_t nk_;
 

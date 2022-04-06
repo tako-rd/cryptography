@@ -8,27 +8,33 @@
 */
 
 #include "seed.h"
+#include "bit_utill.h"
+#include "byte_utill.h"
 
 namespace cryptography {
 
-#define KC1             0x9E3779B9
-#define KC3             0x78DDE6E6
-#define KC5             0xE3779B99
-#define KC7             0x8DDE6E67
-#define KC9             0x3779B99E
-#define KC11            0xDDE6E678
-#define KC13            0x779B99E3
-#define KC15            0xDE6E678D
-#define KC2             0x3C6EF373
-#define KC4             0xF1BBCDCC
-#define KC6             0xC6EF3733
-#define KC8             0x1BBCDCCF
-#define KC10            0x6EF3733C
-#define KC12            0xBBCDCCF1
-#define KC14            0xEF3733C6
-#define KC16            0xBCDCCF1B
+#define SUCCESS                                             0
+#define FAILURE                                             1
 
-#define SEED_ROUNDS     16
+#define SEED_ROUNDS                                         16
+                                                            
+#define M0                                                  0xFC
+#define M1                                                  0xF3
+#define M2                                                  0xCF
+#define M3                                                  0x3F
+
+#define SEED_BIGENDIAN_U64_TO_U32_COPY(value, outval)       value  = _byteswap_uint64(value);  \
+                                                            memcpy(outval, &value, 8);
+                           
+#define SEED_BIGENDIAN_U32_TO_U64_COPY(value, outval)       memcpy(&outval, value, 8);  \
+                                                            outval = _byteswap_uint64(outval);
+
+static const uint32_t kc[16] = {
+  0x9E3779B9, 0x3C6EF373, 0x78DDE6E6, 0xF1BBCDCC, 
+  0xE3779B99, 0xC6EF3733, 0x8DDE6E67, 0x1BBCDCCF, 
+  0x3779B99E, 0x6EF3733C, 0xDDE6E678, 0xBBCDCCF1, 
+  0x779B99E3, 0xEF3733C6, 0xDE6E678D, 0xBCDCCF1B, 
+};
 
 static const uint8_t sbox0[] = {
   0xA9, 0x85, 0xD6, 0xD3, 0x54, 0x1D, 0xAC, 0x25, 
@@ -100,52 +106,141 @@ static const uint8_t sbox1[256] = {
   0xD9, 0x4C, 0x83, 0x8F, 0xCE, 0x3B, 0x4A, 0xB7,
 };
 
+static const uint32_t key_round_schd[16] = {
+  1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+};
+
 int32_t seed::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
-  return 1;
+  uint64_t k[2] = {0};
+
+  if (SEED != (mode & EXTRACT_TYPE)) {
+    return FAILURE;
+  }
+
+  mode_ = mode;
+  enable_intrinsic_func_ = enable_intrinsic;
+
+  if (16 != klen) { return FAILURE; }
+  BIGENDIAN_64BIT_U8_TO_U128_COPY(key, k);
+  expand_key(k, subkey_);
+  has_subkeys_ = true;
+
+
+  return SUCCESS;
 }
 
 int32_t seed::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *ctext, const uint32_t clen) noexcept {
-  return 1;
+  if (16 != plen || 16 != clen) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
+  if (true == enable_intrinsic_func_) {
+    intrinsic_encrypt(ptext, ctext);
+  } else {
+    no_intrinsic_encrypt(ptext, ctext);
+  }
+  return SUCCESS;
 }
 
 int32_t seed::decrypt(const uint8_t * const ctext, const uint32_t clen, uint8_t *ptext, const uint32_t plen) noexcept {
-  return 1;
+  if (16 != plen || 16 != clen) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
+  if (true == enable_intrinsic_func_) {
+    intrinsic_decrypt(ctext, ptext);
+  } else {
+    no_intrinsic_decrypt(ctext, ptext);
+  }
+  return SUCCESS;
 }
 
 void seed::clear() noexcept {
 
 }
 
-void seed::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+inline void seed::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+  uint64_t tmppln[2] = {0};
+  uint64_t t = 0;
+
+  BIGENDIAN_64BIT_U8_TO_U128_COPY(ptext, tmppln);
+
+  for (int32_t round = 0; round < 15; ++round) {
+    t = tmppln[1];
+    tmppln[1] = tmppln[0] ^ f_function(tmppln[1], subkey_[round]);
+    tmppln[0] = t;
+  }
+  tmppln[0] ^= f_function(tmppln[1], subkey_[15]);
+
+  BIGENDIAN_64BIT_U128_TO_U8_COPY(tmppln, ctext);
+}
+
+inline void seed::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+  uint64_t tmpcphr[2] = {0};
+  uint64_t t = 0;
+
+  BIGENDIAN_64BIT_U8_TO_U128_COPY(ctext, tmpcphr);
+
+  for (int32_t round = 15; round > 0; --round) {
+    t = tmpcphr[1];
+    tmpcphr[1] = tmpcphr[0] ^ f_function(tmpcphr[1], subkey_[round]);
+    tmpcphr[0] = t;
+  }
+  tmpcphr[0] ^= f_function(tmpcphr[1], subkey_[0]);
+
+  BIGENDIAN_64BIT_U128_TO_U8_COPY(tmpcphr, ptext);
+}
+
+inline void seed::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
 
 }
 
-void seed::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+inline void seed::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
 
 }
 
-void seed::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+inline void seed::expand_key(const uint64_t * const key, uint64_t *skeys) const noexcept {
+  int32_t kpos = 0;
+  uint64_t tmpk[2] = {0};
+  uint64_t *kptr = nullptr;
 
+  BIGENDIAN_64BIT_U8_TO_U128_COPY(key, tmpk);
+
+  for (int32_t round = 0; round < 16; ++round) {
+    skeys[round] = (uint64_t)g_function(((uint32_t)(tmpk[0] >> 32) + (uint32_t)(tmpk[1] >> 32) - kc[round])) << 32 | 
+                   (uint64_t)g_function(((uint32_t)(tmpk[0] & 0x0000'0000'FFFF'FFFF) - (uint32_t)(tmpk[1] & 0x0000'0000'FFFF'FFFF) + kc[round]));
+
+    if (1 == key_round_schd[round]) { /* Odd round */
+      tmpk[0] = ROTATE_RIGHT64(tmpk[0], 8);
+    } else {                          /* Even round */
+      tmpk[1] = ROTATE_LEFT64(tmpk[1], 8);
+    }
+  }
 }
 
-void seed::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+inline uint64_t seed::f_function(uint64_t r, uint64_t k) const noexcept {
+  uint32_t tmpr[2] = {0};
+  uint32_t tmpk[2] = {0};
 
+  SEED_BIGENDIAN_U64_TO_U32_COPY(r, tmpr);
+  SEED_BIGENDIAN_U64_TO_U32_COPY(k, tmpk);
+
+  return ((uint64_t)g_function(g_function(g_function((tmpr[0] ^ tmpk[0]) ^ (tmpr[1] ^ tmpk[1])) ^ g_function((tmpr[0] ^ tmpk[0]) ^ (tmpr[1] ^ tmpk[1])))) + 
+          (uint64_t)g_function(g_function((tmpr[0] ^ tmpk[0]) ^ (tmpr[1] ^ tmpk[1])) ^ (tmpr[0] ^ tmpk[0]))) << 32 | 
+         ((uint64_t)g_function(g_function(g_function((tmpr[0] ^ tmpk[0]) ^ (tmpr[1] ^ tmpk[1])) ^ g_function((tmpr[0] ^ tmpk[0]) ^ (tmpr[1] ^ tmpk[1])))));
 }
 
-void seed::expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) const noexcept {
+inline uint32_t seed::g_function(uint32_t r) const noexcept {
+  uint32_t z = 0;
+  uint8_t z8bit[4] = {0};
+  uint8_t *r8bit = nullptr;
 
+  BIGENDIAN_U32_TO_U8(r, r8bit);
+
+  z8bit[0]  = (sbox0[r8bit[0]] & M0)  ^ (sbox1[r8bit[1]] & M1)  ^ (sbox0[r8bit[2]] & M2)  ^ (sbox1[r8bit[3]] & M3);
+  z8bit[1]  = (sbox0[r8bit[0]] & M1)  ^ (sbox1[r8bit[1]] & M2)  ^ (sbox0[r8bit[2]] & M3)  ^ (sbox1[r8bit[3]] & M0);
+  z8bit[2]  = (sbox0[r8bit[0]] & M2)  ^ (sbox1[r8bit[1]] & M3)  ^ (sbox0[r8bit[2]] & M0)  ^ (sbox1[r8bit[3]] & M1);
+  z8bit[3]  = (sbox0[r8bit[0]] & M3)  ^ (sbox1[r8bit[1]] & M0)  ^ (sbox0[r8bit[2]] & M1)  ^ (sbox1[r8bit[3]] & M2);
+
+  BIGENDIAN_U8_TO_U32_COPY(z8bit, z);
+
+  return z;
 }
-
-uint64_t seed::f_function() const noexcept {
-  return 0;
-}
-
-uint32_t seed::g_function(const uint32_t * const r) const noexcept {
-
-  return 0;
-}
-
-
-
 
 }

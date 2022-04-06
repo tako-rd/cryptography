@@ -21,7 +21,7 @@ public:
 
   ~algorithm() {};
 
-  int32_t initialize(const uint16_t mode, const uint8_t *key, const uint32_t ksize, const bool en_intrinsic) {
+  int32_t initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, const bool en_intrinsic) {
     return static_cast<Algorithm &>(*this).initialize(mode, key, ksize, en_intrinsic);
   }
 

@@ -329,33 +329,118 @@
 #elif __BIG_ENDIAN__
 # ifdef _MSC_VER
 
-#   define BIGENDIAN_U32_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U32(value, outptr)       outptr = (uint32_t *)&value;
-#   define BIGENDIAN_U64_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U64(value, outptr)       outptr = (uint64_t *)&value;
-#   define BIGENDIAN_U128_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U128(value, outptr)      outptr = (uint64_t *)value;
-#   define BIGENDIAN_U192_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U192(value, outptr)      outptr = (uint64_t *)value;
-#   define BIGENDIAN_U256_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U256(value, outptr)      outptr = (uint64_t *)value;
+/********************************************************************/
+/* Change the data type while maintaining big endianness in 32-bit. */
+/********************************************************************/
+#   define BIGENDIAN_U32_TO_U8(value, outptr)                 outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U32(value, outptr)                 outptr = (uint32_t *)&value;
+#   define BIGENDIAN_32BIT_U64_TO_U8(value, outptr)           outptr = (uint8_t *)&value;
+#   define BIGENDIAN_32BIT_U8_TO_U64(value, outptr)           outptr = (uint32_t *)&value;
+#   define BIGENDIAN_32BIT_U128_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
+#   define BIGENDIAN_32BIT_U8_TO_U128(value, outptr)          outptr = (uint32_t *)value;
+#   define BIGENDIAN_32BIT_U192_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
+#   define BIGENDIAN_32BIT_U8_TO_U192(value, outptr)          outptr = (uint32_t *)value;
+#   define BIGENDIAN_32BIT_U256_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
+#   define BIGENDIAN_32BIT_U8_TO_U256(value, outptr)          outptr = (uint32_t *)value;
+
+/*****************************************************************************/
+/* Change and copy the data type while maintaining big endianness in 32-bit. */
+/*****************************************************************************/
+#   define BIGENDIAN_U32_TO_U8_COPY(value, outval)            memcpy(outval, &value, 4);
+#   define BIGENDIAN_U8_TO_U32_COPY(value, outval)            memcpy(&outval, value, 4);
+#   define BIGENDIAN_32BIT_U64_TO_U8_COPY(value, outval)      memcpy(outval, &value, 8);
+#   define BIGENDIAN_32BIT_U8_TO_U64_COPY(value, outval)      memcpy(&outval, value, 8);
+#   define BIGENDIAN_32BIT_U128_TO_U8_COPY(value, outval)     memcpy(outval, value, 16);
+#   define BIGENDIAN_32BIT_U8_TO_U128_COPY(value, outval)     memcpy(outval, value, 16);
+#   define BIGENDIAN_32BIT_U192_TO_U8_COPY(value, outval)     memcpy(outval, value, 24);
+#   define BIGENDIAN_32BIT_U8_TO_U192_COPY(value, outval)     memcpy(outval, value, 24);
+#   define BIGENDIAN_32BIT_U256_TO_U8_COPY(value, outval)     memcpy(outval, value, 32);
+#   define BIGENDIAN_32BIT_U8_TO_U256_COPY(value, outval)     memcpy(outval, value, 32); 
+
+/********************************************************************/
+/* Change the data type while maintaining big endianness in 64-bit. */
+/********************************************************************/
+#   define BIGENDIAN_U32_TO_U8(value, outptr)                 outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U32(value, outptr)                 outptr = (uint32_t *)&value;
+#   define BIGENDIAN_U64_TO_U8(value, outptr)                 outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U64(value, outptr)                 outptr = (uint64_t *)&value;
+#   define BIGENDIAN_U128_TO_U8(value, outptr)                outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U128(value, outptr)                outptr = (uint64_t *)value;
+#   define BIGENDIAN_U192_TO_U8(value, outptr)                outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U192(value, outptr)                outptr = (uint64_t *)value;
+#   define BIGENDIAN_U256_TO_U8(value, outptr)                outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U256(value, outptr)                outptr = (uint64_t *)value;
+
+/*****************************************************************************/
+/* Change and copy the data type while maintaining big endianness in 64-bit. */
+/*****************************************************************************/
+#   define BIGENDIAN_64BIT_U64_TO_U8_COPY(value, outval)      memcpy(outval, &value, 8);
+#   define BIGENDIAN_64BIT_U8_TO_U64_COPY(value, outval)      memcpy(&outval, value, 8);
+#   define BIGENDIAN_64BIT_U128_TO_U8_COPY(value, outval)     memcpy(outval, value, 16);
+#   define BIGENDIAN_64BIT_U8_TO_U128_COPY(value, outval)     memcpy(outval, value, 16);
+#   define BIGENDIAN_64BIT_U192_TO_U8_COPY(value, outval)     memcpy(outval, value, 24);
+#   define BIGENDIAN_64BIT_U8_TO_U192_COPY(value, outval)     memcpy(outval, value, 24);
+#   define BIGENDIAN_64BIT_U256_TO_U8_COPY(value, outval)     memcpy(outval, value, 32);
+#   define BIGENDIAN_64BIT_U8_TO_U256_COPY(value, outval)     memcpy(outval, value, 32);
 
 #   if defined(_WIN64)
 #   else
 #   endif
                                           
 # elif  __GNUC__
+/********************************************************************/
+/* Change the data type while maintaining big endianness in 32-bit. */
+/********************************************************************/
+#   define BIGENDIAN_U32_TO_U8(value, outptr)                 outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U32(value, outptr)                 outptr = (uint32_t *)&value;
+#   define BIGENDIAN_32BIT_U64_TO_U8(value, outptr)           outptr = (uint8_t *)&value;
+#   define BIGENDIAN_32BIT_U8_TO_U64(value, outptr)           outptr = (uint32_t *)&value;
+#   define BIGENDIAN_32BIT_U128_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
+#   define BIGENDIAN_32BIT_U8_TO_U128(value, outptr)          outptr = (uint32_t *)value;
+#   define BIGENDIAN_32BIT_U192_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
+#   define BIGENDIAN_32BIT_U8_TO_U192(value, outptr)          outptr = (uint32_t *)value;
+#   define BIGENDIAN_32BIT_U256_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
+#   define BIGENDIAN_32BIT_U8_TO_U256(value, outptr)          outptr = (uint32_t *)value;
 
-#   define BIGENDIAN_U32_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U32(value, outptr)       outptr = (uint32_t *)&value;
-#   define BIGENDIAN_U64_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U64(value, outptr)       outptr = (uint64_t *)&value;
-#   define BIGENDIAN_U128_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U128(value, outptr)      outptr = (uint64_t *)value;
-#   define BIGENDIAN_U192_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U192(value, outptr)      outptr = (uint64_t *)value;
-#   define BIGENDIAN_U256_TO_U8(value, outptr)      outptr = (uint8_t *)&value;
-#   define BIGENDIAN_U8_TO_U256(value, outptr)      outptr = (uint64_t *)value;
+/*****************************************************************************/
+/* Change and copy the data type while maintaining big endianness in 32-bit. */
+/*****************************************************************************/
+#   define BIGENDIAN_U32_TO_U8_COPY(value, outval)            memcpy(outval, &value, 4);
+#   define BIGENDIAN_U8_TO_U32_COPY(value, outval)            memcpy(&outval, value, 4);
+#   define BIGENDIAN_32BIT_U64_TO_U8_COPY(value, outval)      memcpy(outval, &value, 8);
+#   define BIGENDIAN_32BIT_U8_TO_U64_COPY(value, outval)      memcpy(&outval, value, 8);
+#   define BIGENDIAN_32BIT_U128_TO_U8_COPY(value, outval)     memcpy(outval, value, 16);
+#   define BIGENDIAN_32BIT_U8_TO_U128_COPY(value, outval)     memcpy(outval, value, 16);
+#   define BIGENDIAN_32BIT_U192_TO_U8_COPY(value, outval)     memcpy(outval, value, 24);
+#   define BIGENDIAN_32BIT_U8_TO_U192_COPY(value, outval)     memcpy(outval, value, 24);
+#   define BIGENDIAN_32BIT_U256_TO_U8_COPY(value, outval)     memcpy(outval, value, 32);
+#   define BIGENDIAN_32BIT_U8_TO_U256_COPY(value, outval)     memcpy(outval, value, 32); 
+
+/********************************************************************/
+/* Change the data type while maintaining big endianness in 64-bit. */
+/********************************************************************/
+#   define BIGENDIAN_U32_TO_U8(value, outptr)                 outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U32(value, outptr)                 outptr = (uint32_t *)&value;
+#   define BIGENDIAN_U64_TO_U8(value, outptr)                 outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U64(value, outptr)                 outptr = (uint64_t *)&value;
+#   define BIGENDIAN_U128_TO_U8(value, outptr)                outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U128(value, outptr)                outptr = (uint64_t *)value;
+#   define BIGENDIAN_U192_TO_U8(value, outptr)                outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U192(value, outptr)                outptr = (uint64_t *)value;
+#   define BIGENDIAN_U256_TO_U8(value, outptr)                outptr = (uint8_t *)&value;
+#   define BIGENDIAN_U8_TO_U256(value, outptr)                outptr = (uint64_t *)value;
+
+/*****************************************************************************/
+/* Change and copy the data type while maintaining big endianness in 64-bit. */
+/*****************************************************************************/
+#   define BIGENDIAN_64BIT_U64_TO_U8_COPY(value, outval)      memcpy(outval, &value, 8);
+#   define BIGENDIAN_64BIT_U8_TO_U64_COPY(value, outval)      memcpy(&outval, value, 8);
+#   define BIGENDIAN_64BIT_U128_TO_U8_COPY(value, outval)     memcpy(outval, value, 16);
+#   define BIGENDIAN_64BIT_U8_TO_U128_COPY(value, outval)     memcpy(outval, value, 16);
+#   define BIGENDIAN_64BIT_U192_TO_U8_COPY(value, outval)     memcpy(outval, value, 24);
+#   define BIGENDIAN_64BIT_U8_TO_U192_COPY(value, outval)     memcpy(outval, value, 24);
+#   define BIGENDIAN_64BIT_U256_TO_U8_COPY(value, outval)     memcpy(outval, value, 32);
+#   define BIGENDIAN_64BIT_U8_TO_U256_COPY(value, outval)     memcpy(outval, value, 32);
 
 #   if defined(__x86_64__)
 #   else 
@@ -364,29 +449,5 @@
 # endif
 
 #endif
-
-typedef union union_unsigned_int_32bit_array {
-  uint32_t u32;
-  uint8_t  u8[4];
-} union_array_u32_t;
-
-typedef union union_unsigned_int_64bit_array {
-  uint64_t u64;
-  uint32_t u32[2];
-  uint8_t  u8[8];
-} union_array_u64_t;
-
-typedef union union_unsigned_int_128bit_array {
-  uint64_t u64[2];
-  uint32_t u32[4];
-  uint8_t  u8[16];
-} union_array_u128_t;
-
-typedef union union_unsigned_int_256bit_array {
-  uint64_t u64[4];
-  uint32_t u32[8];
-  uint8_t  u8[32];
-} union_array_u256_t;
-
 
 #endif

@@ -90,6 +90,9 @@
     <ClInclude Include="src\include\common\defs.h">
       <Filter>include\common</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\crypto\seed.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\crypto\aes.cc">
@@ -132,6 +135,9 @@
       <Filter>src\common</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\camellia.cc">
+      <Filter>src\crypto</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\seed.cc">
       <Filter>src\crypto</Filter>
     </ClCompile>
   </ItemGroup>
