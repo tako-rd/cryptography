@@ -18,6 +18,8 @@
 
 namespace cryptography {
 
+#define HIGH_SPEED_CAMELLIA_MODE  1
+
 class camellia final : public algorithm<camellia> {
  public:
   camellia() noexcept : mode_(CAMELLIA256), nk_(0), nkl_(0), n6r_(4), kw_{0}, k_{0}, kl_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
@@ -56,7 +58,7 @@ class camellia final : public algorithm<camellia> {
   uint64_t inv_fl_function(const uint64_t y, const uint64_t kl) const noexcept;
 
   void s_function(uint8_t *x) const noexcept;
-#if !defined(_WIN64) && !defined(__x86_64__)
+#if !defined(HIGH_SPEED_CAMELLIA_MODE)
   void p_function(uint8_t *x) const noexcept;
 #endif
   uint32_t mode_;

@@ -26,7 +26,7 @@ namespace cryptography {
 #define CAMELLIA_ROTATE_LEFT128(src, dst, shift)   dst[0] = src[0] << shift | src[1] >> (64 - shift); \
                                                    dst[1] = src[1] << shift | src[0] >> (64 - shift);
 
-#if defined(_WIN64) || defined(__x86_64__)
+#if defined(HIGH_SPEED_CAMELLIA_MODE)
 static const uint64_t sp64bit1[256] = {
   0x7070700070000070, 0x8282820082000082, 0x2c2c2c002c00002c, 0xececec00ec0000ec,
   0xb3b3b300b30000b3, 0x2727270027000027, 0xc0c0c000c00000c0, 0xe5e5e500e50000e5,
@@ -908,8 +908,10 @@ static const uint64_t sp32bit4404[256] = {
 };
 #endif
 
+#if !defined(HIGH_SPEED_CAMELLIA_MODE)
 static const uint8_t left_rschd[6]  = {0, 1, 0, 1, 0, 1};
 static const uint8_t right_rschd[6] = {1, 0, 1, 0, 1, 0};
+#endif
 
 int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
   uint64_t tmpkey[32] = {0};
@@ -1002,12 +1004,30 @@ inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t 
   tmptext[1] ^= kw_[1];
 
   for (int32_t round = 0; round <= n6r_; ++round) {
+#if defined(HIGH_SPEED_CAMELLIA_MODE)
+    tmptext[1] ^= f_function(tmptext[0], k_[kpos]);
+    ++kpos;
 
+    tmptext[0] ^= f_function(tmptext[1], k_[kpos]);
+    ++kpos;
+
+    tmptext[1] ^= f_function(tmptext[0], k_[kpos]);
+    ++kpos;
+
+    tmptext[0] ^= f_function(tmptext[1], k_[kpos]);
+    ++kpos;
+
+    tmptext[1] ^= f_function(tmptext[0], k_[kpos]);
+    ++kpos;
+
+    tmptext[0] ^= f_function(tmptext[1], k_[kpos]);
+    ++kpos;
+#else
     for (int32_t inrnd = 0; inrnd < 6; ++inrnd) {
       tmptext[right_rschd[inrnd]] ^= f_function(tmptext[left_rschd[inrnd]], k_[kpos]);
       ++kpos;
     }
-
+#endif
     if (n6r_ != round) {
       tmptext[0] = fl_function(tmptext[0], kl_[klpos]);
       ++klpos;
@@ -1035,11 +1055,30 @@ inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t 
 
   for (int32_t round = 0; round <= n6r_; ++round) {
 
+#if defined(HIGH_SPEED_CAMELLIA_MODE)
+    tmptext[1] ^= f_function(tmptext[0], k_[kpos]);
+    --kpos;
+
+    tmptext[0] ^= f_function(tmptext[1], k_[kpos]);
+    --kpos;
+
+    tmptext[1] ^= f_function(tmptext[0], k_[kpos]);
+    --kpos;
+
+    tmptext[0] ^= f_function(tmptext[1], k_[kpos]);
+    --kpos;
+
+    tmptext[1] ^= f_function(tmptext[0], k_[kpos]);
+    --kpos;
+
+    tmptext[0] ^= f_function(tmptext[1], k_[kpos]);
+    --kpos;
+#else
     for (int32_t inrnd = 0; inrnd < 6; ++inrnd) {
       tmptext[right_rschd[inrnd]] ^= f_function(tmptext[left_rschd[inrnd]], k_[kpos]);
       --kpos;
     }
-
+#endif
     if (n6r_ != round) {
       tmptext[0] = fl_function(tmptext[0], kl_[klpos]);
       --klpos;
@@ -1242,20 +1281,36 @@ inline void camellia::expand_192bit_or_256bit_key(const uint64_t * const key, ui
 
 inline uint64_t camellia::f_function(uint64_t in, uint64_t key) const noexcept {
   uint64_t tmpy = 0;
+#if defined(HIGH_SPEED_CAMELLIA_MODE)
+  uint64_t zd = 0;
+#else
   uint8_t *y = nullptr;
   uint64_t *zd = nullptr;
+#endif
 
   tmpy = in ^ key;
 
+#if defined(HIGH_SPEED_CAMELLIA_MODE)
+  zd ^= sp64bit1[(uint8_t)(tmpy >> 56) & 0xFF];
+  zd ^= sp64bit2[(uint8_t)(tmpy >> 48) & 0xFF];
+  zd ^= sp64bit3[(uint8_t)(tmpy >> 40) & 0xFF];
+  zd ^= sp64bit4[(uint8_t)(tmpy >> 32) & 0xFF];
+  zd ^= sp64bit5[(uint8_t)(tmpy >> 24) & 0xFF];
+  zd ^= sp64bit6[(uint8_t)(tmpy >> 16) & 0xFF];
+  zd ^= sp64bit7[(uint8_t)(tmpy >>  8) & 0xFF];
+  zd ^= sp64bit8[(uint8_t)(tmpy)       & 0xFF];
+
+  return zd;
+#else
   BIGENDIAN_64BIT_U64_TO_U8(tmpy, y);
 
   s_function(y);
-#if !defined(_WIN64) && !defined(__x86_64__)
   p_function(y);
-#endif
+
   BIGENDIAN_64BIT_U8_TO_U64(*y, zd);
 
   return *zd;
+#endif
 }
 
 inline uint64_t camellia::fl_function(const uint64_t x, const uint64_t kl) const noexcept {
@@ -1278,7 +1333,7 @@ inline uint64_t camellia::inv_fl_function(const uint64_t y, const uint64_t kl) c
   return (((uint64_t)yl << 32) | (uint64_t)yr); 
 }
 
-#if defined(_WIN64) || defined(__x86_64__)
+#if !defined(HIGH_SPEED_CAMELLIA_MODE)
 inline void camellia::s_function(uint8_t *x) const noexcept {
   uint64_t tmpy = 0;
 
@@ -1293,7 +1348,7 @@ inline void camellia::s_function(uint8_t *x) const noexcept {
 
   BIGENDIAN_64BIT_U64_TO_U8_COPY(tmpy, x);
 }
-#else
+
 inline void camellia::s_function(uint8_t *x) const noexcept {
   x[0] = sbox1[x[0]];
   x[1] = sbox2[x[1]];
