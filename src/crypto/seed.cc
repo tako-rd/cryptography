@@ -339,9 +339,7 @@ inline void seed::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext)
 }
 
 inline void seed::expand_key(const uint64_t * const key, uint64_t *skeys) const noexcept {
-  int32_t kpos = 0;
   uint64_t tmpk[2] = {0};
-  uint64_t *kptr = nullptr;
 
   BIGENDIAN_64BIT_U8_TO_U128_COPY(key, tmpk);
 
@@ -365,8 +363,7 @@ inline uint64_t seed::f_function(uint64_t r, uint64_t k) const noexcept {
   uint32_t p1 = g_function(g_function(xorrk) + rk0);
   uint32_t p2 = g_function(p0);
 
-
-  return (uint64_t)(p2 + p1) << 32 | (uint64_t)p2;
+  return ((uint64_t)p2 + (uint64_t)p1) << 32 | (uint64_t)p2;
 #if 0
   return ((uint64_t)g_function(
                       g_function(

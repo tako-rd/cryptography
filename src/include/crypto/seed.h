@@ -18,7 +18,7 @@ namespace cryptography {
 
 class seed final : public algorithm<seed> {
  public:
-  seed() noexcept {};
+  seed() noexcept : mode_(SEED), subkey_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~seed() {};
 
