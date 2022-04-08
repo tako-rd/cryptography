@@ -902,7 +902,7 @@ aes::~aes() {
   memset(&decskeys_, 0xCC, sizeof(decskeys_));
 }
 
-int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
+int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint32_t k[8] = {0};
 
   if (AES128 != (mode & EXTRACT_TYPE) &&
@@ -916,7 +916,7 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
 
   switch (((mode_ & EXTRACT_TYPE) >> 8)) {
     case (AES128 >> 8):
-      if (AES128_KEY_BYTE_SIZE != klen) { return FAILURE; }
+      if (AES128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       nr_ = AES128_ROUNDS;
       nk_ = AES128_KEY_CONV_SIZE;
 
@@ -925,7 +925,7 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       has_subkeys_ = true;
       break;
     case (AES192 >> 8):
-      if (AES192_KEY_BYTE_SIZE != klen) { return FAILURE; }
+      if (AES192_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       nr_ = AES192_ROUNDS;
       nk_ = AES192_KEY_CONV_SIZE;
 
@@ -934,7 +934,7 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       has_subkeys_ = true;
       break;
     case (AES256 >> 8):
-      if (AES256_KEY_BYTE_SIZE != klen) { return FAILURE; }
+      if (AES256_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       nr_ = AES256_ROUNDS;
       nk_ = AES256_KEY_CONV_SIZE;
 
@@ -973,8 +973,8 @@ int32_t aes::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
   return SUCCESS;
 }
 
-int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *ctext, const uint32_t clen) noexcept {
-  if (16 != plen || 16 != clen) { return FAILURE; }
+int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -984,8 +984,8 @@ int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *
   return SUCCESS;
 }
 
-int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t clen, uint8_t *ptext, const uint32_t plen) noexcept {
-  if (16 != plen || 16 != clen) { return FAILURE; }
+int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);

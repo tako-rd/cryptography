@@ -13,21 +13,23 @@
 
 namespace cryptography {
 
-#define SUCCESS                                             0
-#define FAILURE                                             1
+#define SUCCESS                                         0
+#define FAILURE                                         1
 
-#define SEED_ROUNDS                                         16
-                                                            
-#define M0                                                  0xFC
-#define M1                                                  0xF3
-#define M2                                                  0xCF
-#define M3                                                  0x3F
+#define SEED_ROUNDS                                     16
 
-#define SEED_BIGENDIAN_U64_TO_U32_COPY(value, outval)       value  = _byteswap_uint64(value);  \
-                                                            memcpy(outval, &value, 8);
+#define SEED_KEY_BYTE_SIZE                              16
+                                                        
+#define M0                                              0xFC
+#define M1                                              0xF3
+#define M2                                              0xCF
+#define M3                                              0x3F
+
+#define SEED_BIGENDIAN_U64_TO_U32_COPY(value, outval)   value  = _byteswap_uint64(value);  \
+                                                        memcpy(outval, &value, 8);
                            
-#define SEED_BIGENDIAN_U32_TO_U64_COPY(value, outval)       memcpy(&outval, value, 8);  \
-                                                            outval = _byteswap_uint64(outval);
+#define SEED_BIGENDIAN_U32_TO_U64_COPY(value, outval)   memcpy(&outval, value, 8);  \
+                                                        outval = _byteswap_uint64(outval);
 
 static const uint32_t kc[16] = {
   0x9E3779B9, 0x3C6EF373, 0x78DDE6E6, 0xF1BBCDCC, 
@@ -253,7 +255,7 @@ static const uint32_t key_round_schd[16] = {
   1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
 };
 
-int32_t seed::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
+int32_t seed::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint64_t k[2] = {0};
 
   if (SEED != (mode & EXTRACT_TYPE)) {
@@ -263,7 +265,7 @@ int32_t seed::initialize(const uint32_t mode, const uint8_t *key, const uint32_t
   mode_ = mode;
   enable_intrinsic_func_ = enable_intrinsic;
 
-  if (16 != klen) { return FAILURE; }
+  if (SEED_KEY_BYTE_SIZE != ksize) { return FAILURE; }
   BIGENDIAN_64BIT_U8_TO_U128_COPY(key, k);
   expand_key(k, subkey_);
   has_subkeys_ = true;
@@ -272,8 +274,8 @@ int32_t seed::initialize(const uint32_t mode, const uint8_t *key, const uint32_t
   return SUCCESS;
 }
 
-int32_t seed::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *ctext, const uint32_t clen) noexcept {
-  if (16 != plen || 16 != clen) { return FAILURE; }
+int32_t seed::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -283,8 +285,8 @@ int32_t seed::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t 
   return SUCCESS;
 }
 
-int32_t seed::decrypt(const uint8_t * const ctext, const uint32_t clen, uint8_t *ptext, const uint32_t plen) noexcept {
-  if (16 != plen || 16 != clen) { return FAILURE; }
+int32_t seed::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);

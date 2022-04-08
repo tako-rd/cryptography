@@ -13,14 +13,18 @@
 
 namespace cryptography {
 
-#define SUCCESS                 0
-#define FAILURE                 1
+#define SUCCESS                                    0
+#define FAILURE                                    1
 
-#define SGM1  0xA09E667F3BCC908B
-#define SGM2  0xB67AE8584CAA73B2
-#define SGM3  0xC6EF372FE94F82BE
-#define SGM4  0x54FF53A5F1D36F1C
-#define SGM5  0x10E527FADE682D1D
+#define CAMELLIA128_KEY_BYTE_SIZE                  16
+#define CAMELLIA192_KEY_BYTE_SIZE                  24
+#define CAMELLIA256_KEY_BYTE_SIZE                  32
+
+#define SGM1                                       0xA09E667F3BCC908B
+#define SGM2                                       0xB67AE8584CAA73B2
+#define SGM3                                       0xC6EF372FE94F82BE
+#define SGM4                                       0x54FF53A5F1D36F1C
+#define SGM5                                       0x10E527FADE682D1D
 #define SGM6  0xB05688C2B3E6C1FD
 
 #define CAMELLIA_ROTATE_LEFT128(src, dst, shift)   dst[0] = src[0] << shift | src[1] >> (64 - shift); \
@@ -913,7 +917,7 @@ static const uint8_t left_rschd[6]  = {0, 1, 0, 1, 0, 1};
 static const uint8_t right_rschd[6] = {1, 0, 1, 0, 1, 0};
 #endif
 
-int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint32_t klen, bool enable_intrinsic) noexcept {
+int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint64_t tmpkey[32] = {0};
 
   if (CAMELLIA128 != (mode & EXTRACT_TYPE) &&
@@ -927,6 +931,7 @@ int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint
 
   switch (((mode_ & EXTRACT_TYPE) >> 8)) {
     case (CAMELLIA128 >> 8):
+      if (CAMELLIA128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       BIGENDIAN_64BIT_U8_TO_U128_COPY(key, tmpkey);
       expand_128bit_key(tmpkey, kw_, k_, kl_);
       memset(&tmpkey, 0xCC, 16);
@@ -935,7 +940,8 @@ int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint
       nkl_ = 3;
       n6r_ = 2;
       break;
-    case (CAMELLIA192 >> 8):    
+    case (CAMELLIA192 >> 8):
+      if (CAMELLIA128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       BIGENDIAN_64BIT_U8_TO_U192_COPY(key, tmpkey);
       expand_192bit_or_256bit_key(tmpkey, kw_, k_, kl_);
       memset(&tmpkey, 0xCC, 24);
@@ -945,6 +951,7 @@ int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint
       n6r_ = 3;
       break;
     case (CAMELLIA256 >> 8):
+      if (CAMELLIA128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       BIGENDIAN_64BIT_U8_TO_U256_COPY(key, tmpkey);
       expand_192bit_or_256bit_key(tmpkey, kw_, k_, kl_);
       memset(&tmpkey, 0xCC, 32);
@@ -959,8 +966,8 @@ int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint
   return SUCCESS;
 }
 
-int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t plen, uint8_t *ctext, const uint32_t clen) noexcept {
-  if (16 != plen || 16 != clen) { return FAILURE; }
+int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; };
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -970,8 +977,8 @@ int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t plen, uint
   return SUCCESS;
 }
 
-int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t clen, uint8_t *ptext, const uint32_t plen) noexcept {
-  if (16 != plen || 16 != clen) { return FAILURE; }
+int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; };
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);
