@@ -43,6 +43,9 @@
     <Filter Include="crypto\gtest_seed">
       <UniqueIdentifier>{b5732e98-d0f9-44cc-b929-f5b993356882}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\gtest_rc6">
+      <UniqueIdentifier>{381820fc-5051-412c-9925-fd36b0f84a80}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -105,6 +108,12 @@
     <ClInclude Include="crypto\gtest_seed\gtest_seed_defs.h">
       <Filter>crypto\gtest_seed</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_rc6\gtest_rc6.h">
+      <Filter>crypto\gtest_rc6</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_rc6\gtest_rc6_defs.h">
+      <Filter>crypto\gtest_rc6</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">
@@ -139,6 +148,9 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_seed\gtest_seed.cc">
       <Filter>crypto\gtest_seed</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_rc6\gtest_rc6.cc">
+      <Filter>crypto\gtest_rc6</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

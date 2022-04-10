@@ -25,7 +25,7 @@ namespace cryptography {
 #define SGM3                                       0xC6EF372FE94F82BE
 #define SGM4                                       0x54FF53A5F1D36F1C
 #define SGM5                                       0x10E527FADE682D1D
-#define SGM6  0xB05688C2B3E6C1FD
+#define SGM6                                       0xB05688C2B3E6C1FD
 
 #define CAMELLIA_ROTATE_LEFT128(src, dst, shift)   dst[0] = src[0] << shift | src[1] >> (64 - shift); \
                                                    dst[1] = src[1] << shift | src[0] >> (64 - shift);
@@ -941,7 +941,7 @@ int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint
       n6r_ = 2;
       break;
     case (CAMELLIA192 >> 8):
-      if (CAMELLIA128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
+      if (CAMELLIA192_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       BIGENDIAN_64BIT_U8_TO_U192_COPY(key, tmpkey);
       expand_192bit_or_256bit_key(tmpkey, kw_, k_, kl_);
       memset(&tmpkey, 0xCC, 24);
@@ -951,7 +951,7 @@ int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint
       n6r_ = 3;
       break;
     case (CAMELLIA256 >> 8):
-      if (CAMELLIA128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
+      if (CAMELLIA256_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       BIGENDIAN_64BIT_U8_TO_U256_COPY(key, tmpkey);
       expand_192bit_or_256bit_key(tmpkey, kw_, k_, kl_);
       memset(&tmpkey, 0xCC, 32);

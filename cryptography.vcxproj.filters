@@ -25,6 +25,15 @@
     <Filter Include="include\hash">
       <UniqueIdentifier>{ae9d4f2f-6d90-4dfb-b0c4-a81666a84757}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\crypto\mode">
+      <UniqueIdentifier>{fffa3c2c-5889-47c4-ac40-e2a8a543fa99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\crypto\seckey">
+      <UniqueIdentifier>{9485a417-4ee3-49f6-83ac-91a545dd4b7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\crypto\pubkey">
+      <UniqueIdentifier>{b596b397-397d-4e25-b3eb-3149babb30c5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\include\cryptography.h">
@@ -93,40 +102,22 @@
     <ClInclude Include="src\include\crypto\seed.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\crypto\rc6.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\cast128.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\crypto\aes.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\des.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\rsa.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
     <ClCompile Include="src\common\base64.cc">
       <Filter>src\common</Filter>
     </ClCompile>
     <ClCompile Include="src\common\padding.cc">
       <Filter>src\common</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\ecb.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\cbc.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
     <ClCompile Include="src\common\cpu.cc">
       <Filter>src\common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\cfb.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\ofb.cc">
-      <Filter>src\crypto</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\ctr.cc">
-      <Filter>src\crypto</Filter>
     </ClCompile>
     <ClCompile Include="src\common\key_generator.cc">
       <Filter>src\common</Filter>
@@ -134,11 +125,41 @@
     <ClCompile Include="src\common\key_ring.cc">
       <Filter>src\common</Filter>
     </ClCompile>
+    <ClCompile Include="src\crypto\aes.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
     <ClCompile Include="src\crypto\camellia.cc">
-      <Filter>src\crypto</Filter>
+      <Filter>src\crypto\seckey</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\seed.cc">
-      <Filter>src\crypto</Filter>
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\rc6.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\des.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\cbc.cc">
+      <Filter>src\crypto\mode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\cfb.cc">
+      <Filter>src\crypto\mode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\ctr.cc">
+      <Filter>src\crypto\mode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\ecb.cc">
+      <Filter>src\crypto\mode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\ofb.cc">
+      <Filter>src\crypto\mode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\rsa.cc">
+      <Filter>src\crypto\pubkey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\cast128.cc">
+      <Filter>src\crypto\seckey</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
