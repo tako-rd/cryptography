@@ -35,16 +35,16 @@
 /* Change the data type while maintaining little endianness in 64-bit. */
 /***********************************************************************/
 
-#   define BIGENDIAN_64BIT_U32_TO_U8(value, outptr)           outptr = (uint8_t *)&value;
-#   define BIGENDIAN_64BIT_U8_TO_U32(value, outptr)           outptr = (uint32_t *)&value;
-#   define BIGENDIAN_64BIT_U64_TO_U8(value, outptr)           outptr = (uint8_t *)&value;
-#   define BIGENDIAN_64BIT_U8_TO_U64(value, outptr)           outptr = (uint64_t *)&value;
-#   define BIGENDIAN_64BIT_U128_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
-#   define BIGENDIAN_64BIT_U8_TO_U128(value, outptr)          outptr = (uint64_t *)value;
-#   define BIGENDIAN_64BIT_U192_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
-#   define BIGENDIAN_64BIT_U8_TO_U192(value, outptr)          outptr = (uint64_t *)value;
-#   define BIGENDIAN_64BIT_U256_TO_U8(value, outptr)          outptr = (uint8_t *)&value;
-#   define BIGENDIAN_64BIT_U8_TO_U256(value, outptr)          outptr = (uint64_t *)value;
+#   define LITTLEENDIAN_64BIT_U32_TO_U8(value, outptr)        outptr = (uint8_t *)&value;
+#   define LITTLEENDIAN_64BIT_U8_TO_U32(value, outptr)        outptr = (uint32_t *)&value;
+#   define LITTLEENDIAN_64BIT_U64_TO_U8(value, outptr)        outptr = (uint8_t *)&value;
+#   define LITTLEENDIAN_64BIT_U8_TO_U64(value, outptr)        outptr = (uint64_t *)&value;
+#   define LITTLEENDIAN_64BIT_U128_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
+#   define LITTLEENDIAN_64BIT_U8_TO_U128(value, outptr)       outptr = (uint64_t *)value;
+#   define LITTLEENDIAN_64BIT_U192_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
+#   define LITTLEENDIAN_64BIT_U8_TO_U192(value, outptr)       outptr = (uint64_t *)value;
+#   define LITTLEENDIAN_64BIT_U256_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
+#   define LITTLEENDIAN_64BIT_U8_TO_U256(value, outptr)       outptr = (uint64_t *)value;
 
 /**********************************************************************/
 /* Change and copy the data type while maintaining little endianness. */

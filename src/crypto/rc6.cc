@@ -42,7 +42,7 @@ int32_t rc6::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       if (RC6_128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       LITTLEENDIAN_U8_TO_U128_COPY(key, k);
       expand_key(k, subkeys_, RC6_128_KEY_BYTE_SIZE);
-      memset(k, 0xCC, sizeof(SUCCESS));
+      memset(k, 0xCC, sizeof(k));
       has_subkeys_ = true;
       break;
     case (RC6_192 >> 8):
@@ -50,13 +50,13 @@ int32_t rc6::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
       LITTLEENDIAN_U8_TO_U192_COPY(key, k);
       expand_key(k, subkeys_, RC6_192_KEY_BYTE_SIZE);
       has_subkeys_ = true;
-      memset(k, 0xCC, sizeof(SUCCESS));
+      memset(k, 0xCC, sizeof(k));
       break;
     case (RC6_256 >> 8):
       if (RC6_256_KEY_BYTE_SIZE != ksize) { return FAILURE; }
       LITTLEENDIAN_U8_TO_U256_COPY(key, k);
       expand_key(k, subkeys_, RC6_256_KEY_BYTE_SIZE);
-      memset(k, 0xCC, sizeof(SUCCESS));
+      memset(k, 0xCC, sizeof(k));
       has_subkeys_ = true;
       break;
     default:

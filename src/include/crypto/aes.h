@@ -53,9 +53,11 @@ class aes final : algorithm<aes> {
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
-  void expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) const noexcept;
+  void expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) noexcept;
 
+#if !defined(HIGH_SPEED_AES_MODE)
   uint32_t rot_word(uint32_t word) const noexcept;
+#endif
 
   uint32_t sub_word(uint32_t word) const noexcept;
 
