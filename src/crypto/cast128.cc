@@ -13,44 +13,44 @@
 
 namespace cryptography {
 
-#define SUCCESS                          0
-#define FAILURE                          1
+#define SUCCESS                           0
+#define FAILURE                           1
 
-#define CAST128_128_KEY_BYTE_SIZE        16
+#define CAST128_128_KEY_BYTE_SIZE         16
 
-#define X0(x)                            (uint8_t)((x[0] >> 24) & 0x0000'00FF)
-#define X1(x)                            (uint8_t)((x[0] >> 16) & 0x0000'00FF)
-#define X2(x)                            (uint8_t)((x[0] >>  8) & 0x0000'00FF)
-#define X3(x)                            (uint8_t)((x[0] >>  0) & 0x0000'00FF)
-#define X4(x)                            (uint8_t)((x[1] >> 24) & 0x0000'00FF)
-#define X5(x)                            (uint8_t)((x[1] >> 16) & 0x0000'00FF)
-#define X6(x)                            (uint8_t)((x[1] >>  8) & 0x0000'00FF)
-#define X7(x)                            (uint8_t)((x[1] >>  0) & 0x0000'00FF)
-#define X8(x)                            (uint8_t)((x[2] >> 24) & 0x0000'00FF)
-#define X9(x)                            (uint8_t)((x[2] >> 16) & 0x0000'00FF)
-#define XA(x)                            (uint8_t)((x[2] >>  8) & 0x0000'00FF)
-#define XB(x)                            (uint8_t)((x[2] >>  0) & 0x0000'00FF)
-#define XC(x)                            (uint8_t)((x[3] >> 24) & 0x0000'00FF)
-#define XD(x)                            (uint8_t)((x[3] >> 16) & 0x0000'00FF)
-#define XE(x)                            (uint8_t)((x[3] >>  8) & 0x0000'00FF)
-#define XF(x)                            (uint8_t)((x[3] >>  0) & 0x0000'00FF)
+#define X0(x)                             (uint8_t)((x[0] >> 24) & 0x0000'00FF)
+#define X1(x)                             (uint8_t)((x[0] >> 16) & 0x0000'00FF)
+#define X2(x)                             (uint8_t)((x[0] >>  8) & 0x0000'00FF)
+#define X3(x)                             (uint8_t)((x[0] >>  0) & 0x0000'00FF)
+#define X4(x)                             (uint8_t)((x[1] >> 24) & 0x0000'00FF)
+#define X5(x)                             (uint8_t)((x[1] >> 16) & 0x0000'00FF)
+#define X6(x)                             (uint8_t)((x[1] >>  8) & 0x0000'00FF)
+#define X7(x)                             (uint8_t)((x[1] >>  0) & 0x0000'00FF)
+#define X8(x)                             (uint8_t)((x[2] >> 24) & 0x0000'00FF)
+#define X9(x)                             (uint8_t)((x[2] >> 16) & 0x0000'00FF)
+#define XA(x)                             (uint8_t)((x[2] >>  8) & 0x0000'00FF)
+#define XB(x)                             (uint8_t)((x[2] >>  0) & 0x0000'00FF)
+#define XC(x)                             (uint8_t)((x[3] >> 24) & 0x0000'00FF)
+#define XD(x)                             (uint8_t)((x[3] >> 16) & 0x0000'00FF)
+#define XE(x)                             (uint8_t)((x[3] >>  8) & 0x0000'00FF)
+#define XF(x)                             (uint8_t)((x[3] >>  0) & 0x0000'00FF)
 
-#define Z0(x)                            (uint8_t)((x[0] >> 24) & 0x0000'00FF)
-#define Z1(x)                            (uint8_t)((x[0] >> 16) & 0x0000'00FF)
-#define Z2(x)                            (uint8_t)((x[0] >>  8) & 0x0000'00FF)
-#define Z3(x)                            (uint8_t)((x[0] >>  0) & 0x0000'00FF)
-#define Z4(x)                            (uint8_t)((x[1] >> 24) & 0x0000'00FF)
-#define Z5(x)                            (uint8_t)((x[1] >> 16) & 0x0000'00FF)
-#define Z6(x)                            (uint8_t)((x[1] >>  8) & 0x0000'00FF)
-#define Z7(x)                            (uint8_t)((x[1] >>  0) & 0x0000'00FF)
-#define Z8(x)                            (uint8_t)((x[2] >> 24) & 0x0000'00FF)
-#define Z9(x)                            (uint8_t)((x[2] >> 16) & 0x0000'00FF)
-#define ZA(x)                            (uint8_t)((x[2] >>  8) & 0x0000'00FF)
-#define ZB(x)                            (uint8_t)((x[2] >>  0) & 0x0000'00FF)
-#define ZC(x)                            (uint8_t)((x[3] >> 24) & 0x0000'00FF)
-#define ZD(x)                            (uint8_t)((x[3] >> 16) & 0x0000'00FF)
-#define ZE(x)                            (uint8_t)((x[3] >>  8) & 0x0000'00FF)
-#define ZF(x)                            (uint8_t)((x[3] >>  0) & 0x0000'00FF)
+#define Z0(x)                             (uint8_t)((x[0] >> 24) & 0x0000'00FF)
+#define Z1(x)                             (uint8_t)((x[0] >> 16) & 0x0000'00FF)
+#define Z2(x)                             (uint8_t)((x[0] >>  8) & 0x0000'00FF)
+#define Z3(x)                             (uint8_t)((x[0] >>  0) & 0x0000'00FF)
+#define Z4(x)                             (uint8_t)((x[1] >> 24) & 0x0000'00FF)
+#define Z5(x)                             (uint8_t)((x[1] >> 16) & 0x0000'00FF)
+#define Z6(x)                             (uint8_t)((x[1] >>  8) & 0x0000'00FF)
+#define Z7(x)                             (uint8_t)((x[1] >>  0) & 0x0000'00FF)
+#define Z8(x)                             (uint8_t)((x[2] >> 24) & 0x0000'00FF)
+#define Z9(x)                             (uint8_t)((x[2] >> 16) & 0x0000'00FF)
+#define ZA(x)                             (uint8_t)((x[2] >>  8) & 0x0000'00FF)
+#define ZB(x)                             (uint8_t)((x[2] >>  0) & 0x0000'00FF)
+#define ZC(x)                             (uint8_t)((x[3] >> 24) & 0x0000'00FF)
+#define ZD(x)                             (uint8_t)((x[3] >> 16) & 0x0000'00FF)
+#define ZE(x)                             (uint8_t)((x[3] >>  8) & 0x0000'00FF)
+#define ZF(x)                             (uint8_t)((x[3] >>  0) & 0x0000'00FF)
 
 static const uint32_t sbox1[256] = {
   0x30fb40d4, 0x9fa0ff0b, 0x6beccd2f, 0x3f258c7a, 0x1e213f2f, 0x9c004dd3, 0x6003e540, 0xcf9fc949,
@@ -388,18 +388,55 @@ void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) 
 
   BIGENDIAN_32BIT_U8_TO_U64_COPY(ptext, tmppln1);
 
-  for (int32_t round = 0; round < 16; ++round) {
-    tmppln2[0] = tmppln1[1];
-    tmppln2[1] = tmppln1[0] ^ f_function(tmppln1[1], km_[round], kr_[round], round);
+  tmppln2[0] = tmppln1[1];
+  tmppln2[1] = tmppln1[0] ^ fa_function(tmppln1[1], km_[0], kr_[0]);
 
-    tmppln1[0] = tmppln2[0];
-    tmppln1[1] = tmppln2[1];
-  }
+  tmppln1[0] = tmppln2[1];
+  tmppln1[1] = tmppln2[0] ^ fb_function(tmppln2[1], km_[1], kr_[1]);
 
   tmppln2[0] = tmppln1[1];
-  tmppln2[1] = tmppln1[0];
+  tmppln2[1] = tmppln1[0] ^ fc_function(tmppln1[1], km_[2], kr_[2]);
 
-  BIGENDIAN_32BIT_U64_TO_U8_COPY(tmppln2, ctext);
+  tmppln1[0] = tmppln2[1];
+  tmppln1[1] = tmppln2[0] ^ fa_function(tmppln2[1], km_[3], kr_[3]);
+
+  tmppln2[0] = tmppln1[1];
+  tmppln2[1] = tmppln1[0] ^ fb_function(tmppln1[1], km_[4], kr_[4]);
+
+  tmppln1[0] = tmppln2[1];
+  tmppln1[1] = tmppln2[0] ^ fc_function(tmppln2[1], km_[5], kr_[5]);
+
+  tmppln2[0] = tmppln1[1];
+  tmppln2[1] = tmppln1[0] ^ fa_function(tmppln1[1], km_[6], kr_[6]);
+
+  tmppln1[0] = tmppln2[1];
+  tmppln1[1] = tmppln2[0] ^ fb_function(tmppln2[1], km_[7], kr_[7]);
+
+  tmppln2[0] = tmppln1[1];
+  tmppln2[1] = tmppln1[0] ^ fc_function(tmppln1[1], km_[8], kr_[8]);
+
+  tmppln1[0] = tmppln2[1];
+  tmppln1[1] = tmppln2[0] ^ fa_function(tmppln2[1], km_[9], kr_[9]);
+
+  tmppln2[0] = tmppln1[1];
+  tmppln2[1] = tmppln1[0] ^ fb_function(tmppln1[1], km_[10], kr_[10]);
+
+  tmppln1[0] = tmppln2[1];
+  tmppln1[1] = tmppln2[0] ^ fc_function(tmppln2[1], km_[11], kr_[11]);
+
+  tmppln2[0] = tmppln1[1];
+  tmppln2[1] = tmppln1[0] ^ fa_function(tmppln1[1], km_[12], kr_[12]);
+
+  tmppln1[0] = tmppln2[1];
+  tmppln1[1] = tmppln2[0] ^ fb_function(tmppln2[1], km_[13], kr_[13]);
+
+  tmppln2[0] = tmppln1[1];
+  tmppln2[1] = tmppln1[0] ^ fc_function(tmppln1[1], km_[14], kr_[14]);
+
+  tmppln1[1] = tmppln2[1];
+  tmppln1[0] = tmppln2[0] ^ fa_function(tmppln2[1], km_[15], kr_[15]);
+
+  BIGENDIAN_32BIT_U64_TO_U8_COPY(tmppln1, ctext);
 }
 
 void cast128::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
@@ -408,18 +445,55 @@ void cast128::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) 
 
   BIGENDIAN_32BIT_U8_TO_U64_COPY(ctext, tmpchpr1);
 
-  for (int32_t round = 15; round >= 0; --round) {
-    tmpchpr2[0] = tmpchpr1[1];
-    tmpchpr2[1] = tmpchpr1[0] ^ f_function(tmpchpr1[1], km_[round], kr_[round], round);
+  tmpchpr2[0] = tmpchpr1[1];
+  tmpchpr2[1] = tmpchpr1[0] ^ fa_function(tmpchpr1[1], km_[15], kr_[15]);
 
-    tmpchpr1[0] = tmpchpr2[0];
-    tmpchpr1[1] = tmpchpr2[1];
-  }
+  tmpchpr1[0] = tmpchpr2[1];
+  tmpchpr1[1] = tmpchpr2[0] ^ fc_function(tmpchpr2[1], km_[14], kr_[14]);
 
   tmpchpr2[0] = tmpchpr1[1];
-  tmpchpr2[1] = tmpchpr1[0];
+  tmpchpr2[1] = tmpchpr1[0] ^ fb_function(tmpchpr1[1], km_[13], kr_[13]);
 
-  BIGENDIAN_32BIT_U64_TO_U8_COPY(tmpchpr2, ptext);
+  tmpchpr1[0] = tmpchpr2[1];
+  tmpchpr1[1] = tmpchpr2[0] ^ fa_function(tmpchpr2[1], km_[12], kr_[12]);
+
+  tmpchpr2[0] = tmpchpr1[1];
+  tmpchpr2[1] = tmpchpr1[0] ^ fc_function(tmpchpr1[1], km_[11], kr_[11]);
+
+  tmpchpr1[0] = tmpchpr2[1];
+  tmpchpr1[1] = tmpchpr2[0] ^ fb_function(tmpchpr2[1], km_[10], kr_[10]);
+
+  tmpchpr2[0] = tmpchpr1[1];
+  tmpchpr2[1] = tmpchpr1[0] ^ fa_function(tmpchpr1[1], km_[9], kr_[9]);
+
+  tmpchpr1[0] = tmpchpr2[1];
+  tmpchpr1[1] = tmpchpr2[0] ^ fc_function(tmpchpr2[1], km_[8], kr_[8]);
+
+  tmpchpr2[0] = tmpchpr1[1];
+  tmpchpr2[1] = tmpchpr1[0] ^ fb_function(tmpchpr1[1], km_[7], kr_[7]);
+
+  tmpchpr1[0] = tmpchpr2[1];
+  tmpchpr1[1] = tmpchpr2[0] ^ fa_function(tmpchpr2[1], km_[6], kr_[6]);
+
+  tmpchpr2[0] = tmpchpr1[1];
+  tmpchpr2[1] = tmpchpr1[0] ^ fc_function(tmpchpr1[1], km_[5], kr_[5]);
+
+  tmpchpr1[0] = tmpchpr2[1];
+  tmpchpr1[1] = tmpchpr2[0] ^ fb_function(tmpchpr2[1], km_[4], kr_[4]);
+
+  tmpchpr2[0] = tmpchpr1[1];
+  tmpchpr2[1] = tmpchpr1[0] ^ fa_function(tmpchpr1[1], km_[3], kr_[3]);
+
+  tmpchpr1[0] = tmpchpr2[1];
+  tmpchpr1[1] = tmpchpr2[0] ^ fc_function(tmpchpr2[1], km_[2], kr_[2]);
+
+  tmpchpr2[0] = tmpchpr1[1];
+  tmpchpr2[1] = tmpchpr1[0] ^ fb_function(tmpchpr1[1], km_[1], kr_[1]);
+
+  tmpchpr1[1] = tmpchpr2[1];
+  tmpchpr1[0] = tmpchpr2[0] ^ fa_function(tmpchpr2[1], km_[0], kr_[0]);
+
+  BIGENDIAN_32BIT_U64_TO_U8_COPY(tmpchpr1, ptext);
 }
 
 void cast128::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -519,42 +593,31 @@ void cast128::expand_key(const uint32_t * const key, uint32_t *km, uint32_t *kr)
   kr[15] = sbox5[XE(kx32)] ^ sbox6[XF(kx32)] ^ sbox7[X1(kx32)] ^ sbox8[X0(kx32)] ^ sbox8[XD(kx32)];
 }
 
-uint32_t cast128::f_function(uint32_t d, uint32_t kmi, uint32_t kri, uint32_t round) const noexcept {
+inline uint32_t cast128::fa_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
   uint32_t i = 0;
   uint8_t *iptr = nullptr;
-  
-  switch (round) {
-    case 0:
-    case 3:
-    case 6:
-    case 9:
-    case 12:
-    case 15:
-      i = ROTATE_LEFT32(kmi + d, kri & 0x0000'001F);
-      BIGENDIAN_U32_TO_U8(i, iptr);
-      return ((sbox1[iptr[0]] ^ sbox2[iptr[1]]) - sbox3[iptr[2]]) + sbox4[iptr[3]];
-    case 1:
-    case 4:
-    case 7:
-    case 10:
-    case 13:
-      i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000'001F);
-      BIGENDIAN_U32_TO_U8(i, iptr);
-      return ((sbox1[iptr[0]] - sbox2[iptr[1]]) + sbox3[iptr[2]]) ^ sbox4[iptr[3]];
-    case 2:
-    case 5:
-    case 8:
-    case 11:
-    case 14:
-      i = ROTATE_LEFT32(kmi - d, kri & 0x0000'001F);
-      BIGENDIAN_U32_TO_U8(i, iptr);
-      return ((sbox1[iptr[0]] + sbox2[iptr[1]]) ^ sbox3[iptr[2]]) - sbox4[iptr[3]];
-    default:
-      static_assert(true, "Passed a branch that should not be reached.");
-      break;
-  }
-  return 0;
+
+  i = ROTATE_LEFT32(kmi + d, kri & 0x0000'001F);
+  BIGENDIAN_U32_TO_U8(i, iptr);
+  return ((sbox1[iptr[0]] ^ sbox2[iptr[1]]) - sbox3[iptr[2]]) + sbox4[iptr[3]];
 }
 
+inline uint32_t cast128::fb_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
+  uint32_t i = 0;
+  uint8_t *iptr = nullptr;
+
+  i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000'001F);
+  BIGENDIAN_U32_TO_U8(i, iptr);
+  return ((sbox1[iptr[0]] - sbox2[iptr[1]]) + sbox3[iptr[2]]) ^ sbox4[iptr[3]];
+}
+
+inline uint32_t cast128::fc_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
+  uint32_t i = 0;
+  uint8_t *iptr = nullptr;
+
+  i = ROTATE_LEFT32(kmi - d, kri & 0x0000'001F);
+  BIGENDIAN_U32_TO_U8(i, iptr);
+  return ((sbox1[iptr[0]] + sbox2[iptr[1]]) ^ sbox3[iptr[2]]) - sbox4[iptr[3]];
+}
 
 }
