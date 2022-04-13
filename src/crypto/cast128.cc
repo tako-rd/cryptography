@@ -382,7 +382,7 @@ void cast128::clear() noexcept {
 
 }
 
-void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+inline void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint32_t tmppln1[2] = {0};
   uint32_t tmppln2[2] = {0};
 
@@ -439,7 +439,7 @@ void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) 
   BIGENDIAN_32BIT_U64_TO_U8_COPY(tmppln1, ctext);
 }
 
-void cast128::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+inline void cast128::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   uint32_t tmpchpr1[2] = {0}; 
   uint32_t tmpchpr2[2] = {0}; 
 
@@ -496,15 +496,15 @@ void cast128::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) 
   BIGENDIAN_32BIT_U64_TO_U8_COPY(tmpchpr1, ptext);
 }
 
-void cast128::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+inline void cast128::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
 
 }
 
-void cast128::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+inline void cast128::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
 
 }
 
-void cast128::expand_key(const uint32_t * const key, uint32_t *km, uint32_t *kr) noexcept {
+inline void cast128::expand_key(const uint32_t * const key, uint32_t *km, uint32_t *kr) noexcept {
   uint32_t kx32[4] = {0};
   uint32_t kz32[4] = {0};
 

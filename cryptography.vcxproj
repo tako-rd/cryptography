@@ -32,6 +32,7 @@
     <ClInclude Include="src\include\crypto\algorithm.h" />
     <ClInclude Include="src\include\crypto\camellia.h" />
     <ClInclude Include="src\include\crypto\cast128.h" />
+    <ClInclude Include="src\include\crypto\cast256.h" />
     <ClInclude Include="src\include\crypto\cbc.h" />
     <ClInclude Include="src\include\crypto\cfb.h" />
     <ClInclude Include="src\include\crypto\ctr.h" />
@@ -53,6 +54,7 @@
     <ClCompile Include="src\crypto\aes.cc" />
     <ClCompile Include="src\crypto\camellia.cc" />
     <ClCompile Include="src\crypto\cast128.cc" />
+    <ClCompile Include="src\crypto\cast256.cc" />
     <ClCompile Include="src\crypto\cbc.cc" />
     <ClCompile Include="src\crypto\cfb.cc" />
     <ClCompile Include="src\crypto\ctr.cc" />

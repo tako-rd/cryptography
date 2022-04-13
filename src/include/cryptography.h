@@ -17,6 +17,8 @@
 #include "crypto/des.h"
 #include "crypto/camellia.h"
 #include "crypto/seed.h"
+#include "crypto/rc6.h"
+#include "crypto/cast128.h"
 #include "crypto/rsa.h"
 #include "crypto/block_cipher.h"
 

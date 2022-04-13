@@ -92,10 +92,11 @@ typedef enum cipher_and_hash_type {
   RC6_192      = 0x1000,
   RC6_256      = 0x1100,
   CAST128      = 0x1200,
-  RSA          = 0x1300,
-  MD4          = 0x1400,
-  MD5          = 0x1500,
-  SHA          = 0x1600,
+  CAST256      = 0x1300,
+  RSA          = 0x1400,
+  MD4          = 0x1500,
+  MD5          = 0x1600,
+  SHA          = 0x1700,
   EXTRACT_TYPE = 0xFF00
 } type_t;
 
