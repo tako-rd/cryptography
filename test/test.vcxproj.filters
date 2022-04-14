@@ -49,6 +49,9 @@
     <Filter Include="crypto\gtest_cast128">
       <UniqueIdentifier>{fc22bf04-6aaa-40e2-a01c-a1a273004a0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\gtest_cast256">
+      <UniqueIdentifier>{4992ddb2-b594-4fd2-a40c-3088cb047baf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -123,6 +126,12 @@
     <ClInclude Include="crypto\gtest_cast128\gtest_cast128_defs.h">
       <Filter>crypto\gtest_cast128</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_cast256\gtest_cast256.h">
+      <Filter>crypto\gtest_cast256</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_cast256\gtest_cast256_defs.h">
+      <Filter>crypto\gtest_cast256</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">
@@ -163,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_cast128\gtest_cast128.cc">
       <Filter>crypto\gtest_cast128</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_cast256\gtest_cast256.cc">
+      <Filter>crypto\gtest_cast256</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

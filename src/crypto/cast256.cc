@@ -159,7 +159,7 @@ static const uint32_t sbox4[256] = {
 int32_t cast256::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint32_t k[8] = {0};
 
-  if (CAST128 != (mode & EXTRACT_TYPE)) {
+  if (CAST256 != (mode & EXTRACT_TYPE)) {
     return FAILURE;
   }
 
@@ -167,8 +167,8 @@ int32_t cast256::initialize(const uint32_t mode, const uint8_t *key, const uint3
   enable_intrinsic_func_ = enable_intrinsic;
 
   switch (mode >> 8) {
-    case (CAST128 >> 8):
-      if (4 != ksize) { return FAILURE; }
+    case (CAST256 >> 8):
+      if (16 != ksize) { return FAILURE; }
       BIGENDIAN_32BIT_U8_TO_U128_COPY(key, k);
       expand_key(k, km_, kr_);
       memset(k, 0xCC, sizeof(k));
@@ -181,7 +181,7 @@ int32_t cast256::initialize(const uint32_t mode, const uint8_t *key, const uint3
 }
 
 int32_t cast256::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  if (8 != psize || 8 != csize) { return FAILURE; }
+  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_encrypt(ptext, ctext);
@@ -192,7 +192,7 @@ int32_t cast256::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
 }
 
 int32_t cast256::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  if (8 != psize || 8 != csize) { return FAILURE; }
+  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
   if (true == enable_intrinsic_func_) {
     intrinsic_decrypt(ctext, ptext);
@@ -214,21 +214,21 @@ inline void cast256::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *
 
   /* BETA <- Qi(BETA) */
   for (int32_t i = 0; i < 6; ++i) {
-    beta[2] = beta[2] ^ f1_function(beta[3], kr_[4 * i],     km_[4 * i]);
-    beta[1] = beta[1] ^ f2_function(beta[2], kr_[4 * i + 1], km_[4 * i + 1]);
-    beta[0] = beta[0] ^ f3_function(beta[1], kr_[4 * i + 2], km_[4 * i + 2]);
-    beta[3] = beta[3] ^ f1_function(beta[0], kr_[4 * i + 3], km_[4 * i + 3]);
+    beta[2] = beta[2] ^ f1_function(beta[3], km_[4 * i],     kr_[4 * i]);
+    beta[1] = beta[1] ^ f2_function(beta[2], km_[4 * i + 1], kr_[4 * i + 1]);
+    beta[0] = beta[0] ^ f3_function(beta[1], km_[4 * i + 2], kr_[4 * i + 2]);
+    beta[3] = beta[3] ^ f1_function(beta[0], km_[4 * i + 3], kr_[4 * i + 3]);
   }
 
   /* BETA <- QBARi(BETA) */
   for (int32_t i = 6; i < 12; ++i) {
-    beta[3] = beta[3] ^ f1_function(beta[0], kr_[4 * i + 3], km_[4 * i + 3]);
-    beta[0] = beta[0] ^ f2_function(beta[1], kr_[4 * i + 2], km_[4 * i + 2]);
-    beta[1] = beta[1] ^ f3_function(beta[2], kr_[4 * i + 1], km_[4 * i + 1]);
-    beta[2] = beta[2] ^ f1_function(beta[3], kr_[4 * i],     km_[4 * i]);
+    beta[3] = beta[3] ^ f1_function(beta[0], km_[4 * i + 3], kr_[4 * i + 3]);
+    beta[0] = beta[0] ^ f3_function(beta[1], km_[4 * i + 2], kr_[4 * i + 2]);
+    beta[1] = beta[1] ^ f2_function(beta[2], km_[4 * i + 1], kr_[4 * i + 1]);
+    beta[2] = beta[2] ^ f1_function(beta[3], km_[4 * i],     kr_[4 * i]);
   }
 
-  BIGENDIAN_32BIT_U8_TO_U128_COPY(beta, ctext);
+  BIGENDIAN_32BIT_U128_TO_U8_COPY(beta, ctext);
 }
 
 inline void cast256::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
@@ -237,22 +237,22 @@ inline void cast256::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *
   BIGENDIAN_32BIT_U8_TO_U128_COPY(ctext, beta);
 
   /* BETA <- Qi(BETA) */
-  for (int32_t i = 5; i >= 0; --i) {
-    beta[2] = beta[2] ^ f1_function(beta[3], kr_[4 * i],     km_[4 * i]);
-    beta[1] = beta[1] ^ f2_function(beta[2], kr_[4 * i + 1], km_[4 * i + 1]);
-    beta[0] = beta[0] ^ f3_function(beta[1], kr_[4 * i + 2], km_[4 * i + 2]);
-    beta[3] = beta[3] ^ f1_function(beta[0], kr_[4 * i + 3], km_[4 * i + 3]);
+  for (int32_t i = 11; i >= 6; --i) {
+    beta[2] = beta[2] ^ f1_function(beta[3], km_[4 * i],     kr_[4 * i]);
+    beta[1] = beta[1] ^ f2_function(beta[2], km_[4 * i + 1], kr_[4 * i + 1]);
+    beta[0] = beta[0] ^ f3_function(beta[1], km_[4 * i + 2], kr_[4 * i + 2]);
+    beta[3] = beta[3] ^ f1_function(beta[0], km_[4 * i + 3], kr_[4 * i + 3]);
   }
 
   /* BETA <- QBARi(BETA) */
-  for (int32_t i = 11; i >= 6; --i) {
-    beta[3] = beta[3] ^ f1_function(beta[0], kr_[4 * i + 3], km_[4 * i + 3]);
-    beta[0] = beta[0] ^ f2_function(beta[1], kr_[4 * i + 2], km_[4 * i + 2]);
-    beta[1] = beta[1] ^ f3_function(beta[2], kr_[4 * i + 1], km_[4 * i + 1]);
-    beta[2] = beta[2] ^ f1_function(beta[3], kr_[4 * i],     km_[4 * i]);
+  for (int32_t i = 5; i >= 0; --i) {
+    beta[3] = beta[3] ^ f1_function(beta[0], km_[4 * i + 3], kr_[4 * i + 3]);
+    beta[0] = beta[0] ^ f3_function(beta[1], km_[4 * i + 2], kr_[4 * i + 2]);
+    beta[1] = beta[1] ^ f2_function(beta[2], km_[4 * i + 1], kr_[4 * i + 1]);
+    beta[2] = beta[2] ^ f1_function(beta[3], km_[4 * i],     kr_[4 * i]);
   }
 
-  BIGENDIAN_32BIT_U8_TO_U128_COPY(beta, ptext);
+  BIGENDIAN_32BIT_U128_TO_U8_COPY(beta, ptext);
 }
 
 inline void cast256::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -268,11 +268,11 @@ inline void cast256::expand_key(const uint32_t * const key, uint32_t *km, uint32
   uint32_t cr = 19;
   uint32_t mm = 0x6ED9EBA1;
   uint32_t mr = 17;
-  uint32_t k[8] = {0};
+  uint32_t kappa[8] = {0};
   uint32_t tm[8][24] = {0};
   uint32_t tr[8][24] = {0};
 
-  memcpy(k, key, 32);
+  memcpy(kappa, key, 32);
 
   for (int32_t i = 0; i < 24; ++i) {
     for (int32_t j = 0; j < 8; ++j) {
@@ -286,34 +286,34 @@ inline void cast256::expand_key(const uint32_t * const key, uint32_t *km, uint32
 
   for (int32_t i = 0; i < 12; ++i) {
     /* KAPPA <- W2i(KAPPA) */
-    k[6] = k[6] ^ f1_function(k[7], tm[0][2 * i], tr[0][2 * i]);
-    k[5] = k[5] ^ f2_function(k[6], tm[1][2 * i], tr[1][2 * i]);
-    k[4] = k[4] ^ f3_function(k[5], tm[2][2 * i], tr[2][2 * i]);
-    k[3] = k[3] ^ f1_function(k[4], tm[3][2 * i], tr[3][2 * i]);
-    k[2] = k[2] ^ f2_function(k[3], tm[4][2 * i], tr[4][2 * i]);
-    k[1] = k[1] ^ f3_function(k[2], tm[5][2 * i], tr[5][2 * i]);
-    k[0] = k[0] ^ f1_function(k[1], tm[6][2 * i], tr[6][2 * i]);
-    k[7] = k[7] ^ f2_function(k[0], tm[7][2 * i], tr[7][2 * i]);
+    kappa[6] = kappa[6] ^ f1_function(kappa[7], tm[0][2 * i], tr[0][2 * i]);
+    kappa[5] = kappa[5] ^ f2_function(kappa[6], tm[1][2 * i], tr[1][2 * i]);
+    kappa[4] = kappa[4] ^ f3_function(kappa[5], tm[2][2 * i], tr[2][2 * i]);
+    kappa[3] = kappa[3] ^ f1_function(kappa[4], tm[3][2 * i], tr[3][2 * i]);
+    kappa[2] = kappa[2] ^ f2_function(kappa[3], tm[4][2 * i], tr[4][2 * i]);
+    kappa[1] = kappa[1] ^ f3_function(kappa[2], tm[5][2 * i], tr[5][2 * i]);
+    kappa[0] = kappa[0] ^ f1_function(kappa[1], tm[6][2 * i], tr[6][2 * i]);
+    kappa[7] = kappa[7] ^ f2_function(kappa[0], tm[7][2 * i], tr[7][2 * i]);
 
     /* KAPPA <- W2i+1(KAPPA) */
-    k[6] = k[6] ^ f1_function(k[7], tm[0][2 * i + 1], tr[0][2 * i + 1]);
-    k[5] = k[5] ^ f2_function(k[6], tm[1][2 * i + 1], tr[1][2 * i + 1]);
-    k[4] = k[4] ^ f3_function(k[5], tm[2][2 * i + 1], tr[2][2 * i + 1]);
-    k[3] = k[3] ^ f1_function(k[4], tm[3][2 * i + 1], tr[3][2 * i + 1]);
-    k[2] = k[2] ^ f2_function(k[3], tm[4][2 * i + 1], tr[4][2 * i + 1]);
-    k[1] = k[1] ^ f3_function(k[2], tm[5][2 * i + 1], tr[5][2 * i + 1]);
-    k[0] = k[0] ^ f1_function(k[1], tm[6][2 * i + 1], tr[6][2 * i + 1]);
-    k[7] = k[7] ^ f2_function(k[0], tm[7][2 * i + 1], tr[7][2 * i + 1]);
+    kappa[6] = kappa[6] ^ f1_function(kappa[7], tm[0][2 * i + 1], tr[0][2 * i + 1]);
+    kappa[5] = kappa[5] ^ f2_function(kappa[6], tm[1][2 * i + 1], tr[1][2 * i + 1]);
+    kappa[4] = kappa[4] ^ f3_function(kappa[5], tm[2][2 * i + 1], tr[2][2 * i + 1]);
+    kappa[3] = kappa[3] ^ f1_function(kappa[4], tm[3][2 * i + 1], tr[3][2 * i + 1]);
+    kappa[2] = kappa[2] ^ f2_function(kappa[3], tm[4][2 * i + 1], tr[4][2 * i + 1]);
+    kappa[1] = kappa[1] ^ f3_function(kappa[2], tm[5][2 * i + 1], tr[5][2 * i + 1]);
+    kappa[0] = kappa[0] ^ f1_function(kappa[1], tm[6][2 * i + 1], tr[6][2 * i + 1]);
+    kappa[7] = kappa[7] ^ f2_function(kappa[0], tm[7][2 * i + 1], tr[7][2 * i + 1]);
 
-    km[4 * i]     = k[0];
-    km[4 * i + 1] = k[2];
-    km[4 * i + 2] = k[4];
-    km[4 * i + 3] = k[6];
+    kr[4 * i]     = kappa[0] & 0x0000'001F;
+    kr[4 * i + 1] = kappa[2] & 0x0000'001F;
+    kr[4 * i + 2] = kappa[4] & 0x0000'001F;
+    kr[4 * i + 3] = kappa[6] & 0x0000'001F;
 
-    kr[4 * i]     = k[7];
-    kr[4 * i + 1] = k[6];
-    kr[4 * i + 2] = k[3];
-    kr[4 * i + 3] = k[1];
+    km[4 * i]     = kappa[7];
+    km[4 * i + 1] = kappa[5];
+    km[4 * i + 2] = kappa[3];
+    km[4 * i + 3] = kappa[1];
   }
 }
 
