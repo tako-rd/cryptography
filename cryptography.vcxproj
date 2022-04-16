@@ -44,6 +44,7 @@
     <ClInclude Include="src\include\crypto\rc6.h" />
     <ClInclude Include="src\include\crypto\rsa.h" />
     <ClInclude Include="src\include\crypto\seed.h" />
+    <ClInclude Include="src\include\crypto\twofish.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc" />
@@ -64,6 +65,7 @@
     <ClCompile Include="src\crypto\rc6.cc" />
     <ClCompile Include="src\crypto\rsa.cc" />
     <ClCompile Include="src\crypto\seed.cc" />
+    <ClCompile Include="src\crypto\twofish.cc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

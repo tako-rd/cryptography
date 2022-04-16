@@ -13,16 +13,22 @@
 
 namespace cryptography {
 
-#define SUCCESS                 0
-#define FAILURE                 1
+#define SUCCESS                       0
+#define FAILURE                       1
 
-#define TWOFISH_128BIT_KVALUE   2
-#define TWOFISH_192BIT_KVALUE   3
-#define TWOFISH_256BIT_KVALUE   4
+#define TWOFISH_128BIT_KVALUE         2
+#define TWOFISH_192BIT_KVALUE         3
+#define TWOFISH_256BIT_KVALUE         4
 
-#define TWOFISH_RHO             16843009  /**< 2^24 + 2^16 + 2^8 + 2^0 */
+#define TWOFISH_128BIT_KEY_BYTE_SIZE  4
+#define TWOFISH_192BIT_KEY_BYTE_SIZE  6
+#define TWOFISH_256BIT_KEY_BYTE_SIZE  8
 
-#define ROTR4(x, shift)         (uint8_t)(((x) >> (shift) | ((x) << (4 - shift))) & 0xFF)
+#define TWOFISH_ROUND_MAX             15
+
+#define TWOFISH_RHO                   16843009  /**< 2^24 + 2^16 + 2^8 + 2^0 */
+
+#define ROTR4(x, shift)               (uint8_t)(((x) >> (shift) | ((x) << (4 - shift))) & 0xFF)
 
 static const uint8_t q0t0[16] = {
   0x08, 0x01, 0x07, 0x0D, 0x06, 0x0F, 0x03, 0x02, 0x00, 0x0B, 0x05, 0x09, 0x0E, 0x0C, 0x0A, 0x04
@@ -57,7 +63,27 @@ static const uint8_t q1t3[16] = {
 };
 
 int32_t twofish::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
-  return 1;
+  uint32_t k[8] = {0};
+
+  if (TWOFISH != (mode & EXTRACT_TYPE)) {
+    return FAILURE;
+  }
+
+  mode_ = mode;
+  enable_intrinsic_func_ = enable_intrinsic;
+
+  switch (mode >> 8) {
+    case (TWOFISH >> 8):
+      if (TWOFISH_128BIT_KEY_BYTE_SIZE != ksize) { return FAILURE; }
+      LITTLEENDIAN_U8_TO_U128_COPY(key, k);
+      expand_key(k, subkey_);
+      memset(k, 0xCC, sizeof(k));
+      has_subkeys_ = true;
+      break;
+    default:
+      break;
+  }
+  return SUCCESS;
 }
 
 int32_t twofish::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
@@ -87,11 +113,75 @@ void twofish::clear() noexcept {
 }
 
 inline void twofish::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+  uint32_t tmpp[4] = {0};
+  uint32_t out[4] = {0};
+  uint32_t f[2] = {0};
 
+  LITTLEENDIAN_U8_TO_U128_COPY(ptext, tmpp);
+
+  tmpp[0] ^= subkey_[0];
+  tmpp[1] ^= subkey_[1];
+  tmpp[2] ^= subkey_[2];
+  tmpp[3] ^= subkey_[3];
+
+  for (int32_t i = 0; i <= TWOFISH_ROUND_MAX; ++i) {
+    f_function(tmpp[0], tmpp[1], i, f);
+    f[0] = tmpp[2] ^ f[0];
+    f[1] = tmpp[3] ^ f[1];
+
+    tmpp[2] = tmpp[0];
+    tmpp[3] = tmpp[1];
+    tmpp[0] = f[0];
+    tmpp[1] = f[1];
+  }
+
+  out[0] = tmpp[2];
+  out[1] = tmpp[3];
+  out[2] = tmpp[0];
+  out[3] = tmpp[1];
+
+  out[0] ^= subkey_[4];
+  out[1] ^= subkey_[5];
+  out[2] ^= subkey_[6];
+  out[3] ^= subkey_[7];
+
+  LITTLEENDIAN_U128_TO_U8_COPY(out, ctext);
 }
 
 inline void twofish::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+  uint32_t tmpp[4] = {0};
+  uint32_t out[4] = {0};
+  uint32_t f[2] = {0};
 
+  LITTLEENDIAN_U8_TO_U128_COPY(ctext, tmpp);
+
+  tmpp[0] ^= subkey_[4];
+  tmpp[1] ^= subkey_[5];
+  tmpp[2] ^= subkey_[6];
+  tmpp[3] ^= subkey_[7];
+
+  for (int32_t i = TWOFISH_ROUND_MAX; i >= 0; --i) {
+    f_function(tmpp[0], tmpp[1], i, f);
+    f[0] = tmpp[2] ^ f[0];
+    f[1] = tmpp[3] ^ f[1];
+
+    tmpp[2] = tmpp[0];
+    tmpp[3] = tmpp[1];
+    tmpp[0] = f[0];
+    tmpp[1] = f[1];
+  }
+
+  out[0] = tmpp[2];
+  out[1] = tmpp[3];
+  out[2] = tmpp[0];
+  out[3] = tmpp[1];
+
+  out[0] ^= subkey_[0];
+  out[1] ^= subkey_[1];
+  out[2] ^= subkey_[2];
+  out[3] ^= subkey_[3];
+
+  LITTLEENDIAN_U128_TO_U8_COPY(out, ptext);
 }
 
 inline void twofish::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -144,6 +234,9 @@ inline void twofish::expand_key(const uint32_t * const key, uint32_t *skeys) noe
 inline void twofish::f_function(uint32_t r0, uint32_t r1, int32_t round, uint32_t *f) const noexcept {
   uint32_t t0 = g_function(r0);
   uint32_t t1 = g_function(ROTATE_LEFT32(r1, 8));
+
+  t0 ^= t1;
+  t1 ^= t0;
 
   f[0] = (t0 + t1 + subkey_[2 * round + 8]);
   f[1] = (t0 + 2 * t1 + subkey_[2 * round + 9]);

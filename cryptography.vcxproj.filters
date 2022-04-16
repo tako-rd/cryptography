@@ -111,6 +111,9 @@
     <ClInclude Include="src\include\crypto\cast256.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\crypto\twofish.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc">
@@ -165,6 +168,9 @@
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\cast256.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\twofish.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
   </ItemGroup>

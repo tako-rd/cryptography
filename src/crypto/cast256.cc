@@ -200,11 +200,14 @@ int32_t cast256::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
     no_intrinsic_decrypt(ctext, ptext);
   }
   return SUCCESS;
-
 }
 
 void cast256::clear() noexcept {
-
+  mode_ = CAST256;
+  memset(km_, 0xCC, sizeof(km_));
+  memset(kr_, 0xCC, sizeof(kr_));
+  has_subkeys_ = false;
+  enable_intrinsic_func_ = false;
 }
 
 inline void cast256::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
