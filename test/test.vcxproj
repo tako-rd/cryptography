@@ -62,6 +62,8 @@
     <ClInclude Include="crypto\gtest_rc6\gtest_rc6_defs.h" />
     <ClInclude Include="crypto\gtest_seed\gtest_seed.h" />
     <ClInclude Include="crypto\gtest_seed\gtest_seed_defs.h" />
+    <ClInclude Include="crypto\gtest_twofish\gtest_twofish.h" />
+    <ClInclude Include="crypto\gtest_twofish\gtest_twofish_defs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc" />
@@ -78,6 +80,7 @@
     <ClCompile Include="crypto\gtest_ofb\gtest_ofb.cc" />
     <ClCompile Include="crypto\gtest_rc6\gtest_rc6.cc" />
     <ClCompile Include="crypto\gtest_seed\gtest_seed.cc" />
+    <ClCompile Include="crypto\gtest_twofish\gtest_twofish.cc" />
   </ItemGroup>
   <ItemDefinitionGroup />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

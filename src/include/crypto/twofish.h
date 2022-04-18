@@ -41,13 +41,15 @@ class twofish final : public algorithm<twofish> {
 
   void f_function(uint32_t r0, uint32_t r1, int32_t round, uint32_t *f) const noexcept;
 
-  uint32_t  g_function(uint32_t x) const noexcept;
+  uint32_t g_function(uint32_t x) const noexcept;
 
   uint32_t h_function(uint32_t x, uint32_t *l, uint32_t type) const noexcept;
 
-  uint8_t gf_mult(uint8_t x, uint8_t y) const noexcept;
+  uint8_t gf_mult(uint8_t x, uint8_t y, uint32_t mod) const noexcept;
 
   uint8_t fix_q(uint8_t x, const uint8_t * const t0, const uint8_t * const t1, const uint8_t * const t2, const uint8_t * const t3) const noexcept;
+
+  void fix_s(uint32_t *s, uint32_t type) noexcept;
 
   uint32_t mode_;
 
@@ -58,11 +60,11 @@ class twofish final : public algorithm<twofish> {
   bool has_subkeys_;
 
   bool enable_intrinsic_func_;
-
+#if 0
   uint8_t q0_[256];
 
   uint8_t q1_[256];
-
+#endif
   uint32_t sbox0_[256];
 
   uint32_t sbox1_[256];

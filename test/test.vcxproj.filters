@@ -52,6 +52,9 @@
     <Filter Include="crypto\gtest_cast256">
       <UniqueIdentifier>{4992ddb2-b594-4fd2-a40c-3088cb047baf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\gtest_twofish">
+      <UniqueIdentifier>{acab2b15-1fc3-4c23-9101-6d8da4b1ae30}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -132,6 +135,12 @@
     <ClInclude Include="crypto\gtest_cast256\gtest_cast256_defs.h">
       <Filter>crypto\gtest_cast256</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_twofish\gtest_twofish.h">
+      <Filter>crypto\gtest_twofish</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_twofish\gtest_twofish_defs.h">
+      <Filter>crypto\gtest_twofish</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">
@@ -175,6 +184,9 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_cast256\gtest_cast256.cc">
       <Filter>crypto\gtest_cast256</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_twofish\gtest_twofish.cc">
+      <Filter>crypto\gtest_twofish</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
