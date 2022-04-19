@@ -36,9 +36,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="crypto\gtest_aes\gtest_aes128.h" />
-    <ClInclude Include="crypto\gtest_aes\gtest_aes192.h" />
-    <ClInclude Include="crypto\gtest_aes\gtest_aes256.h" />
+    <ClInclude Include="crypto\gtest_aes\gtest_aes.h" />
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h" />
     <ClInclude Include="crypto\gtest_camellia\gtest_camellia128.h" />
     <ClInclude Include="crypto\gtest_camellia\gtest_camellia_defs.h" />
@@ -66,9 +64,7 @@
     <ClInclude Include="crypto\gtest_twofish\gtest_twofish_defs.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc" />
-    <ClCompile Include="crypto\gtest_aes\gtest_aes192.cc" />
-    <ClCompile Include="crypto\gtest_aes\gtest_aes256.cc" />
+    <ClCompile Include="crypto\gtest_aes\gtest_aes.cc" />
     <ClCompile Include="crypto\gtest_camellia\gtest_camellia128.cc" />
     <ClCompile Include="crypto\gtest_cast128\gtest_cast128.cc" />
     <ClCompile Include="crypto\gtest_cast256\gtest_cast256.cc" />

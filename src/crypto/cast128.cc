@@ -13,44 +13,62 @@
 
 namespace cryptography {
 
-#define SUCCESS                           0
-#define FAILURE                           1
+#define SUCCESS                                 0
+#define FAILURE                                 1
 
-#define CAST128_128_KEY_BYTE_SIZE         16
+#define CAST128_40_KEY_BYTE_SIZE                5
+#define CAST128_48_KEY_BYTE_SIZE                6
+#define CAST128_56_KEY_BYTE_SIZE                7
+#define CAST128_64_KEY_BYTE_SIZE                8
+#define CAST128_72_KEY_BYTE_SIZE                9
+#define CAST128_80_KEY_BYTE_SIZE                10
+#define CAST128_88_KEY_BYTE_SIZE                11
+#define CAST128_96_KEY_BYTE_SIZE                12
+#define CAST128_104_KEY_BYTE_SIZE               13
+#define CAST128_112_KEY_BYTE_SIZE               14
+#define CAST128_120_KEY_BYTE_SIZE               15
+#define CAST128_128_KEY_BYTE_SIZE               16
 
-#define X0(x)                             (uint8_t)((x[0] >> 24) & 0x0000'00FF)
-#define X1(x)                             (uint8_t)((x[0] >> 16) & 0x0000'00FF)
-#define X2(x)                             (uint8_t)((x[0] >>  8) & 0x0000'00FF)
-#define X3(x)                             (uint8_t)((x[0] >>  0) & 0x0000'00FF)
-#define X4(x)                             (uint8_t)((x[1] >> 24) & 0x0000'00FF)
-#define X5(x)                             (uint8_t)((x[1] >> 16) & 0x0000'00FF)
-#define X6(x)                             (uint8_t)((x[1] >>  8) & 0x0000'00FF)
-#define X7(x)                             (uint8_t)((x[1] >>  0) & 0x0000'00FF)
-#define X8(x)                             (uint8_t)((x[2] >> 24) & 0x0000'00FF)
-#define X9(x)                             (uint8_t)((x[2] >> 16) & 0x0000'00FF)
-#define XA(x)                             (uint8_t)((x[2] >>  8) & 0x0000'00FF)
-#define XB(x)                             (uint8_t)((x[2] >>  0) & 0x0000'00FF)
-#define XC(x)                             (uint8_t)((x[3] >> 24) & 0x0000'00FF)
-#define XD(x)                             (uint8_t)((x[3] >> 16) & 0x0000'00FF)
-#define XE(x)                             (uint8_t)((x[3] >>  8) & 0x0000'00FF)
-#define XF(x)                             (uint8_t)((x[3] >>  0) & 0x0000'00FF)
+#define NROUND_FOR_KEY_80BIT                    true
+#define NROUND_FOR_KEY_128BIT                   false
 
-#define Z0(x)                             (uint8_t)((x[0] >> 24) & 0x0000'00FF)
-#define Z1(x)                             (uint8_t)((x[0] >> 16) & 0x0000'00FF)
-#define Z2(x)                             (uint8_t)((x[0] >>  8) & 0x0000'00FF)
-#define Z3(x)                             (uint8_t)((x[0] >>  0) & 0x0000'00FF)
-#define Z4(x)                             (uint8_t)((x[1] >> 24) & 0x0000'00FF)
-#define Z5(x)                             (uint8_t)((x[1] >> 16) & 0x0000'00FF)
-#define Z6(x)                             (uint8_t)((x[1] >>  8) & 0x0000'00FF)
-#define Z7(x)                             (uint8_t)((x[1] >>  0) & 0x0000'00FF)
-#define Z8(x)                             (uint8_t)((x[2] >> 24) & 0x0000'00FF)
-#define Z9(x)                             (uint8_t)((x[2] >> 16) & 0x0000'00FF)
-#define ZA(x)                             (uint8_t)((x[2] >>  8) & 0x0000'00FF)
-#define ZB(x)                             (uint8_t)((x[2] >>  0) & 0x0000'00FF)
-#define ZC(x)                             (uint8_t)((x[3] >> 24) & 0x0000'00FF)
-#define ZD(x)                             (uint8_t)((x[3] >> 16) & 0x0000'00FF)
-#define ZE(x)                             (uint8_t)((x[3] >>  8) & 0x0000'00FF)
-#define ZF(x)                             (uint8_t)((x[3] >>  0) & 0x0000'00FF)
+#define X0(x)                                   (uint8_t)((x[0] >> 24) & 0x0000'00FF)
+#define X1(x)                                   (uint8_t)((x[0] >> 16) & 0x0000'00FF)
+#define X2(x)                                   (uint8_t)((x[0] >>  8) & 0x0000'00FF)
+#define X3(x)                                   (uint8_t)((x[0] >>  0) & 0x0000'00FF)
+#define X4(x)                                   (uint8_t)((x[1] >> 24) & 0x0000'00FF)
+#define X5(x)                                   (uint8_t)((x[1] >> 16) & 0x0000'00FF)
+#define X6(x)                                   (uint8_t)((x[1] >>  8) & 0x0000'00FF)
+#define X7(x)                                   (uint8_t)((x[1] >>  0) & 0x0000'00FF)
+#define X8(x)                                   (uint8_t)((x[2] >> 24) & 0x0000'00FF)
+#define X9(x)                                   (uint8_t)((x[2] >> 16) & 0x0000'00FF)
+#define XA(x)                                   (uint8_t)((x[2] >>  8) & 0x0000'00FF)
+#define XB(x)                                   (uint8_t)((x[2] >>  0) & 0x0000'00FF)
+#define XC(x)                                   (uint8_t)((x[3] >> 24) & 0x0000'00FF)
+#define XD(x)                                   (uint8_t)((x[3] >> 16) & 0x0000'00FF)
+#define XE(x)                                   (uint8_t)((x[3] >>  8) & 0x0000'00FF)
+#define XF(x)                                   (uint8_t)((x[3] >>  0) & 0x0000'00FF)
+
+#define Z0(x)                                   (uint8_t)((x[0] >> 24) & 0x0000'00FF)
+#define Z1(x)                                   (uint8_t)((x[0] >> 16) & 0x0000'00FF)
+#define Z2(x)                                   (uint8_t)((x[0] >>  8) & 0x0000'00FF)
+#define Z3(x)                                   (uint8_t)((x[0] >>  0) & 0x0000'00FF)
+#define Z4(x)                                   (uint8_t)((x[1] >> 24) & 0x0000'00FF)
+#define Z5(x)                                   (uint8_t)((x[1] >> 16) & 0x0000'00FF)
+#define Z6(x)                                   (uint8_t)((x[1] >>  8) & 0x0000'00FF)
+#define Z7(x)                                   (uint8_t)((x[1] >>  0) & 0x0000'00FF)
+#define Z8(x)                                   (uint8_t)((x[2] >> 24) & 0x0000'00FF)
+#define Z9(x)                                   (uint8_t)((x[2] >> 16) & 0x0000'00FF)
+#define ZA(x)                                   (uint8_t)((x[2] >>  8) & 0x0000'00FF)
+#define ZB(x)                                   (uint8_t)((x[2] >>  0) & 0x0000'00FF)
+#define ZC(x)                                   (uint8_t)((x[3] >> 24) & 0x0000'00FF)
+#define ZD(x)                                   (uint8_t)((x[3] >> 16) & 0x0000'00FF)
+#define ZE(x)                                   (uint8_t)((x[3] >>  8) & 0x0000'00FF)
+#define ZF(x)                                   (uint8_t)((x[3] >>  0) & 0x0000'00FF)
+
+#define BENDIAN_32BIT_KEY_SET(key, buf, size)   for (uint32_t i = 0; i < (size); ++i) {                   \
+                                                  buf[i >> 2] |= (uint32_t)(key[i]) << (32 - 8 * ((i ^ 0x04) + 1)); \
+                                                }
 
 static const uint32_t sbox1[256] = {
   0x30fb40d4, 0x9fa0ff0b, 0x6beccd2f, 0x3f258c7a, 0x1e213f2f, 0x9c004dd3, 0x6003e540, 0xcf9fc949,
@@ -335,23 +353,35 @@ static const uint32_t sbox8[256] = {
 int32_t cast128::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint32_t k[4] = {0};
 
-  if (CAST128 != (mode & EXTRACT_TYPE)) {
-    return FAILURE;
-  }
-
-  mode_ = mode;
   enable_intrinsic_func_ = enable_intrinsic;
 
-  switch (mode >> 8) {
-    case (CAST128 >> 8):
-      if (CAST128_128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
-      BIGENDIAN_32BIT_U8_TO_U128_COPY(key, k);
+  switch (ksize) {
+    case CAST128_40_KEY_BYTE_SIZE:
+    case CAST128_48_KEY_BYTE_SIZE:
+    case CAST128_56_KEY_BYTE_SIZE:
+    case CAST128_64_KEY_BYTE_SIZE:
+    case CAST128_72_KEY_BYTE_SIZE:
+    case CAST128_80_KEY_BYTE_SIZE:
+      BENDIAN_32BIT_KEY_SET(key, k, ksize);
       expand_key(k, km_, kr_);
       memset(k, 0xCC, sizeof(k));
       has_subkeys_ = true;
+      is_12round_ = NROUND_FOR_KEY_80BIT;
+      break;
+    case CAST128_88_KEY_BYTE_SIZE:
+    case CAST128_96_KEY_BYTE_SIZE:
+    case CAST128_104_KEY_BYTE_SIZE:
+    case CAST128_112_KEY_BYTE_SIZE:
+    case CAST128_120_KEY_BYTE_SIZE:
+    case CAST128_128_KEY_BYTE_SIZE:
+      BENDIAN_32BIT_KEY_SET(key, k, ksize);
+      expand_key(k, km_, kr_);
+      memset(k, 0xCC, sizeof(k));
+      has_subkeys_ = true;
+      is_12round_ = NROUND_FOR_KEY_128BIT;
       break;
     default:
-      break;
+      return FAILURE;
   }
   return SUCCESS;
 }
@@ -379,7 +409,11 @@ int32_t cast128::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
 }
 
 void cast128::clear() noexcept {
-
+  memset(km_, 0xCC, sizeof(km_));
+  memset(kr_, 0xCC, sizeof(kr_));
+  has_subkeys_ = false;
+  enable_intrinsic_func_ = false;
+  is_12round_ = false;
 }
 
 inline void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -421,20 +455,28 @@ inline void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *
   tmppln2[0] = tmppln1[1];
   tmppln2[1] = tmppln1[0] ^ fb_function(tmppln1[1], km_[10], kr_[10]);
 
-  tmppln1[0] = tmppln2[1];
-  tmppln1[1] = tmppln2[0] ^ fc_function(tmppln2[1], km_[11], kr_[11]);
+  if (NROUND_FOR_KEY_80BIT == is_12round_) {
+    
+    tmppln1[1] = tmppln2[1];
+    tmppln1[0] = tmppln2[0] ^ fc_function(tmppln2[1], km_[11], kr_[11]);
 
-  tmppln2[0] = tmppln1[1];
-  tmppln2[1] = tmppln1[0] ^ fa_function(tmppln1[1], km_[12], kr_[12]);
+  } else {
+    tmppln1[0] = tmppln2[1];
+    tmppln1[1] = tmppln2[0] ^ fc_function(tmppln2[1], km_[11], kr_[11]);
 
-  tmppln1[0] = tmppln2[1];
-  tmppln1[1] = tmppln2[0] ^ fb_function(tmppln2[1], km_[13], kr_[13]);
+    tmppln2[0] = tmppln1[1];
+    tmppln2[1] = tmppln1[0] ^ fa_function(tmppln1[1], km_[12], kr_[12]);
 
-  tmppln2[0] = tmppln1[1];
-  tmppln2[1] = tmppln1[0] ^ fc_function(tmppln1[1], km_[14], kr_[14]);
+    tmppln1[0] = tmppln2[1];
+    tmppln1[1] = tmppln2[0] ^ fb_function(tmppln2[1], km_[13], kr_[13]);
 
-  tmppln1[1] = tmppln2[1];
-  tmppln1[0] = tmppln2[0] ^ fa_function(tmppln2[1], km_[15], kr_[15]);
+    tmppln2[0] = tmppln1[1];
+    tmppln2[1] = tmppln1[0] ^ fc_function(tmppln1[1], km_[14], kr_[14]);
+
+    tmppln1[1] = tmppln2[1];
+    tmppln1[0] = tmppln2[0] ^ fa_function(tmppln2[1], km_[15], kr_[15]);
+  }
+
 
   BIGENDIAN_32BIT_U64_TO_U8_COPY(tmppln1, ctext);
 }
@@ -445,17 +487,19 @@ inline void cast128::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *
 
   BIGENDIAN_32BIT_U8_TO_U64_COPY(ctext, tmpchpr1);
 
-  tmpchpr2[0] = tmpchpr1[1];
-  tmpchpr2[1] = tmpchpr1[0] ^ fa_function(tmpchpr1[1], km_[15], kr_[15]);
+  if (NROUND_FOR_KEY_80BIT != is_12round_) {
+    tmpchpr2[0] = tmpchpr1[1];
+    tmpchpr2[1] = tmpchpr1[0] ^ fa_function(tmpchpr1[1], km_[15], kr_[15]);
 
-  tmpchpr1[0] = tmpchpr2[1];
-  tmpchpr1[1] = tmpchpr2[0] ^ fc_function(tmpchpr2[1], km_[14], kr_[14]);
+    tmpchpr1[0] = tmpchpr2[1];
+    tmpchpr1[1] = tmpchpr2[0] ^ fc_function(tmpchpr2[1], km_[14], kr_[14]);
 
-  tmpchpr2[0] = tmpchpr1[1];
-  tmpchpr2[1] = tmpchpr1[0] ^ fb_function(tmpchpr1[1], km_[13], kr_[13]);
+    tmpchpr2[0] = tmpchpr1[1];
+    tmpchpr2[1] = tmpchpr1[0] ^ fb_function(tmpchpr1[1], km_[13], kr_[13]);
 
-  tmpchpr1[0] = tmpchpr2[1];
-  tmpchpr1[1] = tmpchpr2[0] ^ fa_function(tmpchpr2[1], km_[12], kr_[12]);
+    tmpchpr1[0] = tmpchpr2[1];
+    tmpchpr1[1] = tmpchpr2[0] ^ fa_function(tmpchpr2[1], km_[12], kr_[12]);
+  }
 
   tmpchpr2[0] = tmpchpr1[1];
   tmpchpr2[1] = tmpchpr1[0] ^ fc_function(tmpchpr1[1], km_[11], kr_[11]);

@@ -16,7 +16,7 @@ namespace cryptography {
 
 class rc6 final : public algorithm<rc6> {
  public:
-  rc6() noexcept : mode_(RC6_256), subkeys_{0}, ksize_(0), has_subkeys_(false), enable_intrinsic_func_(false) {};
+  rc6() noexcept : subkeys_{0}, ksize_(0), has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~rc6() {};
 
@@ -38,8 +38,6 @@ class rc6 final : public algorithm<rc6> {
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
   void expand_key(uint32_t *key, uint32_t *skeys, const uint32_t ksize) noexcept;
-
-  uint32_t mode_;
 
   uint32_t subkeys_[44];
 

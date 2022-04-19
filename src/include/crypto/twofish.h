@@ -16,7 +16,7 @@ namespace cryptography {
 
 class twofish final : public algorithm<twofish> {
  public:
-  twofish() noexcept : mode_(SEED), subkey_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  twofish() noexcept : subkey_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~twofish() {};
 
@@ -47,11 +47,11 @@ class twofish final : public algorithm<twofish> {
 
   uint8_t gf_mult(uint8_t x, uint8_t y, uint32_t mod) const noexcept;
 
+#if 0
   uint8_t fix_q(uint8_t x, const uint8_t * const t0, const uint8_t * const t1, const uint8_t * const t2, const uint8_t * const t3) const noexcept;
+#endif
 
   void fix_s(uint32_t *s, uint32_t type) noexcept;
-
-  uint32_t mode_;
 
   int32_t k_;
 
@@ -65,13 +65,13 @@ class twofish final : public algorithm<twofish> {
 
   uint8_t q1_[256];
 #endif
-  uint32_t sbox0_[256];
+  uint32_t mds_sbox0_[256];
 
-  uint32_t sbox1_[256];
+  uint32_t mds_sbox1_[256];
 
-  uint32_t sbox2_[256];
+  uint32_t mds_sbox2_[256];
 
-  uint32_t sbox3_[256];
+  uint32_t mds_sbox3_[256];
 };
 
 }

@@ -17,7 +17,7 @@ namespace cryptography {
 
 class cast128 final : public algorithm<cast128> {
  public:
-  cast128() noexcept : mode_(CAST128), km_{0}, kr_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  cast128() noexcept : km_{0}, kr_{0}, has_subkeys_(false), enable_intrinsic_func_(false), is_12round_(false) {};
 
   ~cast128() {};
 
@@ -46,8 +46,6 @@ class cast128 final : public algorithm<cast128> {
 
   uint32_t fc_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
 
-  uint32_t mode_;
-
   uint32_t km_[16];
 
   uint32_t kr_[16];
@@ -55,6 +53,8 @@ class cast128 final : public algorithm<cast128> {
   bool has_subkeys_;
 
   bool enable_intrinsic_func_;
+
+  bool is_12round_;
 };
 
 }

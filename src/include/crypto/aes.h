@@ -16,7 +16,7 @@
 
 namespace cryptography {
 
-#define HIGH_SPEED_AES_MODE    1
+#define SPEED_PRIORITY_AES    1
 
 class aes final : algorithm<aes> { 
  public:
@@ -32,18 +32,6 @@ class aes final : algorithm<aes> {
 
   void clear() noexcept;
 
-#ifdef ENABLE_FUNCTIONS_FOR_GTEST
-  std::vector<uint8_t> get_subkeys_for_unit_test();
-
-  std::vector<uint8_t> get_encskeys_for_unit_test();
-#endif
-
-#if 0
-  uint32_t calc_mixed_sbox(uint8_t x, uint32_t column);
-  
-  uint32_t calc_mixed_invsbox(uint8_t x, uint32_t column);
-#endif
-
  private:
   void no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
 
@@ -55,13 +43,13 @@ class aes final : algorithm<aes> {
 
   void expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) noexcept;
 
-#if !defined(HIGH_SPEED_AES_MODE)
+#if !defined(SPEED_PRIORITY_AES)
   uint32_t rot_word(uint32_t word) const noexcept;
 #endif
 
+#if !defined(SPEED_PRIORITY_AES)
   uint32_t sub_word(uint32_t word) const noexcept;
 
-#if !defined(HIGH_SPEED_AES_MODE)
   void sub_bytes(uint8_t *words) const noexcept;
 
   void inv_sub_bytes(uint8_t *words) const noexcept;

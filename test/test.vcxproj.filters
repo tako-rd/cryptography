@@ -60,15 +60,6 @@
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
       <Filter>crypto\gtest_aes</Filter>
     </ClInclude>
-    <ClInclude Include="crypto\gtest_aes\gtest_aes128.h">
-      <Filter>crypto\gtest_aes</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_aes\gtest_aes192.h">
-      <Filter>crypto\gtest_aes</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_aes\gtest_aes256.h">
-      <Filter>crypto\gtest_aes</Filter>
-    </ClInclude>
     <ClInclude Include="crypto\gtest_des\gtest_des.h">
       <Filter>crypto\gtest_des</Filter>
     </ClInclude>
@@ -141,17 +132,11 @@
     <ClInclude Include="crypto\gtest_twofish\gtest_twofish_defs.h">
       <Filter>crypto\gtest_twofish</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_aes\gtest_aes.h">
+      <Filter>crypto\gtest_aes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="crypto\gtest_aes\gtest_aes128.cc">
-      <Filter>crypto\gtest_aes</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\gtest_aes\gtest_aes192.cc">
-      <Filter>crypto\gtest_aes</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\gtest_aes\gtest_aes256.cc">
-      <Filter>crypto\gtest_aes</Filter>
-    </ClCompile>
     <ClCompile Include="crypto\gtest_des\gtest_des.cc">
       <Filter>crypto\gtest_des</Filter>
     </ClCompile>
@@ -187,6 +172,9 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_twofish\gtest_twofish.cc">
       <Filter>crypto\gtest_twofish</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_aes\gtest_aes.cc">
+      <Filter>crypto\gtest_aes</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

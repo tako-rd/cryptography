@@ -14,11 +14,11 @@
 
 namespace cryptography {
 
-#define HIGH_SPEED_SEED_MODE  1
+#define SPEED_PRIORITY_SEED   1
 
 class seed final : public algorithm<seed> {
  public:
-  seed() noexcept : mode_(SEED), subkey_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  seed() noexcept : subkey_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~seed() {};
 
@@ -39,13 +39,11 @@ class seed final : public algorithm<seed> {
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
 
-  void expand_key(const uint64_t * const key, uint64_t *skeys) const noexcept;
+  void expand_key(uint64_t *key, uint64_t *skeys) const noexcept;
 
   uint64_t f_function(uint64_t r, uint64_t k) const noexcept;
 
   uint32_t g_function(uint32_t r) const noexcept;
-
-  uint32_t mode_;
 
   uint64_t subkey_[16];
 

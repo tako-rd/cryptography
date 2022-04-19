@@ -18,11 +18,11 @@
 
 namespace cryptography {
 
-#define HIGH_SPEED_CAMELLIA_MODE  1
+#define SPEED_PRIORITY_CAMELLIA    1
 
 class camellia final : public algorithm<camellia> {
  public:
-  camellia() noexcept : mode_(CAMELLIA256), nk_(0), nkl_(0), n6r_(4), kw_{0}, k_{0}, kl_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  camellia() noexcept : ksize_(0), nk_(0), nkl_(0), n6r_(4), kw_{0}, k_{0}, kl_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~camellia() {};
 
@@ -33,11 +33,7 @@ class camellia final : public algorithm<camellia> {
   int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
   void clear() noexcept;
-#if 0
-  uint32_t calculate_sp32bit(const uint8_t x, const uint32_t sp_number) const noexcept;
 
-  uint64_t calculate_sp64bit(const uint8_t x, const uint32_t sp_number) const noexcept;
-#endif
  private:
   void no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
 
@@ -58,10 +54,11 @@ class camellia final : public algorithm<camellia> {
   uint64_t inv_fl_function(const uint64_t y, const uint64_t kl) const noexcept;
 
   void s_function(uint8_t *x) const noexcept;
-#if !defined(HIGH_SPEED_CAMELLIA_MODE)
+#if !defined(SPEED_PRIORITY_CAMELLIA)
   void p_function(uint8_t *x) const noexcept;
 #endif
-  uint32_t mode_;
+
+  uint32_t ksize_;
 
   int32_t nk_;
 

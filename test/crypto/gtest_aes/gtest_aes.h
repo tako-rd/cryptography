@@ -15,18 +15,14 @@
 
 #include "gtest_aes_defs.h"
 
-#ifndef GTEST_AES192_H
-#define GTEST_AES192_H
+#ifndef GTEST_AES128_H
+#define GTEST_AES128_H
 
-class GTestAes192 : public ::testing::Test {
+class GTestAes : public ::testing::Test {
  public:
   virtual void SetUp() {};
 
   virtual void TearDown() {};
-
-  cryptography::aes aes_;
-
-  std::vector<std::vector<uint8_t>> keys_;
 };
 
 #endif

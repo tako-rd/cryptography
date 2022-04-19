@@ -80,7 +80,7 @@ static const uint8_t invsbox[256] = {
   0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d,
 };
 
-#if !defined(HIGH_SPEED_AES_MODE)
+#if !defined(SPEED_PRIORITY_AES)
 static const uint8_t lut_gf_mult[15][256] = {
   {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -987,42 +987,13 @@ void aes::clear() noexcept {
   memset(&decskeys_, 0xCC, sizeof(decskeys_));
 }
 
-#ifdef ENABLE_FUNCTIONS_FOR_GTEST
-std::vector<uint8_t> aes::get_subkeys_for_unit_test() {
-  std::vector<uint8_t> skeys;
-
-  for (uint32_t cnt = 0; cnt < sizeof(encskeys32bit_) / sizeof(uint32_t); ++cnt) {
-    uint8_t skey[4] = {0};
-
-    BIGENDIAN_U32_TO_U8_COPY(encskeys32bit_[cnt], skey);
-
-    skeys.push_back(skey[0]);
-    skeys.push_back(skey[1]);
-    skeys.push_back(skey[2]);
-    skeys.push_back(skey[3]);
-  }
-  return skeys;
-}
-
-std::vector<uint8_t> aes::get_encskeys_for_unit_test() {
-  std::vector<uint8_t> skeys;
-
-  for (uint32_t i = 0; i < sizeof(encskeys_) / sizeof(__m128i); ++i) {
-    for (uint32_t j = 0; j < 16; ++j) {
-      skeys.push_back((uint8_t)(encskeys_[i]).m128i_i8[j]);
-    }
-  }
-  return skeys;
-}
-#endif
-
 inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint32_t kpos = 0;
   uint32_t tmp32pln[4] = {0};
   uint8_t tmppln[16] = {0};
 
   memcpy(tmppln, ptext, 16);
-#if defined(HIGH_SPEED_AES_MODE)
+#if defined(SPEED_PRIORITY_AES)
   BIGENDIAN_32BIT_U8_TO_U128_COPY(tmppln, tmp32pln);
 
   tmp32pln[0] = tmp32pln[0] ^ encskeys32bit_[kpos    ];
@@ -1036,7 +1007,7 @@ inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctex
 #endif
 
   for (int32_t round = 1; round < nr_; ++round) {
-#if defined(HIGH_SPEED_AES_MODE)
+#if defined(SPEED_PRIORITY_AES)
     kpos = 4 * round;
 
     tmp32pln[0] = mixed_sbox_2113[tmppln[0]]  ^ mixed_sbox_3211[tmppln[5]]  ^ 
@@ -1057,7 +1028,7 @@ inline void aes::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctex
 #endif
   }
 
-#if defined(HIGH_SPEED_AES_MODE)
+#if defined(SPEED_PRIORITY_AES)
   kpos = 4 * nr_;
 
   ctext[0]  = sbox[tmppln[0]]  ^ (uint8_t)((encskeys32bit_[kpos]     >> 24) & 0x0000'00FF);
@@ -1095,7 +1066,7 @@ inline void aes::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptex
   uint8_t tmpcphr[16] = {0};
 
   memcpy(tmpcphr, ctext, 16);
-#if defined(HIGH_SPEED_AES_MODE)
+#if defined(SPEED_PRIORITY_AES)
   BIGENDIAN_32BIT_U8_TO_U128_COPY(tmpcphr, tmp32cphr);
 
   tmp32cphr[0] = tmp32cphr[0] ^ decskeys32bit_[kpos    ];
@@ -1109,7 +1080,7 @@ inline void aes::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptex
 #endif
 
   for (uint32_t round = nr_ - 1; round > 0; --round) {
-#if defined(HIGH_SPEED_AES_MODE)
+#if defined(SPEED_PRIORITY_AES)
     kpos = 4 * round;
 
     tmp32cphr[0] = mixed_invsbox_e9db[tmpcphr[0]]  ^ mixed_invsbox_be9d[tmpcphr[13]] ^ 
@@ -1130,7 +1101,7 @@ inline void aes::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptex
 #endif
   }
 
-#if defined(HIGH_SPEED_AES_MODE)
+#if defined(SPEED_PRIORITY_AES)
   kpos = 0;
 
   ptext[0]  = invsbox[tmpcphr[0]]  ^ (uint8_t)((decskeys32bit_[kpos]     >> 24) & 0x0000'00FF);
@@ -1231,18 +1202,29 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
     tmp = encskeys[j - 1];
 
     if (0 == (j % nk_)) {
-#if defined(HIGH_SPEED_AES_MODE)
-      tmp = sub_word(ROTATE_LEFT32(tmp, 8)) ^ rcon[j / nk_];
+#if defined(SPEED_PRIORITY_AES)
+      tmp = ROTATE_LEFT32(tmp, 8);
+      tmp = ((uint32_t)sbox[(tmp >> 24) & 0xFF] << 24 | 
+             (uint32_t)sbox[(tmp >> 16) & 0xFF] << 16 | 
+             (uint32_t)sbox[(tmp >>  8) & 0xFF] <<  8 | 
+             (uint32_t)sbox[(tmp)       & 0xFF]) ^
+             rcon[j / nk_];
 #else
       tmp = sub_word(rot_word(tmp)) ^ rcon[j / nk_];
 #endif
     } else if (nk_ > 6 && 4 == (j % nk_)) {
+#if defined(SPEED_PRIORITY_AES)
+      tmp = ((uint32_t)sbox[(tmp >> 24) & 0xFF] << 24 | 
+             (uint32_t)sbox[(tmp >> 16) & 0xFF] << 16 | 
+             (uint32_t)sbox[(tmp >>  8) & 0xFF] <<  8 | 
+             (uint32_t)sbox[(tmp)       & 0xFF]);
+#else
       tmp = sub_word(tmp);
-
+#endif
     }
     encskeys[j] = encskeys[j - nk_] ^ tmp;
   }
-#if defined(HIGH_SPEED_AES_MODE)
+#if defined(SPEED_PRIORITY_AES)
 
   decskeys[0] = encskeys[0];
   decskeys[1] = encskeys[1];
@@ -1300,7 +1282,7 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
   }
 }
 
-#if !defined(HIGH_SPEED_AES_MODE)
+#if !defined(SPEED_PRIORITY_AES)
 inline uint32_t aes::rot_word(uint32_t word) const noexcept {
   uint32_t out = 0;
   uint8_t *tmp_p = nullptr;
@@ -1319,6 +1301,7 @@ inline uint32_t aes::rot_word(uint32_t word) const noexcept {
 }
 #endif
 
+#if !defined(SPEED_PRIORITY_AES)
 inline uint32_t aes::sub_word(uint32_t word) const noexcept {
   uint8_t *tmp = nullptr;
 
@@ -1330,7 +1313,6 @@ inline uint32_t aes::sub_word(uint32_t word) const noexcept {
          (uint32_t)sbox[tmp[3]];
 }
 
-#if !defined(HIGH_SPEED_AES_MODE)
 inline void aes::sub_bytes(uint8_t *words) const noexcept {
   for (uint32_t i = 0; i < 16; i +=4) {
     words[i]     = sbox[words[i]];
@@ -1484,52 +1466,6 @@ inline uint8_t aes::gf_mult(uint8_t x, uint8_t y) const noexcept {
     mask <<= 1;
   }
   return result;
-}
-#endif
-
-#if 0
-uint32_t aes::calc_mixed_sbox(uint8_t x, uint32_t column) {
-  uint32_t msbox = 0;
-
-  switch (column) {
-    case 0:
-      msbox = gf_mult(0x02, sbox[x]) << 24 | sbox[x] << 16                | sbox[x] << 8                | gf_mult(0x03, sbox[x]);
-      break;
-    case 1:
-      msbox = gf_mult(0x03, sbox[x]) << 24 | gf_mult(0x02, sbox[x]) << 16 | sbox[x] << 8                | sbox[x]; 
-      break;
-    case 2:
-      msbox = sbox[x] << 24                | gf_mult(0x03, sbox[x]) << 16 | gf_mult(0x02, sbox[x]) << 8 | sbox[x];
-      break;
-    case 3:
-      msbox = sbox[x] << 24                | sbox[x] << 16                | gf_mult(0x03, sbox[x]) << 8 | gf_mult(0x02, sbox[x]);
-      break;
-    default:
-      break;
-  }
-  return msbox;
-}
-
-uint32_t aes::calc_mixed_invsbox(uint8_t x, uint32_t column) {
-  uint32_t minvsbox = 0;
-
-  switch (column) {
-    case 0:
-      minvsbox = gf_mult(0x0e, invsbox[x]) << 24 | gf_mult(0x09, invsbox[x]) << 16 | gf_mult(0x0d, invsbox[x]) << 8 | gf_mult(0x0b, invsbox[x]);
-      break;
-    case 1:
-      minvsbox = gf_mult(0x0b, invsbox[x]) << 24 | gf_mult(0x0e, invsbox[x]) << 16 | gf_mult(0x09, invsbox[x]) << 8 | gf_mult(0x0d, invsbox[x]);
-      break;
-    case 2:
-      minvsbox = gf_mult(0x0d, invsbox[x]) << 24 | gf_mult(0x0b, invsbox[x]) << 16 | gf_mult(0x0e, invsbox[x]) << 8 | gf_mult(0x09, invsbox[x]);
-      break;
-    case 3:
-      minvsbox = gf_mult(0x09, invsbox[x]) << 24 | gf_mult(0x0d, invsbox[x]) << 16 | gf_mult(0x0b, invsbox[x]) << 8 | gf_mult(0x0e, invsbox[x]);
-      break;
-    default:
-      break;
-  }
-  return minvsbox;
 }
 #endif
 

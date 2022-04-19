@@ -38,7 +38,7 @@ static const uint32_t kc[16] = {
   0x779B99E3, 0xEF3733C6, 0xDE6E678D, 0xBCDCCF1B, 
 };
 
-#if !defined(HIGH_SPEED_SEED_MODE)
+#if !defined(SPEED_PRIORITY_SEED)
 static const uint8_t sbox0[256] = {
   0xA9, 0x85, 0xD6, 0xD3, 0x54, 0x1D, 0xAC, 0x25, 
   0x5D, 0x43, 0x18, 0x1E, 0x51, 0xFC, 0xCA, 0x63, 
@@ -258,18 +258,12 @@ static const uint32_t key_round_schd[16] = {
 int32_t seed::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint64_t k[2] = {0};
 
-  if (SEED != (mode & EXTRACT_TYPE)) {
-    return FAILURE;
-  }
-
-  mode_ = mode;
   enable_intrinsic_func_ = enable_intrinsic;
 
   if (SEED_KEY_BYTE_SIZE != ksize) { return FAILURE; }
   BIGENDIAN_64BIT_U8_TO_U128_COPY(key, k);
   expand_key(k, subkey_);
   has_subkeys_ = true;
-
 
   return SUCCESS;
 }
@@ -340,19 +334,15 @@ inline void seed::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext)
 
 }
 
-inline void seed::expand_key(const uint64_t * const key, uint64_t *skeys) const noexcept {
-  uint64_t tmpk[2] = {0};
-
-  BIGENDIAN_64BIT_U8_TO_U128_COPY(key, tmpk);
-
+inline void seed::expand_key(uint64_t *key, uint64_t *skeys) const noexcept {
   for (int32_t round = 0; round < 16; ++round) {
-    skeys[round] = (uint64_t)g_function(((uint32_t)(tmpk[0] >> 32) + (uint32_t)(tmpk[1] >> 32) - kc[round])) << 32 | 
-                   (uint64_t)g_function(((uint32_t)(tmpk[0] & 0x0000'0000'FFFF'FFFF) - (uint32_t)(tmpk[1] & 0x0000'0000'FFFF'FFFF) + kc[round]));
+    skeys[round] = (uint64_t)g_function(((uint32_t)(key[0] >> 32) + (uint32_t)(key[1] >> 32) - kc[round])) << 32 | 
+                   (uint64_t)g_function(((uint32_t)(key[0] & 0x0000'0000'FFFF'FFFF) - (uint32_t)(key[1] & 0x0000'0000'FFFF'FFFF) + kc[round]));
 
     if (1 == key_round_schd[round]) { /* Odd round */
-      tmpk[0] = ROTATE_RIGHT64(tmpk[0], 8);
+      key[0] = ROTATE_RIGHT64(key[0], 8);
     } else {                          /* Even round */
-      tmpk[1] = ROTATE_LEFT64(tmpk[1], 8);
+      key[1] = ROTATE_LEFT64(key[1], 8);
     }
   }
 }
@@ -361,9 +351,8 @@ inline uint64_t seed::f_function(uint64_t r, uint64_t k) const noexcept {
   uint32_t rk0 = (uint32_t)(r >> 32) ^ (k >> 32);
   uint32_t rk1 = (uint32_t)(r & 0x0000'0000'FFFF'FFFF) ^ (k & 0x0000'0000'FFFF'FFFF);
   uint32_t xorrk = rk0 ^ rk1;
-  uint32_t p0 = g_function(g_function(xorrk) + rk0) + g_function(xorrk);
   uint32_t p1 = g_function(g_function(xorrk) + rk0);
-  uint32_t p2 = g_function(p0);
+  uint32_t p2 = g_function(g_function(g_function(xorrk) + rk0) + g_function(xorrk));
 
   return ((uint64_t)p2 + (uint64_t)p1) << 32 | (uint64_t)p2;
 #if 0
@@ -388,7 +377,7 @@ inline uint64_t seed::f_function(uint64_t r, uint64_t k) const noexcept {
 }
 
 inline uint32_t seed::g_function(uint32_t r) const noexcept {
-#if !defined(HIGH_SPEED_SEED_MODE)
+#if !defined(SPEED_PRIORITY_SEED)
   uint32_t z = 0;
   uint8_t z8bit[4] = {0};
 #else
@@ -397,7 +386,7 @@ inline uint32_t seed::g_function(uint32_t r) const noexcept {
   uint8_t *r8bit = nullptr;
 
   BIGENDIAN_U32_TO_U8(r, r8bit);
-#if !defined(HIGH_SPEED_SEED_MODE)
+#if !defined(SPEED_PRIORITY_SEED)
   z8bit[3]  = (sbox0[r8bit[3]] & M0)  ^ (sbox1[r8bit[2]] & M1)  ^ (sbox0[r8bit[1]] & M2)  ^ (sbox1[r8bit[0]] & M3);
   z8bit[2]  = (sbox0[r8bit[3]] & M1)  ^ (sbox1[r8bit[2]] & M2)  ^ (sbox0[r8bit[1]] & M3)  ^ (sbox1[r8bit[0]] & M0);
   z8bit[1]  = (sbox0[r8bit[3]] & M2)  ^ (sbox1[r8bit[2]] & M3)  ^ (sbox0[r8bit[1]] & M0)  ^ (sbox1[r8bit[0]] & M1);

@@ -16,9 +16,9 @@ namespace cryptography {
 #define SUCCESS                                    0
 #define FAILURE                                    1
 
-#define CAMELLIA128_KEY_BYTE_SIZE                  16
-#define CAMELLIA192_KEY_BYTE_SIZE                  24
-#define CAMELLIA256_KEY_BYTE_SIZE                  32
+#define CAMELLIA_128_KEY_BYTE_SIZE                 16
+#define CAMELLIA_192_KEY_BYTE_SIZE                 24
+#define CAMELLIA_256_KEY_BYTE_SIZE                 32
 
 #define SGM1                                       0xA09E667F3BCC908B
 #define SGM2                                       0xB67AE8584CAA73B2
@@ -30,7 +30,7 @@ namespace cryptography {
 #define CAMELLIA_ROTATE_LEFT128(src, dst, shift)   dst[0] = src[0] << shift | src[1] >> (64 - shift); \
                                                    dst[1] = src[1] << shift | src[0] >> (64 - shift);
 
-#if defined(HIGH_SPEED_CAMELLIA_MODE)
+#if defined(SPEED_PRIORITY_CAMELLIA)
 static const uint64_t sp64bit1[256] = {
   0x7070700070000070, 0x8282820082000082, 0x2c2c2c002c00002c, 0xececec00ec0000ec,
   0xb3b3b300b30000b3, 0x2727270027000027, 0xc0c0c000c00000c0, 0xe5e5e500e50000e5,
@@ -912,56 +912,49 @@ static const uint64_t sp32bit4404[256] = {
 };
 #endif
 
-#if !defined(HIGH_SPEED_CAMELLIA_MODE)
+#if !defined(SPEED_PRIORITY_CAMELLIA)
 static const uint8_t left_rschd[6]  = {0, 1, 0, 1, 0, 1};
 static const uint8_t right_rschd[6] = {1, 0, 1, 0, 1, 0};
 #endif
 
 int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
-  uint64_t tmpkey[32] = {0};
+  uint64_t k[4] = {0};
 
-  if (CAMELLIA128 != (mode & EXTRACT_TYPE) &&
-      CAMELLIA192 != (mode & EXTRACT_TYPE) &&
-      CAMELLIA256 != (mode & EXTRACT_TYPE)) {
-    return FAILURE;
-  }
-
-  mode_ = mode;
   enable_intrinsic_func_ = enable_intrinsic;
 
-  switch (((mode_ & EXTRACT_TYPE) >> 8)) {
-    case (CAMELLIA128 >> 8):
-      if (CAMELLIA128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
-      BIGENDIAN_64BIT_U8_TO_U128_COPY(key, tmpkey);
-      expand_128bit_key(tmpkey, kw_, k_, kl_);
-      memset(&tmpkey, 0xCC, 16);
+  switch (ksize) {
+    case CAMELLIA_128_KEY_BYTE_SIZE:
+      BIGENDIAN_64BIT_U8_TO_U128_COPY(key, k);
+      ksize_ = CAMELLIA_128_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 17;
       nkl_ = 3;
       n6r_ = 2;
+      expand_128bit_key(k, kw_, k_, kl_);
+      memset(k, 0xCC, 16);
       break;
-    case (CAMELLIA192 >> 8):
-      if (CAMELLIA192_KEY_BYTE_SIZE != ksize) { return FAILURE; }
-      BIGENDIAN_64BIT_U8_TO_U192_COPY(key, tmpkey);
-      expand_192bit_or_256bit_key(tmpkey, kw_, k_, kl_);
-      memset(&tmpkey, 0xCC, 24);
+    case CAMELLIA_192_KEY_BYTE_SIZE:
+      BIGENDIAN_64BIT_U8_TO_U192_COPY(key, k);
+      ksize_ = CAMELLIA_192_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 23;
       nkl_ = 5;
       n6r_ = 3;
+      expand_192bit_or_256bit_key(k, kw_, k_, kl_);
+      memset(k, 0xCC, 24);
       break;
-    case (CAMELLIA256 >> 8):
-      if (CAMELLIA256_KEY_BYTE_SIZE != ksize) { return FAILURE; }
-      BIGENDIAN_64BIT_U8_TO_U256_COPY(key, tmpkey);
-      expand_192bit_or_256bit_key(tmpkey, kw_, k_, kl_);
-      memset(&tmpkey, 0xCC, 32);
+    case CAMELLIA_256_KEY_BYTE_SIZE:
+      BIGENDIAN_64BIT_U8_TO_U256_COPY(key, k);
+      ksize_ = CAMELLIA_256_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 23;
       nkl_ = 5;
       n6r_ = 3;
+      expand_192bit_or_256bit_key(k, kw_, k_, kl_);
+      memset(k, 0xCC, 32);
       break;
     default:
-      break;
+      return FAILURE;
   }
   return SUCCESS;
 }
@@ -989,7 +982,6 @@ int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t csize, uin
 }
 
 void camellia::clear() noexcept {
-  mode_ = CAMELLIA256;
   nk_ = {0};
   nkl_ = {0};
   n6r_ = {0};
@@ -1011,7 +1003,7 @@ inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t 
   tmptext[1] ^= kw_[1];
 
   for (int32_t round = 0; round <= n6r_; ++round) {
-#if defined(HIGH_SPEED_CAMELLIA_MODE)
+#if defined(SPEED_PRIORITY_CAMELLIA)
     tmptext[1] ^= f_function(tmptext[0], k_[kpos]);
     ++kpos;
 
@@ -1062,7 +1054,7 @@ inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t 
 
   for (int32_t round = 0; round <= n6r_; ++round) {
 
-#if defined(HIGH_SPEED_CAMELLIA_MODE)
+#if defined(SPEED_PRIORITY_CAMELLIA)
     tmptext[1] ^= f_function(tmptext[0], k_[kpos]);
     --kpos;
 
@@ -1191,7 +1183,7 @@ inline void camellia::expand_192bit_or_256bit_key(const uint64_t * const key, ui
   uint64_t kb2[2] = {0};
   uint64_t tk[2] = {0};
   
-  if (mode_ == CAMELLIA192) {
+  if (ksize_ == CAMELLIA_192_KEY_BYTE_SIZE) {
     kl1[0] = key[0];
     kl1[1] = key[1];
     kr1[0] = key[2];
@@ -1288,7 +1280,7 @@ inline void camellia::expand_192bit_or_256bit_key(const uint64_t * const key, ui
 
 inline uint64_t camellia::f_function(uint64_t in, uint64_t key) const noexcept {
   uint64_t tmpy = 0;
-#if defined(HIGH_SPEED_CAMELLIA_MODE)
+#if defined(SPEED_PRIORITY_CAMELLIA)
   uint64_t zd = 0;
 #else
   uint8_t *y = nullptr;
@@ -1297,7 +1289,7 @@ inline uint64_t camellia::f_function(uint64_t in, uint64_t key) const noexcept {
 
   tmpy = in ^ key;
 
-#if defined(HIGH_SPEED_CAMELLIA_MODE)
+#if defined(SPEED_PRIORITY_CAMELLIA)
   zd ^= sp64bit1[(uint8_t)(tmpy >> 56) & 0xFF];
   zd ^= sp64bit2[(uint8_t)(tmpy >> 48) & 0xFF];
   zd ^= sp64bit3[(uint8_t)(tmpy >> 40) & 0xFF];
@@ -1340,7 +1332,7 @@ inline uint64_t camellia::inv_fl_function(const uint64_t y, const uint64_t kl) c
   return (((uint64_t)yl << 32) | (uint64_t)yr); 
 }
 
-#if !defined(HIGH_SPEED_CAMELLIA_MODE)
+#if !defined(SPEED_PRIORITY_CAMELLIA)
 inline void camellia::s_function(uint8_t *x) const noexcept {
   uint64_t tmpy = 0;
 
@@ -1380,64 +1372,6 @@ inline void camellia::p_function(uint8_t *x) const noexcept {
   out[7] = x[0] ^               x[3] ^ x[4] ^ x[5] ^ x[6];
 
   memcpy(x, out, 8);
-}
-#endif
-
-#if 0
-uint32_t camellia::calculate_sp32bit(const uint8_t x, const uint32_t sp_number) const noexcept {
-  uint64_t sp = 0;
-
-  switch (sp_number) {
-    case 0:
-      sp = sbox1[x] << 24 | sbox1[x] << 16 | sbox1[x] << 8;
-      break;
-    case 1:
-      sp =                  sbox2[x] << 16 | sbox2[x] << 8 | sbox2[x];
-      break;
-    case 2:
-      sp = sbox3[x] << 24 |                  sbox3[x] << 8 | sbox3[x];
-      break;
-    case 3:
-      sp = sbox4[x] << 24 | sbox4[x] << 16 |                 sbox3[x];
-      break;
-    default:
-      break;
-  }
-  return sp;
-}
-
-uint64_t camellia::calculate_sp64bit(const uint8_t x, const uint32_t sp_number) const noexcept {
-  uint64_t sp = 0;
-
-  switch (sp_number) {
-    case 0:
-      sp = (uint64_t)sbox1[x] << 56 | (uint64_t)sbox1[x] << 48 | (uint64_t)sbox1[x] << 40 |                            (uint64_t)sbox1[x] << 24 |                                                      (uint64_t)sbox1[x];  
-      break;
-    case 1:
-      sp =                            (uint64_t)sbox2[x] << 48 | (uint64_t)sbox2[x] << 40 | (uint64_t)sbox2[x] << 32 | (uint64_t)sbox2[x] << 24 | (uint64_t)sbox2[x] << 16;
-      break;
-    case 2:
-      sp = (uint64_t)sbox3[x] << 56 |                            (uint64_t)sbox3[x] << 40 | (uint64_t)sbox3[x] << 32 |                            (uint64_t)sbox3[x] << 16 | (uint64_t)sbox3[x] << 8;
-      break;
-    case 3:
-      sp = (uint64_t)sbox4[x] << 56 | (uint64_t)sbox4[x] << 48 |                            (uint64_t)sbox4[x] << 32 |                                                       (uint64_t)sbox4[x] << 8 | (uint64_t)sbox4[x];
-      break;
-    case 4:
-      sp =                            (uint64_t)sbox2[x] << 48 | (uint64_t)sbox2[x] << 40 | (uint64_t)sbox2[x] << 32 |                            (uint64_t)sbox2[x] << 16 | (uint64_t)sbox2[x] << 8 | (uint64_t)sbox2[x];
-      break;
-    case 5:
-      sp = (uint64_t)sbox3[x] << 56 |                            (uint64_t)sbox3[x] << 40 | (uint64_t)sbox3[x] << 32 | (uint64_t)sbox3[x] << 24 |                            (uint64_t)sbox3[x] << 8 | (uint64_t)sbox3[x];  
-      break;
-    case 6:
-      sp = (uint64_t)sbox4[x] << 56 | (uint64_t)sbox4[x] << 48 |                            (uint64_t)sbox4[x] << 32 | (uint64_t)sbox4[x] << 24 | (uint64_t)sbox4[x] << 16 |                           (uint64_t)sbox4[x]; 
-      break;
-    case 7:
-      sp = (uint64_t)sbox1[x] << 56 | (uint64_t)sbox1[x] << 48 | (uint64_t)sbox1[x] << 40 |                            (uint64_t)sbox1[x] << 24 | (uint64_t)sbox1[x] << 16 | (uint64_t)sbox1[x] << 8;
-      break;
-    default:
-      break;
-  }
-  return sp;
 }
 #endif
 

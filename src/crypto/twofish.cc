@@ -35,6 +35,7 @@ namespace cryptography {
 #define GF_MDS(x, z)                  gf_mult((x), (z), MDS_MODULUS)
 #define GF_RS(x, z)                   gf_mult((x), (z), RS_MODULUS)
 
+#if 0
 static const uint8_t q0t0[16] = {
   0x08, 0x01, 0x07, 0x0D, 0x06, 0x0F, 0x03, 0x02, 0x00, 0x0B, 0x05, 0x09, 0x0E, 0x0C, 0x0A, 0x04
 };
@@ -66,6 +67,7 @@ static const uint8_t q1t2[16] = {
 static const uint8_t q1t3[16] = {
   0x0B, 0x09, 0x05, 0x01, 0x0C, 0x03, 0x0D, 0x0E, 0x06, 0x04, 0x07, 0x0F, 0x02, 0x00, 0x08, 0x0A
 };
+#endif
 
 static const uint32_t mds_col0[256] = {
   0x00000000, 0xefef5b01, 0xb7b7b602, 0x5858ed03,
@@ -408,24 +410,32 @@ static const uint8_t q1[256] = {
 int32_t twofish::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint32_t k[8] = {0};
 
-  if (TWOFISH != (mode & EXTRACT_TYPE)) {
-    return FAILURE;
-  }
-
-  mode_ = mode;
   enable_intrinsic_func_ = enable_intrinsic;
 
-  switch (mode >> 8) {
-    case (TWOFISH >> 8):
-      if (TWOFISH_128BIT_KEY_BYTE_SIZE != ksize) { return FAILURE; }
+  switch (ksize) {
+    case TWOFISH_128BIT_KEY_BYTE_SIZE:
       k_ = TWOFISH_128BIT_KVALUE;
-      LITTLEENDIAN_U8_TO_U128_COPY(key, k);
+      has_subkeys_ = true;
+      LITTLEENDIAN_32BIT_U8_TO_U128_COPY(key, k);
       expand_key(k, subkey_);
       memset(k, 0xCC, sizeof(k));
+      break;
+    case TWOFISH_192BIT_KEY_BYTE_SIZE:
+      k_ = TWOFISH_192BIT_KVALUE;
       has_subkeys_ = true;
+      LITTLEENDIAN_32BIT_U8_TO_U128_COPY(key, k);
+      expand_key(k, subkey_);
+      memset(k, 0xCC, sizeof(k));
+      break;
+    case TWOFISH_256BIT_KEY_BYTE_SIZE:
+      k_ = TWOFISH_256BIT_KVALUE;
+      has_subkeys_ = true;
+      LITTLEENDIAN_32BIT_U8_TO_U128_COPY(key, k);
+      expand_key(k, subkey_);
+      memset(k, 0xCC, sizeof(k));
       break;
     default:
-      break;
+      return FAILURE;
   }
   return SUCCESS;
 }
@@ -453,6 +463,10 @@ int32_t twofish::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
 }
 
 void twofish::clear() noexcept {
+  memset(mds_sbox0_, 0xCC, sizeof(mds_sbox0_));
+  memset(mds_sbox1_, 0xCC, sizeof(mds_sbox1_));
+  memset(mds_sbox2_, 0xCC, sizeof(mds_sbox2_));
+  memset(mds_sbox3_, 0xCC, sizeof(mds_sbox3_));
   memset(subkey_, 0xCC, sizeof(subkey_));
   has_subkeys_ = false;
   enable_intrinsic_func_ = false;
@@ -463,7 +477,7 @@ inline void twofish::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *
   uint32_t out[4] = {0};
   uint32_t f[2] = {0};
 
-  LITTLEENDIAN_U8_TO_U128_COPY(ptext, tmpp);
+  LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ptext, tmpp);
 
   tmpp[0] ^= subkey_[0];
   tmpp[1] ^= subkey_[1];
@@ -485,7 +499,7 @@ inline void twofish::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *
   out[2] ^= tmpp[0] ^ subkey_[6];
   out[3] ^= tmpp[1] ^ subkey_[7];
 
-  LITTLEENDIAN_U128_TO_U8_COPY(out, ctext);
+  LITTLEENDIAN_32BIT_U128_TO_U8_COPY(out, ctext);
 }
 
 inline void twofish::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
@@ -493,7 +507,7 @@ inline void twofish::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *
   uint32_t out[4] = {0};
   uint32_t f[2] = {0};
 
-  LITTLEENDIAN_U8_TO_U128_COPY(ctext, tmpc);
+  LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ctext, tmpc);
 
   tmpc[0] ^= subkey_[4];
   tmpc[1] ^= subkey_[5];
@@ -515,7 +529,7 @@ inline void twofish::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *
   out[2] = tmpc[0] ^ subkey_[2];
   out[3] = tmpc[1] ^ subkey_[3];
 
-  LITTLEENDIAN_U128_TO_U8_COPY(out, ptext);
+  LITTLEENDIAN_32BIT_U128_TO_U8_COPY(out, ptext);
 }
 
 inline void twofish::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -535,7 +549,7 @@ inline void twofish::expand_key(const uint32_t * const key, uint32_t *skeys) noe
   uint32_t tmpsbox = 0;
   uint8_t bk[32] = {0};
 
-  LITTLEENDIAN_U256_TO_U8_COPY(key, bk);
+  LITTLEENDIAN_32BIT_U256_TO_U8_COPY(key, bk);
 #if 0
   for (uint32_t i = 0; i < 256; ++i) {
     q0_[i] = fix_q((uint8_t)i, q0t0, q0t1, q0t2, q0t3);
@@ -580,11 +594,11 @@ inline void twofish::expand_key(const uint32_t * const key, uint32_t *skeys) noe
                         GF_RS(0x03, bk[8 * i + 7])) << 24;
   }
 
-  for (int32_t i = 0; i < 40; ++i) {
-    a = h_function(2 * i * TWOFISH_RHO, me, k_);
-    b = ROTATE_LEFT32(h_function((2 * i + 1) * TWOFISH_RHO, mo, k_), 8);
-    skeys[2 * i] = (uint32_t)(a + b);
-    skeys[2 * i + 1] = ROTATE_LEFT32((uint32_t)(a + 2 * b), 9);
+  for (int32_t i = 0; i < 40; i += 2) {
+    a = h_function(i * TWOFISH_RHO, me, k_);
+    b = ROTATE_LEFT32(h_function((i + 1) * TWOFISH_RHO, mo, k_), 8);
+    skeys[i] = (uint32_t)(a + b);
+    skeys[i + 1] = ROTATE_LEFT32((uint32_t)(a + (b << 1)), 9);
   }
 
   fix_s(s, k_);
@@ -600,38 +614,20 @@ inline void twofish::f_function(uint32_t r0, uint32_t r1, int32_t round, uint32_
 
 inline uint32_t twofish::g_function(uint32_t x) const noexcept {
   uint8_t xi[4] = {0};
-//  uint8_t yi[4] = {0};
-//  uint32_t z = 0;
 
-  LITTLEENDIAN_U32_TO_U8_COPY(x, xi);
-
-  return sbox0_[xi[0]] ^ sbox1_[xi[1]] ^ sbox2_[xi[2]] ^ sbox3_[xi[3]];
-
-//  yi[0] = sbox0_[xi[0]];
-//  yi[1] = sbox1_[xi[1]];
-//  yi[2] = sbox2_[xi[2]];
-//  yi[3] = sbox3_[xi[3]];
-//
-//  z = mds_col0[yi[0]] ^ mds_col1[yi[1]] ^ mds_col2[yi[2]] ^ mds_col3[yi[3]];
-
-//  z |= (uint32_t)(             yi[0]  ^ GF_MDS(0xEF, yi[1]) ^ GF_MDS(0x5B, yi[2]) ^ GF_MDS(0x5B, yi[3])) <<  0;
-//  z |= (uint32_t)(GF_MDS(0x5B, yi[0]) ^ GF_MDS(0xEF, yi[1]) ^ GF_MDS(0xEF, yi[2]) ^              yi[3] ) <<  8;
-//  z |= (uint32_t)(GF_MDS(0xEF, yi[0]) ^ GF_MDS(0x5B, yi[1]) ^              yi[2]  ^ GF_MDS(0xEF, yi[3])) << 16;
-//  z |= (uint32_t)(GF_MDS(0xEF, yi[0]) ^              yi[1]  ^ GF_MDS(0xEF, yi[2]) ^ GF_MDS(0x5B, yi[3])) << 24;
-
-//  return z;
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(x, xi);
+  return mds_sbox0_[xi[0]] ^ mds_sbox1_[xi[1]] ^ mds_sbox2_[xi[2]] ^ mds_sbox3_[xi[3]];
 }
 
 inline uint32_t twofish::h_function(uint32_t x, uint32_t *l, uint32_t type) const noexcept {
   uint8_t by[4] = {0};
   uint8_t bl[4][4] = {0};
-  uint32_t z = 0;
 
-  LITTLEENDIAN_U32_TO_U8_COPY(x, by);
-  LITTLEENDIAN_U32_TO_U8_COPY(l[0], bl[0]);
-  LITTLEENDIAN_U32_TO_U8_COPY(l[1], bl[1]);
-  LITTLEENDIAN_U32_TO_U8_COPY(l[2], bl[2]);
-  LITTLEENDIAN_U32_TO_U8_COPY(l[3], bl[3]);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(x, by);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(l[0], bl[0]);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(l[1], bl[1]);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(l[2], bl[2]);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(l[3], bl[3]);
 
   switch (type) {
     case 4:
@@ -651,15 +647,7 @@ inline uint32_t twofish::h_function(uint32_t x, uint32_t *l, uint32_t type) cons
       by[3] = q0[q1[q1[by[3]] ^ bl[1][3]] ^ bl[0][3]];
       break;
   }
-
-  z = mds_col0[by[0]] ^ mds_col1[by[1]] ^ mds_col2[by[2]] ^ mds_col3[by[3]];
-
-//  z |= (uint32_t)(             by[0]  ^ GF_MDS(0xEF, by[1]) ^ GF_MDS(0x5B, by[2]) ^ GF_MDS(0x5B, by[3])) <<  0;
-//  z |= (uint32_t)(GF_MDS(0x5B, by[0]) ^ GF_MDS(0xEF, by[1]) ^ GF_MDS(0xEF, by[2]) ^              by[3] ) <<  8;
-//  z |= (uint32_t)(GF_MDS(0xEF, by[0]) ^ GF_MDS(0x5B, by[1]) ^              by[2]  ^ GF_MDS(0xEF, by[3])) << 16;
-//  z |= (uint32_t)(GF_MDS(0xEF, by[0]) ^              by[1]  ^ GF_MDS(0xEF, by[2]) ^ GF_MDS(0x5B, by[3])) << 24;
-
-  return z;
+  return mds_col0[by[0]] ^ mds_col1[by[1]] ^ mds_col2[by[2]] ^ mds_col3[by[3]];
 }
 
 inline uint8_t twofish::gf_mult(uint8_t x, uint8_t y, uint32_t mod) const noexcept {
@@ -675,7 +663,7 @@ inline uint8_t twofish::gf_mult(uint8_t x, uint8_t y, uint32_t mod) const noexce
   }
   return result;
 }
-
+#if 0
 inline uint8_t twofish::fix_q(uint8_t x, const uint8_t * const t0, const uint8_t * const t1, const uint8_t * const t2, const uint8_t * const t3) const noexcept {
   uint8_t a0 = 0;
   uint8_t a1 = 0;
@@ -699,39 +687,39 @@ inline uint8_t twofish::fix_q(uint8_t x, const uint8_t * const t0, const uint8_t
 
   return 16 * b0 + a0;
 }
-
+#endif
 inline void twofish::fix_s(uint32_t *s, uint32_t type) noexcept {
   uint8_t bs[4][4] = {0};
   uint32_t z = 0;
 
-  LITTLEENDIAN_U32_TO_U8_COPY(s[0], bs[0]);
-  LITTLEENDIAN_U32_TO_U8_COPY(s[1], bs[1]);
-  LITTLEENDIAN_U32_TO_U8_COPY(s[2], bs[2]);
-  LITTLEENDIAN_U32_TO_U8_COPY(s[3], bs[3]);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[0], bs[0]);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[1], bs[1]);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[2], bs[2]);
+  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[3], bs[3]);
 
   switch (type) {
     case 4:
       for (uint32_t i = 0; i < 256; ++i) {
-        sbox0_[i] = mds_col0[q1[q0[q0[q1[q1[i] ^ bs[3][0]] ^ bs[2][0]] ^ bs[1][0]] ^ bs[0][0]]];
-        sbox1_[i] = mds_col1[q0[q0[q1[q1[q0[i] ^ bs[3][1]] ^ bs[2][1]] ^ bs[1][1]] ^ bs[0][1]]];
-        sbox2_[i] = mds_col2[q1[q1[q0[q0[q0[i] ^ bs[3][2]] ^ bs[2][2]] ^ bs[1][2]] ^ bs[0][2]]];
-        sbox3_[i] = mds_col3[q0[q1[q1[q0[q1[i] ^ bs[3][3]] ^ bs[2][3]] ^ bs[1][3]] ^ bs[0][3]]];
+        mds_sbox0_[i] = mds_col0[q1[q0[q0[q1[q1[i] ^ bs[3][0]] ^ bs[2][0]] ^ bs[1][0]] ^ bs[0][0]]];
+        mds_sbox1_[i] = mds_col1[q0[q0[q1[q1[q0[i] ^ bs[3][1]] ^ bs[2][1]] ^ bs[1][1]] ^ bs[0][1]]];
+        mds_sbox2_[i] = mds_col2[q1[q1[q0[q0[q0[i] ^ bs[3][2]] ^ bs[2][2]] ^ bs[1][2]] ^ bs[0][2]]];
+        mds_sbox3_[i] = mds_col3[q0[q1[q1[q0[q1[i] ^ bs[3][3]] ^ bs[2][3]] ^ bs[1][3]] ^ bs[0][3]]];
       }
       break;
     case 3:
       for (uint32_t i = 0; i < 256; ++i) {
-        sbox0_[i] = mds_col0[q1[q0[q0[q1[i] ^ bs[2][0]] ^ bs[1][0]] ^ bs[0][0]]];
-        sbox1_[i] = mds_col1[q0[q0[q1[q1[i] ^ bs[2][1]] ^ bs[1][1]] ^ bs[0][1]]];
-        sbox2_[i] = mds_col2[q1[q1[q0[q0[i] ^ bs[2][2]] ^ bs[1][2]] ^ bs[0][2]]];
-        sbox3_[i] = mds_col3[q0[q1[q1[q0[i] ^ bs[2][3]] ^ bs[1][3]] ^ bs[0][3]]];
+        mds_sbox0_[i] = mds_col0[q1[q0[q0[q1[i] ^ bs[2][0]] ^ bs[1][0]] ^ bs[0][0]]];
+        mds_sbox1_[i] = mds_col1[q0[q0[q1[q1[i] ^ bs[2][1]] ^ bs[1][1]] ^ bs[0][1]]];
+        mds_sbox2_[i] = mds_col2[q1[q1[q0[q0[i] ^ bs[2][2]] ^ bs[1][2]] ^ bs[0][2]]];
+        mds_sbox3_[i] = mds_col3[q0[q1[q1[q0[i] ^ bs[2][3]] ^ bs[1][3]] ^ bs[0][3]]];
       }
       break;
     case 2:
       for (uint32_t i = 0; i < 256; ++i) {
-        sbox0_[i] = mds_col0[q1[q0[q0[i] ^ bs[1][0]] ^ bs[0][0]]];
-        sbox1_[i] = mds_col1[q0[q0[q1[i] ^ bs[1][1]] ^ bs[0][1]]];
-        sbox2_[i] = mds_col2[q1[q1[q0[i] ^ bs[1][2]] ^ bs[0][2]]];
-        sbox3_[i] = mds_col3[q0[q1[q1[i] ^ bs[1][3]] ^ bs[0][3]]];
+        mds_sbox0_[i] = mds_col0[q1[q0[q0[i] ^ bs[1][0]] ^ bs[0][0]]];
+        mds_sbox1_[i] = mds_col1[q0[q0[q1[i] ^ bs[1][1]] ^ bs[0][1]]];
+        mds_sbox2_[i] = mds_col2[q1[q1[q0[i] ^ bs[1][2]] ^ bs[0][2]]];
+        mds_sbox3_[i] = mds_col3[q0[q1[q1[i] ^ bs[1][3]] ^ bs[0][3]]];
       }
       break;
     default:

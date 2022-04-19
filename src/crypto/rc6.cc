@@ -28,39 +28,29 @@ namespace cryptography {
 int32_t rc6::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint32_t k[8] = {0};
 
-  if (RC6_128 != (mode & EXTRACT_TYPE) &&
-      RC6_192 != (mode & EXTRACT_TYPE) &&
-      RC6_256 != (mode & EXTRACT_TYPE)) {
-    return FAILURE;
-  }
-
-  mode_ = mode;
   enable_intrinsic_func_ = enable_intrinsic;
 
-  switch (mode >> 8) {
-    case (RC6_128 >> 8):
-      if (RC6_128_KEY_BYTE_SIZE != ksize) { return FAILURE; }
-      LITTLEENDIAN_U8_TO_U128_COPY(key, k);
+  switch (ksize) {
+    case RC6_128_KEY_BYTE_SIZE :
+      LITTLEENDIAN_32BIT_U8_TO_U128_COPY(key, k);
       expand_key(k, subkeys_, RC6_128_KEY_BYTE_SIZE);
       memset(k, 0xCC, sizeof(k));
       has_subkeys_ = true;
       break;
-    case (RC6_192 >> 8):
-      if (RC6_192_KEY_BYTE_SIZE != ksize) { return FAILURE; }
-      LITTLEENDIAN_U8_TO_U192_COPY(key, k);
+    case RC6_192_KEY_BYTE_SIZE:
+      LITTLEENDIAN_32BIT_U8_TO_U192_COPY(key, k);
       expand_key(k, subkeys_, RC6_192_KEY_BYTE_SIZE);
       has_subkeys_ = true;
       memset(k, 0xCC, sizeof(k));
       break;
-    case (RC6_256 >> 8):
-      if (RC6_256_KEY_BYTE_SIZE != ksize) { return FAILURE; }
-      LITTLEENDIAN_U8_TO_U256_COPY(key, k);
+    case RC6_256_KEY_BYTE_SIZE:
+      LITTLEENDIAN_32BIT_U8_TO_U256_COPY(key, k);
       expand_key(k, subkeys_, RC6_256_KEY_BYTE_SIZE);
       memset(k, 0xCC, sizeof(k));
       has_subkeys_ = true;
       break;
     default:
-      break;
+      return FAILURE;
   }
   return SUCCESS;
 }
@@ -89,17 +79,15 @@ int32_t rc6::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t 
 
 void rc6::clear() noexcept {
   memset(subkeys_, 0xCC, sizeof(SUCCESS));
-  mode_ = RC6_256;
   has_subkeys_ = false;
-  enable_intrinsic_func_ = false;
-  
+  enable_intrinsic_func_ = false;  
 }
 
 void rc6::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint32_t reg[4] = {0};  /* A, B, C, D */
   uint32_t t = 0, u = 0, tmp = 0;
 
-  LITTLEENDIAN_U8_TO_U128_COPY(ptext, reg);
+  LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ptext, reg);
 
   reg[1] = reg[1] + subkeys_[0];
   reg[3] = reg[3] + subkeys_[1];
@@ -121,14 +109,14 @@ void rc6::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) cons
   reg[0] = reg[0] + subkeys_[42];
   reg[2] = reg[2] + subkeys_[43];
 
-  LITTLEENDIAN_U128_TO_U8_COPY(reg, ctext);
+  LITTLEENDIAN_32BIT_U128_TO_U8_COPY(reg, ctext);
 }
 
 void rc6::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   uint32_t reg[4] = {0};  /* A, B, C, D */
   uint32_t t = 0, u = 0, tmp = 0;
 
-  LITTLEENDIAN_U8_TO_U128_COPY(ctext, reg);
+  LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ctext, reg);
 
   reg[2] = reg[2] - subkeys_[43];
   reg[0] = reg[0] - subkeys_[42];
@@ -150,7 +138,7 @@ void rc6::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) cons
   reg[3] = reg[3] - subkeys_[1];
   reg[1] = reg[1] - subkeys_[0];
 
-  LITTLEENDIAN_U128_TO_U8_COPY(reg, ptext);
+  LITTLEENDIAN_32BIT_U128_TO_U8_COPY(reg, ptext);
 }
 
 void rc6::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -163,9 +151,9 @@ void rc6::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const n
 
 void rc6::expand_key(uint32_t *key, uint32_t *skeys, const uint32_t ksize) noexcept {
   uint32_t a = 0, b = 0, i = 0, j = 0;
-  uint32_t c = ksize / 4;
+  uint32_t c = ksize >> 2;
   uint32_t l[8] = {0};
-  constexpr uint32_t d = 2 * NROUND + 4;
+  constexpr uint32_t d = (NROUND << 1) + 4;
   
   memcpy(l, key, ksize);
 

@@ -46,19 +46,33 @@
 #   define LITTLEENDIAN_64BIT_U256_TO_U8(value, outptr)       outptr = (uint8_t *)&value;
 #   define LITTLEENDIAN_64BIT_U8_TO_U256(value, outptr)       outptr = (uint64_t *)value;
 
-/**********************************************************************/
-/* Change and copy the data type while maintaining little endianness. */
-/**********************************************************************/
-#   define LITTLEENDIAN_U32_TO_U8_COPY(value, outval)         memcpy(outval, &value, 4);
-#   define LITTLEENDIAN_U8_TO_U32_COPY(value, outval)         memcpy(&outval, value, 4);
-#   define LITTLEENDIAN_U64_TO_U8_COPY(value, outval)         memcpy(outval, &value, 8);
-#   define LITTLEENDIAN_U8_TO_U64_COPY(value, outval)         memcpy(&outval, value, 8);
-#   define LITTLEENDIAN_U128_TO_U8_COPY(value, outval)        memcpy(outval, value, 16);
-#   define LITTLEENDIAN_U8_TO_U128_COPY(value, outval)        memcpy(outval, value, 16);
-#   define LITTLEENDIAN_U192_TO_U8_COPY(value, outval)        memcpy(outval, value, 24);
-#   define LITTLEENDIAN_U8_TO_U192_COPY(value, outval)        memcpy(outval, value, 24);
-#   define LITTLEENDIAN_U256_TO_U8_COPY(value, outval)        memcpy(outval, value, 32);
-#   define LITTLEENDIAN_U8_TO_U256_COPY(value, outval)        memcpy(outval, value, 32); 
+/********************************************************************************/
+/* Change and copy the data type while maintaining little endianness in 32-bit. */
+/********************************************************************************/
+#   define LITTLEENDIAN_32BIT_U32_TO_U8_COPY(value, outval)   memcpy(outval, &value, 4);
+#   define LITTLEENDIAN_32BIT_U8_TO_U32_COPY(value, outval)   memcpy(&outval, value, 4);
+#   define LITTLEENDIAN_32BIT_U64_TO_U8_COPY(value, outval)   memcpy(outval, &value, 8);
+#   define LITTLEENDIAN_32BIT_U8_TO_U64_COPY(value, outval)   memcpy(&outval, value, 8);
+#   define LITTLEENDIAN_32BIT_U128_TO_U8_COPY(value, outval)  memcpy(outval, value, 16);
+#   define LITTLEENDIAN_32BIT_U8_TO_U128_COPY(value, outval)  memcpy(outval, value, 16);
+#   define LITTLEENDIAN_32BIT_U192_TO_U8_COPY(value, outval)  memcpy(outval, value, 24);
+#   define LITTLEENDIAN_32BIT_U8_TO_U192_COPY(value, outval)  memcpy(outval, value, 24);
+#   define LITTLEENDIAN_32BIT_U256_TO_U8_COPY(value, outval)  memcpy(outval, value, 32);
+#   define LITTLEENDIAN_32BIT_U8_TO_U256_COPY(value, outval)  memcpy(outval, value, 32); 
+
+/********************************************************************************/
+/* Change and copy the data type while maintaining little endianness in 64-bit. */
+/********************************************************************************/
+#   define LITTLEENDIAN_64BIT_U32_TO_U8_COPY(value, outval)   memcpy(outval, &value, 4);
+#   define LITTLEENDIAN_64BIT_U8_TO_U32_COPY(value, outval)   memcpy(&outval, value, 4);
+#   define LITTLEENDIAN_64BIT_U64_TO_U8_COPY(value, outval)   memcpy(outval, &value, 8);
+#   define LITTLEENDIAN_64BIT_U8_TO_U64_COPY(value, outval)   memcpy(&outval, value, 8);
+#   define LITTLEENDIAN_64BIT_U128_TO_U8_COPY(value, outval)  memcpy(outval, value, 16);
+#   define LITTLEENDIAN_64BIT_U8_TO_U128_COPY(value, outval)  memcpy(outval, value, 16);
+#   define LITTLEENDIAN_64BIT_U192_TO_U8_COPY(value, outval)  memcpy(outval, value, 24);
+#   define LITTLEENDIAN_64BIT_U8_TO_U192_COPY(value, outval)  memcpy(outval, value, 24);
+#   define LITTLEENDIAN_64BIT_U256_TO_U8_COPY(value, outval)  memcpy(outval, value, 32);
+#   define LITTLEENDIAN_64BIT_U8_TO_U256_COPY(value, outval)  memcpy(outval, value, 32); 
 
 /********************************************************************/
 /* Change the data type while maintaining big endianness in 32-bit. */

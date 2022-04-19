@@ -17,7 +17,7 @@ namespace cryptography {
 
 class cast256 final : public algorithm<cast256> {
 public:
-  cast256() noexcept : mode_(CAST256), km_{0}, kr_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  cast256() noexcept : km_{0}, kr_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
 
   ~cast256() {};
 
@@ -45,8 +45,6 @@ private:
   uint32_t f2_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
 
   uint32_t f3_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
-
-  uint32_t mode_;
 
   uint32_t km_[48];
 

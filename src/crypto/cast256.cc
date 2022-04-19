@@ -16,6 +16,16 @@ namespace cryptography {
 #define SUCCESS                           0
 #define FAILURE                           1
 
+#define CAST256_128_KEY_BYTE_SIZE         16
+#define CAST256_160_KEY_BYTE_SIZE         20
+#define CAST256_192_KEY_BYTE_SIZE         24
+#define CAST256_224_KEY_BYTE_SIZE         28
+#define CAST256_256_KEY_BYTE_SIZE         32
+
+#define BENDIAN_32BIT_KEY_SET(key, buf, size)   for (uint32_t i = 0; i < (size); i += 4) {        \
+                                                  BIGENDIAN_U8_TO_U32_COPY(&key[i], buf[i >> 2]); \
+                                                }
+
 static const uint32_t sbox1[256] = {
   0x30fb40d4, 0x9fa0ff0b, 0x6beccd2f, 0x3f258c7a, 0x1e213f2f, 0x9c004dd3, 0x6003e540, 0xcf9fc949,
   0xbfd4af27, 0x88bbbdb5, 0xe2034090, 0x98d09675, 0x6e63a0e0, 0x15c361d2, 0xc2e7661d, 0x22d4ff8e,
@@ -159,23 +169,21 @@ static const uint32_t sbox4[256] = {
 int32_t cast256::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
   uint32_t k[8] = {0};
 
-  if (CAST256 != (mode & EXTRACT_TYPE)) {
-    return FAILURE;
-  }
-
-  mode_ = mode;
   enable_intrinsic_func_ = enable_intrinsic;
 
-  switch (mode >> 8) {
-    case (CAST256 >> 8):
-      if (16 != ksize) { return FAILURE; }
-      BIGENDIAN_32BIT_U8_TO_U128_COPY(key, k);
+  switch (ksize) {
+    case CAST256_128_KEY_BYTE_SIZE:
+    case CAST256_160_KEY_BYTE_SIZE:
+    case CAST256_192_KEY_BYTE_SIZE:
+    case CAST256_224_KEY_BYTE_SIZE:
+    case CAST256_256_KEY_BYTE_SIZE:
+      BENDIAN_32BIT_KEY_SET(key, k, ksize);
       expand_key(k, km_, kr_);
       memset(k, 0xCC, sizeof(k));
       has_subkeys_ = true;
       break;
     default:
-      break;
+      return FAILURE;
   }
   return SUCCESS;
 }
@@ -203,7 +211,6 @@ int32_t cast256::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
 }
 
 void cast256::clear() noexcept {
-  mode_ = CAST256;
   memset(km_, 0xCC, sizeof(km_));
   memset(kr_, 0xCC, sizeof(kr_));
   has_subkeys_ = false;
