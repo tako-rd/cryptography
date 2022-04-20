@@ -18,11 +18,11 @@ namespace cryptography {
 
 class seed final : public algorithm<seed> {
  public:
-  seed() noexcept : subkey_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  seed() noexcept : subkey_{0}, has_subkeys_(false) {};
 
   ~seed() {};
 
-  int32_t initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept;
+  int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 
   int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 
@@ -31,10 +31,6 @@ class seed final : public algorithm<seed> {
   void clear() noexcept;
 
  private:
-  void no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
-
-  void no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
-
   void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
@@ -48,9 +44,6 @@ class seed final : public algorithm<seed> {
   uint64_t subkey_[16];
 
   bool has_subkeys_;
-
-  bool enable_intrinsic_func_;
-
 };
 
 }

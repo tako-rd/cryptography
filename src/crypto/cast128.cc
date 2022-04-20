@@ -350,10 +350,8 @@ static const uint32_t sbox8[256] = {
   0x04f19130, 0xba6e4ec0, 0x99265164, 0x1ee7230d, 0x50b2ad80, 0xeaee6801, 0x8db2a283, 0xea8bf59e,
 };
 
-int32_t cast128::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
+int32_t cast128::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint32_t k[4] = {0};
-
-  enable_intrinsic_func_ = enable_intrinsic;
 
   switch (ksize) {
     case CAST128_40_KEY_BYTE_SIZE:
@@ -387,38 +385,11 @@ int32_t cast128::initialize(const uint32_t mode, const uint8_t *key, const uint3
 }
 
 int32_t cast128::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  if (8 != psize || 8 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_encrypt(ptext, ctext);
-  } else {
-    no_intrinsic_encrypt(ptext, ctext);
-  }
-  return SUCCESS;
-}
-
-int32_t cast128::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  if (8 != psize || 8 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_decrypt(ctext, ptext);
-  } else {
-    no_intrinsic_decrypt(ctext, ptext);
-  }
-  return SUCCESS;
-}
-
-void cast128::clear() noexcept {
-  memset(km_, 0xCC, sizeof(km_));
-  memset(kr_, 0xCC, sizeof(kr_));
-  has_subkeys_ = false;
-  enable_intrinsic_func_ = false;
-  is_12round_ = false;
-}
-
-inline void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint32_t tmppln1[2] = {0};
   uint32_t tmppln2[2] = {0};
+
+  if (8 != psize || 8 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
 
   BIGENDIAN_32BIT_U8_TO_U64_COPY(ptext, tmppln1);
 
@@ -456,7 +427,7 @@ inline void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *
   tmppln2[1] = tmppln1[0] ^ fb_function(tmppln1[1], km_[10], kr_[10]);
 
   if (NROUND_FOR_KEY_80BIT == is_12round_) {
-    
+
     tmppln1[1] = tmppln2[1];
     tmppln1[0] = tmppln2[0] ^ fc_function(tmppln2[1], km_[11], kr_[11]);
 
@@ -477,13 +448,17 @@ inline void cast128::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *
     tmppln1[0] = tmppln2[0] ^ fa_function(tmppln2[1], km_[15], kr_[15]);
   }
 
-
   BIGENDIAN_32BIT_U64_TO_U8_COPY(tmppln1, ctext);
+
+  return SUCCESS;
 }
 
-inline void cast128::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+int32_t cast128::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
   uint32_t tmpchpr1[2] = {0}; 
   uint32_t tmpchpr2[2] = {0}; 
+
+  if (8 != psize || 8 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
 
   BIGENDIAN_32BIT_U8_TO_U64_COPY(ctext, tmpchpr1);
 
@@ -538,6 +513,15 @@ inline void cast128::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *
   tmpchpr1[0] = tmpchpr2[0] ^ fa_function(tmpchpr2[1], km_[0], kr_[0]);
 
   BIGENDIAN_32BIT_U64_TO_U8_COPY(tmpchpr1, ptext);
+
+  return SUCCESS;
+}
+
+void cast128::clear() noexcept {
+  memset(km_, 0xCC, sizeof(km_));
+  memset(kr_, 0xCC, sizeof(kr_));
+  has_subkeys_ = false;
+  is_12round_ = false;
 }
 
 inline void cast128::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {

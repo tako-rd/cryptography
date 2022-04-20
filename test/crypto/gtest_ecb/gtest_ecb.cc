@@ -158,7 +158,7 @@ TEST_F(GTestEcb, Normal_aes_ecb_001) {
 
   memcpy(origin_text, FIPS197_C1_128BIT_BASED_TEST_PLAINTEXT, sizeof(FIPS197_C1_128BIT_BASED_TEST_PLAINTEXT));
 
-  aes.initialize(cryptography::AES128, FIPS197_C1_128BIT_BASED_TEST_KEY, sizeof(FIPS197_C1_128BIT_BASED_TEST_KEY), false);
+  aes.initialize(FIPS197_C1_128BIT_BASED_TEST_KEY, sizeof(FIPS197_C1_128BIT_BASED_TEST_KEY));
   ecb.initialize(cryptography::AES128, nullptr, 0);
   do {
     ecb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));

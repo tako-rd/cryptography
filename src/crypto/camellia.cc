@@ -917,10 +917,8 @@ static const uint8_t left_rschd[6]  = {0, 1, 0, 1, 0, 1};
 static const uint8_t right_rschd[6] = {1, 0, 1, 0, 1, 0};
 #endif
 
-int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
+int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint64_t k[4] = {0};
-
-  enable_intrinsic_func_ = enable_intrinsic;
 
   switch (ksize) {
     case CAMELLIA_128_KEY_BYTE_SIZE:
@@ -960,43 +958,13 @@ int32_t camellia::initialize(const uint32_t mode, const uint8_t *key, const uint
 }
 
 int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  if (16 != psize || 16 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; };
-  if (true == enable_intrinsic_func_) {
-    intrinsic_encrypt(ptext, ctext);
-  } else {
-    no_intrinsic_encrypt(ptext, ctext);
-  }
-  return SUCCESS;
-}
-
-int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  if (16 != psize || 16 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; };
-  if (true == enable_intrinsic_func_) {
-    intrinsic_decrypt(ctext, ptext);
-  } else {
-    no_intrinsic_decrypt(ctext, ptext);
-  }
-  return SUCCESS;
-}
-
-void camellia::clear() noexcept {
-  nk_ = {0};
-  nkl_ = {0};
-  n6r_ = {0};
-  memset(kw_, 0xCC, sizeof(kw_));
-  memset(k_, 0xCC, sizeof(k_));
-  memset(kl_, 0xCC, sizeof(kl_));
-  has_subkeys_ = false;
-  enable_intrinsic_func_ = false;
-}
-
-inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint64_t tmptext[2]= {0};
   uint64_t out[2] = {0};
   int32_t kpos = 0, klpos = 0;
-  
+
+  if (16 != psize || 16 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; };
+
   BIGENDIAN_64BIT_U8_TO_U128_COPY(ptext, tmptext);
 
   tmptext[0] ^= kw_[0];
@@ -1040,12 +1008,17 @@ inline void camellia::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t 
   out[1] = tmptext[0] ^ kw_[3];
 
   BIGENDIAN_64BIT_U128_TO_U8_COPY(out, ctext);
+
+  return SUCCESS;
 }
 
-inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
   uint64_t tmptext[2]= {0};
   uint64_t out[2] = {0};
   int32_t kpos = nk_, klpos = nkl_;
+
+  if (16 != psize || 16 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; };
 
   BIGENDIAN_64BIT_U8_TO_U128_COPY(ctext, tmptext);
 
@@ -1091,7 +1064,19 @@ inline void camellia::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t 
   out[1] = tmptext[0] ^ kw_[1];
 
   BIGENDIAN_64BIT_U128_TO_U8_COPY(out, ptext);
+
+  return SUCCESS;
 }
+
+void camellia::clear() noexcept {
+  nk_ = {0};
+  nkl_ = {0};
+  n6r_ = {0};
+  memset(kw_, 0xCC, sizeof(kw_));
+  memset(k_, 0xCC, sizeof(k_));
+  memset(kl_, 0xCC, sizeof(kl_));
+  has_subkeys_ = false;
+ }
 
 inline void camellia::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
 

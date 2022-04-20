@@ -14,7 +14,7 @@ TEST_F(GTestSeed, Normal_SEED_001) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  seed.initialize(cryptography::SEED, SEED_EXAM1_128BIT_KEY, sizeof(SEED_EXAM1_128BIT_KEY), false);
+  seed.initialize(SEED_EXAM1_128BIT_KEY, sizeof(SEED_EXAM1_128BIT_KEY));
 
   seed.encrypt(SEED_EXAM1_128BIT_PLAINTEXT, sizeof(SEED_EXAM1_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -32,7 +32,7 @@ TEST_F(GTestSeed, Normal_SEED_002) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  seed.initialize(cryptography::SEED, SEED_EXAM2_128BIT_KEY, sizeof(SEED_EXAM2_128BIT_KEY), false);
+  seed.initialize(SEED_EXAM2_128BIT_KEY, sizeof(SEED_EXAM2_128BIT_KEY));
 
   seed.encrypt(SEED_EXAM2_128BIT_PLAINTEXT, sizeof(SEED_EXAM2_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -50,7 +50,7 @@ TEST_F(GTestSeed, Normal_SEED_003) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  seed.initialize(cryptography::SEED, SEED_EXAM3_128BIT_KEY, sizeof(SEED_EXAM3_128BIT_KEY), false);
+  seed.initialize(SEED_EXAM3_128BIT_KEY, sizeof(SEED_EXAM3_128BIT_KEY));
 
   seed.encrypt(SEED_EXAM3_128BIT_PLAINTEXT, sizeof(SEED_EXAM3_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -68,7 +68,7 @@ TEST_F(GTestSeed, Normal_SEED_004) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  seed.initialize(cryptography::SEED, SEED_EXAM4_128BIT_KEY, sizeof(SEED_EXAM4_128BIT_KEY), false);
+  seed.initialize(SEED_EXAM4_128BIT_KEY, sizeof(SEED_EXAM4_128BIT_KEY));
 
   seed.encrypt(SEED_EXAM4_128BIT_PLAINTEXT, sizeof(SEED_EXAM4_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {

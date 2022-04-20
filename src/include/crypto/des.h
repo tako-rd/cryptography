@@ -21,11 +21,11 @@ namespace cryptography {
 class des final : public algorithm<des> {
  public:
 
-  des() noexcept : mode_(SIMPLE_DES), encrypto_subkeys_{0}, decrypto_subkeys_{0}, has_subkeys_(false), enable_intrinsic_func_(false) {};
+  des() noexcept : encrypto_subkeys_{0}, decrypto_subkeys_{0}, has_subkeys_(false) {};
 
   ~des();
 
-  int32_t initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic);
+  int32_t initialize(const uint8_t *key, const uint32_t ksize);
 
   int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize);
 
@@ -34,11 +34,6 @@ class des final : public algorithm<des> {
   void clear();
 
  private:
-
-  void no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
-
-  void no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
-
   void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
 
   void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
@@ -65,11 +60,7 @@ class des final : public algorithm<des> {
 
   uint64_t decrypto_subkeys_[16];
 
-  uint32_t mode_;
-
   bool has_subkeys_;
-
-  bool enable_intrinsic_func_;
 };
 
 }

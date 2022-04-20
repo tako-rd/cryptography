@@ -255,10 +255,8 @@ static const uint32_t key_round_schd[16] = {
   1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
 };
 
-int32_t seed::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
+int32_t seed::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint64_t k[2] = {0};
-
-  enable_intrinsic_func_ = enable_intrinsic;
 
   if (SEED_KEY_BYTE_SIZE != ksize) { return FAILURE; }
   BIGENDIAN_64BIT_U8_TO_U128_COPY(key, k);
@@ -269,34 +267,11 @@ int32_t seed::initialize(const uint32_t mode, const uint8_t *key, const uint32_t
 }
 
 int32_t seed::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  if (16 != psize || 16 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_encrypt(ptext, ctext);
-  } else {
-    no_intrinsic_encrypt(ptext, ctext);
-  }
-  return SUCCESS;
-}
-
-int32_t seed::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  if (16 != psize || 16 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_decrypt(ctext, ptext);
-  } else {
-    no_intrinsic_decrypt(ctext, ptext);
-  }
-  return SUCCESS;
-}
-
-void seed::clear() noexcept {
-
-}
-
-inline void seed::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint64_t tmppln[2] = {0};
   uint64_t t = 0;
+
+  if (16 != psize || 16 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
 
   BIGENDIAN_64BIT_U8_TO_U128_COPY(ptext, tmppln);
 
@@ -308,11 +283,16 @@ inline void seed::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *cte
   tmppln[0] ^= f_function(tmppln[1], subkey_[15]);
 
   BIGENDIAN_64BIT_U128_TO_U8_COPY(tmppln, ctext);
+
+  return SUCCESS;
 }
 
-inline void seed::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+int32_t seed::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
   uint64_t tmpcphr[2] = {0};
   uint64_t t = 0;
+
+  if (16 != psize || 16 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
 
   BIGENDIAN_64BIT_U8_TO_U128_COPY(ctext, tmpcphr);
 
@@ -324,6 +304,13 @@ inline void seed::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *pte
   tmpcphr[0] ^= f_function(tmpcphr[1], subkey_[0]);
 
   BIGENDIAN_64BIT_U128_TO_U8_COPY(tmpcphr, ptext);
+
+  return SUCCESS;
+}
+
+void seed::clear() noexcept {
+  has_subkeys_ = false;
+  memset(subkey_, 0xCC, sizeof(subkey_));
 }
 
 inline void seed::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {

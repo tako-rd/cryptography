@@ -166,10 +166,8 @@ static const uint32_t sbox4[256] = {
   0x7ae5290c, 0x3cb9536b, 0x851e20fe, 0x9833557e, 0x13ecf0b0, 0xd3ffb372, 0x3f85c5c1, 0x0aef7ed2,
 };
 
-int32_t cast256::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
+int32_t cast256::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint32_t k[8] = {0};
-
-  enable_intrinsic_func_ = enable_intrinsic;
 
   switch (ksize) {
     case CAST256_128_KEY_BYTE_SIZE:
@@ -189,36 +187,10 @@ int32_t cast256::initialize(const uint32_t mode, const uint8_t *key, const uint3
 }
 
 int32_t cast256::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  if (16 != psize || 16 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_encrypt(ptext, ctext);
-  } else {
-    no_intrinsic_encrypt(ptext, ctext);
-  }
-  return SUCCESS;
-}
-
-int32_t cast256::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  if (16 != psize || 16 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_decrypt(ctext, ptext);
-  } else {
-    no_intrinsic_decrypt(ctext, ptext);
-  }
-  return SUCCESS;
-}
-
-void cast256::clear() noexcept {
-  memset(km_, 0xCC, sizeof(km_));
-  memset(kr_, 0xCC, sizeof(kr_));
-  has_subkeys_ = false;
-  enable_intrinsic_func_ = false;
-}
-
-inline void cast256::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint32_t beta[4] = {0};
+
+  if (16 != psize || 16 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
 
   BIGENDIAN_32BIT_U8_TO_U128_COPY(ptext, beta);
 
@@ -239,10 +211,15 @@ inline void cast256::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *
   }
 
   BIGENDIAN_32BIT_U128_TO_U8_COPY(beta, ctext);
+
+  return SUCCESS;
 }
 
-inline void cast256::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+int32_t cast256::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
   uint32_t beta[4] = {0};
+
+  if (16 != psize || 16 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
 
   BIGENDIAN_32BIT_U8_TO_U128_COPY(ctext, beta);
 
@@ -263,6 +240,14 @@ inline void cast256::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *
   }
 
   BIGENDIAN_32BIT_U128_TO_U8_COPY(beta, ptext);
+
+  return SUCCESS;
+}
+
+void cast256::clear() noexcept {
+  memset(km_, 0xCC, sizeof(km_));
+  memset(kr_, 0xCC, sizeof(kr_));
+  has_subkeys_ = false;
 }
 
 inline void cast256::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {

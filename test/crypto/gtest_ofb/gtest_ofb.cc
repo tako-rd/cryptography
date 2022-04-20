@@ -57,50 +57,6 @@ TEST_F(GTestOfb, Normal_enc_postprocess_002) {
   printf("\n");
 }
 
-TEST_F(GTestOfb, Normal_aes_ofb_encrypt_001) {
-  cryptography::ofb ofb;
-  cryptography::aes aes;
-  uint8_t origin_text[64] = {0};
-  uint8_t str[16] = {0};
-  uint8_t cstr[16] = {0};
-  uint8_t out_str[64] = {0};
-
-  memcpy(origin_text, NIST_AES_OFB_EXAM_PLAINTEXT, sizeof(NIST_AES_OFB_EXAM_PLAINTEXT));
-
-  aes.initialize(cryptography::AES128, NIST_AES_OFB_EXAM_AES_KEY, sizeof(NIST_AES_OFB_EXAM_AES_KEY), false);
-  ofb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_OFB_EXAM_AES_IV, sizeof(NIST_AES_OFB_EXAM_AES_IV));
-  do {
-    ofb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
-  } while(0 == ofb.enc_postprocess(cstr, sizeof(cstr), out_str, sizeof(out_str)));
-
-  for (int32_t i = 0; i < sizeof(NIST_AES_OFB_EXAM_CIPHERTEXT); ++i) {
-    EXPECT_EQ(NIST_AES_OFB_EXAM_CIPHERTEXT[i], out_str[i]);
-  }
-}
-
-TEST_F(GTestOfb, Normal_aes_ofb_encrypt_002) {
-  cryptography::ofb ofb;
-  cryptography::aes aes;
-  uint8_t origin_text[64] = {0};
-  uint8_t str[16] = {0};
-  uint8_t cstr[16] = {0};
-  uint8_t out_str[64] = {0};
-
-  memcpy(origin_text, NIST_AES_OFB_EXAM_PLAINTEXT, sizeof(NIST_AES_OFB_EXAM_PLAINTEXT));
-
-  aes.initialize(cryptography::AES128, NIST_AES_OFB_EXAM_AES_KEY, sizeof(NIST_AES_OFB_EXAM_AES_KEY), true);
-  ofb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_OFB_EXAM_AES_IV, sizeof(NIST_AES_OFB_EXAM_AES_IV));
-  do {
-    ofb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
-  } while(0 == ofb.enc_postprocess(cstr, sizeof(cstr), out_str, sizeof(out_str)));
-
-  for (int32_t i = 0; i < sizeof(NIST_AES_OFB_EXAM_CIPHERTEXT); ++i) {
-    EXPECT_EQ(NIST_AES_OFB_EXAM_CIPHERTEXT[i], out_str[i]);
-  }
-}
-
 TEST_F(GTestOfb, Normal_aes_ofb_decrypt_001) {
   cryptography::ofb ofb;
   cryptography::aes aes;
@@ -112,7 +68,7 @@ TEST_F(GTestOfb, Normal_aes_ofb_decrypt_001) {
 
   memcpy(origin_text, NIST_AES_OFB_EXAM_PLAINTEXT, sizeof(NIST_AES_OFB_EXAM_PLAINTEXT));
 
-  aes.initialize(cryptography::AES128, NIST_AES_OFB_EXAM_AES_KEY, sizeof(NIST_AES_OFB_EXAM_AES_KEY), false);
+  aes.initialize(NIST_AES_OFB_EXAM_AES_KEY, sizeof(NIST_AES_OFB_EXAM_AES_KEY));
   ofb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_OFB_EXAM_AES_IV, sizeof(NIST_AES_OFB_EXAM_AES_IV));
   do {
     ofb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
@@ -134,42 +90,6 @@ TEST_F(GTestOfb, Normal_aes_ofb_decrypt_001) {
 
   for (int32_t i = 0; i < sizeof(origin_text); ++i) {
     //printf("%02x ", plaintext[i]);
-    EXPECT_EQ(origin_text[i], plaintext[i]);
-  }
-}
-
-TEST_F(GTestOfb, Normal_aes_ofb_decrypt_002) {
-  cryptography::ofb ofb;
-  cryptography::aes aes;
-  uint8_t origin_text[64] = {0};
-  uint8_t str[16] = {0};
-  uint8_t cstr[16] = {0};
-  uint8_t ciphertext[64] = {0};
-  uint8_t plaintext[64] = {0};
-
-  memcpy(origin_text, NIST_AES_OFB_EXAM_PLAINTEXT, sizeof(NIST_AES_OFB_EXAM_PLAINTEXT));
-
-  aes.initialize(cryptography::AES128, NIST_AES_OFB_EXAM_AES_KEY, sizeof(NIST_AES_OFB_EXAM_AES_KEY), true);
-  ofb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_OFB_EXAM_AES_IV, sizeof(NIST_AES_OFB_EXAM_AES_IV));
-  do {
-    ofb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
-  } while(0 == ofb.enc_postprocess(cstr, sizeof(cstr), ciphertext, sizeof(ciphertext)));
-
-  for (int32_t i = 0; i < sizeof(NIST_AES_OFB_EXAM_CIPHERTEXT); ++i) {
-    EXPECT_EQ(NIST_AES_OFB_EXAM_CIPHERTEXT[i], ciphertext[i]);
-  }
-
-  memset(str, 0x00, sizeof(str));
-  memset(cstr, 0x00, sizeof(cstr));
-
-  do {
-    ofb.dec_preprocess(ciphertext, sizeof(ciphertext), cstr, sizeof(cstr));
-    EXPECT_EQ(0, aes.encrypt(cstr, sizeof(cstr), str, sizeof(str)));
-  } while(0 == ofb.dec_postprocess(str, sizeof(str), plaintext, sizeof(plaintext)));
-
-
-  for (int32_t i = 0; i < sizeof(origin_text); ++i) {
     EXPECT_EQ(origin_text[i], plaintext[i]);
   }
 }

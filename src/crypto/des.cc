@@ -190,7 +190,7 @@ des::~des() {
   memset(decrypto_subkeys_, 0xcc, sizeof(decrypto_subkeys_));
 }
 
-int32_t des::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) {
+int32_t des::initialize(const uint8_t *key, const uint32_t ksize) {
   uint64_t tmpkey = {0};
 
   if (8 != ksize) { return FAILURE; }
@@ -207,47 +207,19 @@ int32_t des::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
   create_encrypto_subkeys(tmpkey, encrypto_subkeys_);
   create_decrypto_subkeys(tmpkey, decrypto_subkeys_);
 
-  mode_ = mode;
   has_subkeys_ = true;
-  enable_intrinsic_func_ = enable_intrinsic;
-
+  
   return SUCCESS;
 }
 
 int32_t des::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) {
-  if (8 != psize || 8 != csize) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_encrypt(ptext, ctext);
-  } else {
-    no_intrinsic_encrypt(ptext, ctext);
-  }
-  return SUCCESS;
-}
-
-int32_t des::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) {
-  if (8 != psize || 8 != csize) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_decrypt(ctext, ptext);
-  } else {
-    no_intrinsic_decrypt(ctext, ptext);
-  }
-  return SUCCESS;
-}
-
-void des::clear() {
-  mode_ = SIMPLE_DES;
-  has_subkeys_ = false;
-  enable_intrinsic_func_ = false;
-
-  memset(encrypto_subkeys_, 0xcc, sizeof(encrypto_subkeys_));
-  memset(decrypto_subkeys_, 0xcc, sizeof(decrypto_subkeys_));
-}
-
-inline void des::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint32_t tmppln32bit[2] = {0};
   uint32_t out[2] = {0};
   uint8_t tmp8bit[8] = {0};
-  
+
+  if (8 != psize || 8 != csize) { return FAILURE; }
+  if (true != has_subkeys_) { return FAILURE; };
+
   memcpy(tmp8bit, ptext, 8);
   BIGENDIAN_32BIT_U8_TO_U64_COPY(tmp8bit, tmppln32bit);
 
@@ -266,12 +238,17 @@ inline void des::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctex
   finalize_permute(out);
 
   BIGENDIAN_32BIT_U64_TO_U8_COPY(out, ctext);
+
+  return SUCCESS;
 }
 
-inline void des::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+int32_t des::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) {
   uint32_t tmpcphr32bit[2] = {0};
   uint32_t out[2] = {0};
   uint8_t tmp8bit[8] = {0};
+
+  if (8 != psize || 8 != csize) { return FAILURE; }
+  if (true != has_subkeys_) { return FAILURE; };
 
   memcpy(tmp8bit, ctext, 8);
   BIGENDIAN_32BIT_U8_TO_U64_COPY(tmp8bit, tmpcphr32bit);
@@ -291,6 +268,14 @@ inline void des::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptex
   finalize_permute(out);
 
   BIGENDIAN_32BIT_U64_TO_U8_COPY(out, ptext);
+
+  return SUCCESS;
+}
+
+void des::clear() {
+  has_subkeys_ = false;
+  memset(encrypto_subkeys_, 0xcc, sizeof(encrypto_subkeys_));
+  memset(decrypto_subkeys_, 0xcc, sizeof(decrypto_subkeys_));
 }
 
 inline void des::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
@@ -419,7 +404,7 @@ inline void des::finalize_permute(uint32_t *text) const noexcept {
   text[1] = fptext & 0x0000'0000'FFFF'FFFF;
 }
 
-void des::round(const uint64_t subkey, const uint32_t rtext, uint32_t &roundtext) const noexcept {
+inline void des::round(const uint64_t subkey, const uint32_t rtext, uint32_t &roundtext) const noexcept {
   uint64_t targettext = 0;
   uint32_t cmb_stext = 0;
   uint8_t stext[8] = {0};

@@ -14,7 +14,7 @@ TEST_F(GTestRC6, Normal_RC6_128_001) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  rc6.initialize(cryptography::RC6_128, RC6_EXAM1_128BIT_KEY, sizeof(RC6_EXAM1_128BIT_KEY), false);
+  rc6.initialize(RC6_EXAM1_128BIT_KEY, sizeof(RC6_EXAM1_128BIT_KEY));
 
   rc6.encrypt(RC6_EXAM1_128BIT_PLAINTEXT, sizeof(RC6_EXAM1_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -32,7 +32,7 @@ TEST_F(GTestRC6, Normal_RC6_128_002) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  rc6.initialize(cryptography::RC6_128, RC6_EXAM2_128BIT_KEY, sizeof(RC6_EXAM2_128BIT_KEY), false);
+  rc6.initialize(RC6_EXAM2_128BIT_KEY, sizeof(RC6_EXAM2_128BIT_KEY));
 
   rc6.encrypt(RC6_EXAM2_128BIT_PLAINTEXT, sizeof(RC6_EXAM2_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -50,7 +50,7 @@ TEST_F(GTestRC6, Normal_RC6_192_001) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  rc6.initialize(cryptography::RC6_128, RC6_EXAM1_192BIT_KEY, sizeof(RC6_EXAM1_192BIT_KEY), false);
+  rc6.initialize(RC6_EXAM1_192BIT_KEY, sizeof(RC6_EXAM1_192BIT_KEY));
 
   rc6.encrypt(RC6_EXAM1_192BIT_PLAINTEXT, sizeof(RC6_EXAM1_192BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -68,7 +68,7 @@ TEST_F(GTestRC6, Normal_RC6_192_002) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  rc6.initialize(cryptography::RC6_128, RC6_EXAM2_192BIT_KEY, sizeof(RC6_EXAM2_192BIT_KEY), false);
+  rc6.initialize(RC6_EXAM2_192BIT_KEY, sizeof(RC6_EXAM2_192BIT_KEY));
 
   rc6.encrypt(RC6_EXAM2_192BIT_PLAINTEXT, sizeof(RC6_EXAM2_192BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -86,7 +86,7 @@ TEST_F(GTestRC6, Normal_RC6_256_001) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  rc6.initialize(cryptography::RC6_128, RC6_EXAM1_256BIT_KEY, sizeof(RC6_EXAM1_256BIT_KEY), false);
+  rc6.initialize(RC6_EXAM1_256BIT_KEY, sizeof(RC6_EXAM1_256BIT_KEY));
 
   rc6.encrypt(RC6_EXAM1_256BIT_PLAINTEXT, sizeof(RC6_EXAM1_256BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -104,7 +104,7 @@ TEST_F(GTestRC6, Normal_RC6_256_002) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  rc6.initialize(cryptography::RC6_128, RC6_EXAM2_256BIT_KEY, sizeof(RC6_EXAM2_256BIT_KEY), false);
+  rc6.initialize(RC6_EXAM2_256BIT_KEY, sizeof(RC6_EXAM2_256BIT_KEY));
 
   rc6.encrypt(RC6_EXAM2_256BIT_PLAINTEXT, sizeof(RC6_EXAM2_256BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {

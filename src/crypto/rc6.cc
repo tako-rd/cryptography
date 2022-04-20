@@ -25,10 +25,8 @@ namespace cryptography {
 #define RC6_192_KEY_BYTE_SIZE    24
 #define RC6_256_KEY_BYTE_SIZE    32
 
-int32_t rc6::initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, bool enable_intrinsic) noexcept {
+int32_t rc6::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint32_t k[8] = {0};
-
-  enable_intrinsic_func_ = enable_intrinsic;
 
   switch (ksize) {
     case RC6_128_KEY_BYTE_SIZE :
@@ -56,36 +54,11 @@ int32_t rc6::initialize(const uint32_t mode, const uint8_t *key, const uint32_t 
 }
 
 int32_t rc6::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  if (16 != psize || 16 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_encrypt(ptext, ctext);
-  } else {
-    no_intrinsic_encrypt(ptext, ctext);
-  }
-  return SUCCESS;
-}
-
-int32_t rc6::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  if (16 != psize || 16 != csize) { return FAILURE; }
-  if (false == has_subkeys_) { return FAILURE; }
-  if (true == enable_intrinsic_func_) {
-    intrinsic_decrypt(ctext, ptext);
-  } else {
-    no_intrinsic_decrypt(ctext, ptext);
-  }
-  return SUCCESS;
-}
-
-void rc6::clear() noexcept {
-  memset(subkeys_, 0xCC, sizeof(SUCCESS));
-  has_subkeys_ = false;
-  enable_intrinsic_func_ = false;  
-}
-
-void rc6::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   uint32_t reg[4] = {0};  /* A, B, C, D */
   uint32_t t = 0, u = 0, tmp = 0;
+
+  if (16 != psize || 16 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
 
   LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ptext, reg);
 
@@ -110,11 +83,16 @@ void rc6::no_intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) cons
   reg[2] = reg[2] + subkeys_[43];
 
   LITTLEENDIAN_32BIT_U128_TO_U8_COPY(reg, ctext);
+
+  return SUCCESS;
 }
 
-void rc6::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+int32_t rc6::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
   uint32_t reg[4] = {0};  /* A, B, C, D */
   uint32_t t = 0, u = 0, tmp = 0;
+
+  if (16 != psize || 16 != csize) { return FAILURE; }
+  if (false == has_subkeys_) { return FAILURE; }
 
   LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ctext, reg);
 
@@ -139,6 +117,13 @@ void rc6::no_intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) cons
   reg[1] = reg[1] - subkeys_[0];
 
   LITTLEENDIAN_32BIT_U128_TO_U8_COPY(reg, ptext);
+
+  return SUCCESS;
+}
+
+void rc6::clear() noexcept {
+  memset(subkeys_, 0xCC, sizeof(SUCCESS));
+  has_subkeys_ = false;  
 }
 
 void rc6::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {

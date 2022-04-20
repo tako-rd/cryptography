@@ -14,7 +14,7 @@ TEST_F(GTestCamellia128, Normal_Camellia_128_001) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  camellia.initialize(cryptography::CAMELLIA128, CAMELLIA_EXAM_128BIT_KEY, sizeof(CAMELLIA_EXAM_128BIT_KEY), false);
+  camellia.initialize(CAMELLIA_EXAM_128BIT_KEY, sizeof(CAMELLIA_EXAM_128BIT_KEY));
 
   camellia.encrypt(CAMELLIA_EXAM_PLAINTEXT, sizeof(CAMELLIA_EXAM_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -33,7 +33,7 @@ TEST_F(GTestCamellia128, Normal_Camellia_192_001) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  camellia.initialize(cryptography::CAMELLIA192, CAMELLIA_EXAM_192BIT_KEY, sizeof(CAMELLIA_EXAM_192BIT_KEY), false);
+  camellia.initialize(CAMELLIA_EXAM_192BIT_KEY, sizeof(CAMELLIA_EXAM_192BIT_KEY));
 
   camellia.encrypt(CAMELLIA_EXAM_PLAINTEXT, sizeof(CAMELLIA_EXAM_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {
@@ -52,7 +52,7 @@ TEST_F(GTestCamellia128, Normal_Camellia_256_001) {
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
-  camellia.initialize(cryptography::CAMELLIA256, CAMELLIA_EXAM_256BIT_KEY, sizeof(CAMELLIA_EXAM_256BIT_KEY), false);
+  camellia.initialize(CAMELLIA_EXAM_256BIT_KEY, sizeof(CAMELLIA_EXAM_256BIT_KEY));
 
   camellia.encrypt(CAMELLIA_EXAM_PLAINTEXT, sizeof(CAMELLIA_EXAM_PLAINTEXT), ciphertext, sizeof(ciphertext));
   for (uint64_t i = 0; i < 16; ++i) {

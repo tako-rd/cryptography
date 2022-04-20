@@ -21,8 +21,8 @@ public:
 
   ~algorithm() {};
 
-  int32_t initialize(const uint32_t mode, const uint8_t *key, const uint32_t ksize, const bool en_intrinsic) {
-    return static_cast<Algorithm &>(*this).initialize(mode, key, ksize, en_intrinsic);
+  int32_t initialize(const uint8_t *key, const uint32_t ksize) {
+    return static_cast<Algorithm &>(*this).initialize(key, ksize);
   }
 
   int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) {

@@ -57,50 +57,6 @@ TEST_F(GTestCfb, Normal_enc_postprocess_002) {
   printf("\n");
 }
 
-TEST_F(GTestCfb, Normal_aes_cfb_encrypt_001) {
-  cryptography::cfb cfb;
-  cryptography::aes aes;
-  uint8_t origin_text[64] = {0};
-  uint8_t str[16] = {0};
-  uint8_t cstr[16] = {0};
-  uint8_t out_str[64] = {0};
-
-  memcpy(origin_text, NIST_AES_CFB_EXAM_PLAINTEXT, sizeof(NIST_AES_CFB_EXAM_PLAINTEXT));
-
-  aes.initialize(cryptography::AES128, NIST_AES_CFB_EXAM_AES_KEY, sizeof(NIST_AES_CFB_EXAM_AES_KEY), false);
-  cfb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_CFB_EXAM_AES_IV, sizeof(NIST_AES_CFB_EXAM_AES_IV));
-  do {
-    cfb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
-  } while(0 == cfb.enc_postprocess(cstr, sizeof(cstr), out_str, sizeof(out_str)));
-
-  for (int32_t i = 0; i < sizeof(NIST_AES_CFB_EXAM_PLAINTEXT); ++i) {
-    EXPECT_EQ(NIST_AES_CFB_EXAM_CIPHERTEXT[i], out_str[i]);
-  }
-}
-
-TEST_F(GTestCfb, Normal_aes_cfb_encrypt_002) {
-  cryptography::cfb cfb;
-  cryptography::aes aes;
-  uint8_t origin_text[64] = {0};
-  uint8_t str[16] = {0};
-  uint8_t cstr[16] = {0};
-  uint8_t out_str[64] = {0};
-
-  memcpy(origin_text, NIST_AES_CFB_EXAM_PLAINTEXT, sizeof(NIST_AES_CFB_EXAM_PLAINTEXT));
-
-  aes.initialize(cryptography::AES128, NIST_AES_CFB_EXAM_AES_KEY, sizeof(NIST_AES_CFB_EXAM_AES_KEY), true);
-  cfb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_CFB_EXAM_AES_IV, sizeof(NIST_AES_CFB_EXAM_AES_IV));
-  do {
-    cfb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
-  } while(0 == cfb.enc_postprocess(cstr, sizeof(cstr), out_str, sizeof(out_str)));
-
-  for (int32_t i = 0; i < sizeof(NIST_AES_CFB_EXAM_PLAINTEXT); ++i) {
-    EXPECT_EQ(NIST_AES_CFB_EXAM_CIPHERTEXT[i], out_str[i]);
-  }
-}
-
 TEST_F(GTestCfb, Normal_aes_cfb_decrypt_001) {
   cryptography::cfb cfb;
   cryptography::aes aes;
@@ -112,7 +68,7 @@ TEST_F(GTestCfb, Normal_aes_cfb_decrypt_001) {
 
   memcpy(origin_text, NIST_AES_CFB_EXAM_PLAINTEXT, sizeof(NIST_AES_CFB_EXAM_PLAINTEXT));
 
-  aes.initialize(cryptography::AES128, NIST_AES_CFB_EXAM_AES_KEY, sizeof(NIST_AES_CFB_EXAM_AES_KEY), false);
+  aes.initialize(NIST_AES_CFB_EXAM_AES_KEY, sizeof(NIST_AES_CFB_EXAM_AES_KEY));
   cfb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_CFB_EXAM_AES_IV, sizeof(NIST_AES_CFB_EXAM_AES_IV));
   do {
     cfb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
@@ -138,38 +94,3 @@ TEST_F(GTestCfb, Normal_aes_cfb_decrypt_001) {
   }
 }
 
-TEST_F(GTestCfb, Normal_aes_cfb_decrypt_002) {
-  cryptography::cfb cfb;
-  cryptography::aes aes;
-  uint8_t origin_text[64] = {0};
-  uint8_t str[16] = {0};
-  uint8_t cstr[16] = {0};
-  uint8_t ciphertext[64] = {0};
-  uint8_t plaintext[64] = {0};
-
-  memcpy(origin_text, NIST_AES_CFB_EXAM_PLAINTEXT, sizeof(NIST_AES_CFB_EXAM_PLAINTEXT));
-
-  aes.initialize(cryptography::AES128, NIST_AES_CFB_EXAM_AES_KEY, sizeof(NIST_AES_CFB_EXAM_AES_KEY), true);
-  cfb.initialize(cryptography::AES128, (uint8_t *)NIST_AES_CFB_EXAM_AES_IV, sizeof(NIST_AES_CFB_EXAM_AES_IV));
-  do {
-    cfb.enc_preprocess(origin_text, sizeof(origin_text), str, sizeof(str));
-    EXPECT_EQ(0, aes.encrypt(str, sizeof(str), cstr, sizeof(cstr)));
-  } while(0 == cfb.enc_postprocess(cstr, sizeof(cstr), ciphertext, sizeof(ciphertext)));
-
-  for (int32_t i = 0; i < sizeof(NIST_AES_CFB_EXAM_PLAINTEXT); ++i) {
-    EXPECT_EQ(NIST_AES_CFB_EXAM_CIPHERTEXT[i], ciphertext[i]);
-  }
-
-  memset(str, 0x00, sizeof(str));
-  memset(cstr, 0x00, sizeof(cstr));
-
-  do {
-    cfb.dec_preprocess(ciphertext, sizeof(ciphertext), cstr, sizeof(cstr));
-    EXPECT_EQ(0, aes.encrypt(cstr, sizeof(cstr), str, sizeof(str)));
-  } while(0 == cfb.dec_postprocess(str, sizeof(str), plaintext, sizeof(plaintext)));
-
-
-  for (int32_t i = 0; i < sizeof(origin_text); ++i) {
-    EXPECT_EQ(origin_text[i], plaintext[i]);
-  }
-}
