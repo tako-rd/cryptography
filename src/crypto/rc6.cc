@@ -126,14 +126,6 @@ void rc6::clear() noexcept {
   has_subkeys_ = false;  
 }
 
-void rc6::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
-
-}
-
-void rc6::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
-
-}
-
 void rc6::expand_key(uint32_t *key, uint32_t *skeys, const uint32_t ksize) noexcept {
   uint32_t a = 0, b = 0, i = 0, j = 0;
   uint32_t c = ksize >> 2;

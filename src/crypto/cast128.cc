@@ -524,14 +524,6 @@ void cast128::clear() noexcept {
   is_12round_ = false;
 }
 
-inline void cast128::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
-
-}
-
-inline void cast128::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
-
-}
-
 inline void cast128::expand_key(const uint32_t * const key, uint32_t *km, uint32_t *kr) noexcept {
   uint32_t kx32[4] = {0};
   uint32_t kz32[4] = {0};

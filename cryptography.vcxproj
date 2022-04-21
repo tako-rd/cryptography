@@ -53,6 +53,7 @@
     <ClCompile Include="src\common\key_ring.cc" />
     <ClCompile Include="src\common\padding.cc" />
     <ClCompile Include="src\crypto\aes.cc" />
+    <ClCompile Include="src\crypto\aes_ni.cc" />
     <ClCompile Include="src\crypto\camellia.cc" />
     <ClCompile Include="src\crypto\cast128.cc" />
     <ClCompile Include="src\crypto\cast256.cc" />
@@ -204,7 +205,7 @@
       <LanguageStandard_C>Default</LanguageStandard_C>
       <LanguageStandard>Default</LanguageStandard>
       <OpenMPSupport>false</OpenMPSupport>
-      <AssemblerOutput>All</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>

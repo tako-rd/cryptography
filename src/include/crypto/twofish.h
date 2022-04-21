@@ -29,10 +29,6 @@ class twofish final : public algorithm<twofish> {
   void clear() noexcept;
 
  private:
-  void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
-
-  void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
-
   void expand_key(const uint32_t * const key, uint32_t *skeys) noexcept;
 
   void f_function(uint32_t r0, uint32_t r1, int32_t round, uint32_t *f) const noexcept;

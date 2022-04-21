@@ -34,10 +34,6 @@ class des final : public algorithm<des> {
   void clear();
 
  private:
-  void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
-
-  void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
-
   void create_encrypto_subkeys(const uint64_t key, uint64_t *subkeys) const noexcept;
 
   void create_decrypto_subkeys(const uint64_t key, uint64_t *subkeys) const noexcept;

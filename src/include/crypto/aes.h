@@ -20,7 +20,7 @@ namespace cryptography {
 
 class aes final : algorithm<aes> { 
  public:
-  aes() noexcept : encskeys32bit_{0}, decskeys32bit_{0}, encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
+  aes() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
 
   ~aes();
 
@@ -33,17 +33,11 @@ class aes final : algorithm<aes> {
   void clear() noexcept;
 
  private:
-  void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
-
-  void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
-
   void expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) noexcept;
 
 #if !defined(SPEED_PRIORITY_AES)
   uint32_t rot_word(uint32_t word) const noexcept;
-#endif
 
-#if !defined(SPEED_PRIORITY_AES)
   uint32_t sub_word(uint32_t word) const noexcept;
 
   void sub_bytes(uint8_t *words) const noexcept;
@@ -63,9 +57,37 @@ class aes final : algorithm<aes> {
   uint8_t gf_mult(uint8_t x, uint8_t y) const noexcept;
 #endif
 
-  uint32_t encskeys32bit_[60];
+  uint32_t encskeys_[60];
 
-  uint32_t decskeys32bit_[60];
+  uint32_t decskeys_[60];
+
+  int32_t nr_;
+
+  int32_t nk_;
+
+  bool has_subkeys_;
+};
+
+class aes_ni final : algorithm<aes_ni> { 
+public:
+  aes_ni() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
+
+  ~aes_ni();
+
+  int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
+
+  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+
+  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+
+  void clear() noexcept;
+
+private:
+  void expand_128bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept;
+
+  void expand_192bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept;
+
+  void expand_256bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept;
 
   __m128i encskeys_[15];
 
@@ -77,6 +99,7 @@ class aes final : algorithm<aes> {
 
   bool has_subkeys_;
 };
+
 
 }
 

@@ -389,14 +389,6 @@ void twofish::clear() noexcept {
   has_subkeys_ = false;
 }
 
-inline void twofish::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
-
-}
-
-inline void twofish::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
-
-}
-
 inline void twofish::expand_key(const uint32_t * const key, uint32_t *skeys) noexcept {
   uint32_t me[4] = {0};
   uint32_t mo[4] = {0};

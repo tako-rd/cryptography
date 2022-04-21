@@ -250,14 +250,6 @@ void cast256::clear() noexcept {
   has_subkeys_ = false;
 }
 
-inline void cast256::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
-
-}
-
-inline void cast256::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
-
-}
-
 inline void cast256::expand_key(const uint32_t * const key, uint32_t *km, uint32_t *kr) noexcept {
   uint32_t cm = 0x5A827999;
   uint32_t cr = 19;

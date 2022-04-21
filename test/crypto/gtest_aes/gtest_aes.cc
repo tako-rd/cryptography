@@ -107,3 +107,72 @@ TEST_F(GTestAes, Normal_AES256_001) {
     EXPECT_EQ(FIPS197_C2_192BIT_TEST_PLAINTEXT[i], plaintext[i]);
   }
 }
+
+TEST_F(GTestAes, Normal_AESNI128_001) {
+  cryptography::aes_ni aes_ni;
+  uint8_t ciphertext[16];
+  uint8_t plaintext[16];
+
+  EXPECT_EQ(0, aes_ni.initialize(FIPS197_C1_128BIT_TEST_KEY, sizeof(FIPS197_C1_128BIT_TEST_KEY)));
+
+  EXPECT_EQ(0, aes_ni.encrypt(FIPS197_C1_128BIT_TEST_PLAINTEXT, 
+                           sizeof(FIPS197_C1_128BIT_TEST_PLAINTEXT),
+                           ciphertext, 
+                           sizeof(ciphertext)));
+
+  for (uint64_t i = 0; i < 16; ++i) {
+    EXPECT_EQ(FIPS197_C1_128BIT_TEST_CIPHERTEXT[i], ciphertext[i]);
+  }
+
+  EXPECT_EQ(0, aes_ni.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext)));
+
+  for (uint64_t i = 0; i < 16; ++i) {
+    EXPECT_EQ(FIPS197_C1_128BIT_TEST_PLAINTEXT[i], plaintext[i]);
+  }
+}
+
+TEST_F(GTestAes, Normal_AESNI192_001) {
+  cryptography::aes_ni aes_ni;
+  uint8_t ciphertext[16];
+  uint8_t plaintext[16];
+
+  EXPECT_EQ(0, aes_ni.initialize(FIPS197_C2_192BIT_TEST_KEY, sizeof(FIPS197_C2_192BIT_TEST_KEY)));
+
+  EXPECT_EQ(0, aes_ni.encrypt(FIPS197_C2_192BIT_TEST_PLAINTEXT, 
+                              sizeof(FIPS197_C2_192BIT_TEST_PLAINTEXT),
+                              ciphertext, 
+                              sizeof(ciphertext)));
+
+  for (uint64_t i = 0; i < 16; ++i) {
+    EXPECT_EQ(FIPS197_C2_192BIT_TEST_CIPHERTEXT[i], ciphertext[i]);
+  }
+
+  EXPECT_EQ(0, aes_ni.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext)));
+
+  for (uint64_t i = 0; i < 16; ++i) {
+    EXPECT_EQ(FIPS197_C2_192BIT_TEST_PLAINTEXT[i], plaintext[i]);
+  }
+}
+
+TEST_F(GTestAes, Normal_AESNI256_001) {
+  cryptography::aes_ni aes_ni;
+  uint8_t ciphertext[16];
+  uint8_t plaintext[16];
+
+  EXPECT_EQ(0, aes_ni.initialize(FIPS197_C3_256BIT_TEST_KEY, sizeof(FIPS197_C3_256BIT_TEST_KEY)));
+
+  EXPECT_EQ(0, aes_ni.encrypt(FIPS197_C3_256BIT_TEST_PLAINTEXT, 
+                              sizeof(FIPS197_C3_256BIT_TEST_PLAINTEXT),
+                              ciphertext, 
+                              sizeof(ciphertext)));
+
+  for (uint64_t i = 0; i < 16; ++i) {
+    EXPECT_EQ(FIPS197_C3_256BIT_TEST_CIPHERTEXT[i], ciphertext[i]);
+  }
+
+  EXPECT_EQ(0, aes_ni.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext)));
+
+  for (uint64_t i = 0; i < 16; ++i) {
+    EXPECT_EQ(FIPS197_C3_256BIT_TEST_PLAINTEXT[i], plaintext[i]);
+  }
+}

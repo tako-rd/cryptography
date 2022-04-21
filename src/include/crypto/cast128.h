@@ -30,10 +30,6 @@ class cast128 final : public algorithm<cast128> {
   void clear() noexcept;
 
  private:
-  void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
-
-  void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
-
   void expand_key(const uint32_t * const key, uint32_t *km, uint32_t *kr) noexcept;
 
   uint32_t fa_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;

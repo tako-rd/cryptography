@@ -313,14 +313,6 @@ void seed::clear() noexcept {
   memset(subkey_, 0xCC, sizeof(subkey_));
 }
 
-inline void seed::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
-
-}
-
-inline void seed::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
-
-}
-
 inline void seed::expand_key(uint64_t *key, uint64_t *skeys) const noexcept {
   for (int32_t round = 0; round < 16; ++round) {
     skeys[round] = (uint64_t)g_function(((uint32_t)(key[0] >> 32) + (uint32_t)(key[1] >> 32) - kc[round])) << 32 | 

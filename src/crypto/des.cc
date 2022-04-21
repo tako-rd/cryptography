@@ -278,14 +278,6 @@ void des::clear() {
   memset(decrypto_subkeys_, 0xcc, sizeof(decrypto_subkeys_));
 }
 
-inline void des::intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
-
-}
-
-inline void des::intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
-
-}
-
 inline void des::create_encrypto_subkeys(const uint64_t key, uint64_t *subkeys) const noexcept {
   uint32_t lkey = 0;
   uint32_t rkey = 0;

@@ -173,5 +173,8 @@
     <ClCompile Include="src\crypto\twofish.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
+    <ClCompile Include="src\crypto\aes_ni.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

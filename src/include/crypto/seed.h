@@ -31,10 +31,6 @@ class seed final : public algorithm<seed> {
   void clear() noexcept;
 
  private:
-  void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
-
-  void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
-
   void expand_key(uint64_t *key, uint64_t *skeys) const noexcept;
 
   uint64_t f_function(uint64_t r, uint64_t k) const noexcept;

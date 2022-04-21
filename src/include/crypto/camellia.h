@@ -35,10 +35,6 @@ class camellia final : public algorithm<camellia> {
   void clear() noexcept;
 
  private:
-  void intrinsic_encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
-
-  void intrinsic_decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
-
   void expand_128bit_key(const uint64_t * const key, uint64_t *kw, uint64_t *k, uint64_t *kl) const noexcept;
 
   void expand_192bit_or_256bit_key(const uint64_t * const key, uint64_t *kw, uint64_t *k, uint64_t *kl) const noexcept;
