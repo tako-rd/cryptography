@@ -7,23 +7,17 @@
 * see https://opensource.org/licenses/MIT
 */
 
+#include <stdint.h>
+
 #ifndef GTEST_ECB_DEFS_H
 #define GTEST_ECB_DEFS_H
 
-#include <stdint.h>
-
-static const uint8_t ECB_TEST_STRING[80] = {
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-  '1', '2', '3', '4', '5', '6', '7', '8',
-};
+/**********************************************************************************/
+/* Quoted from below.                                                             */
+/* NIST Special Publication 800-38A 2001 Edition                                  */
+/* Recommendation for Block Cipher Modes of Operation                             */
+/* https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf  */
+/**********************************************************************************/
 
 static const uint8_t FIPS197_C1_128BIT_BASED_TEST_KEY[16] = {
   0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 

@@ -151,8 +151,6 @@ aes_ni::~aes_ni() {
 }
 
 int32_t aes_ni::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
-  uint8_t k[32] = {0};
-
   switch (ksize) {
     case AES128_KEY_BYTE_SIZE:
       nr_ = AES128_ROUNDS;

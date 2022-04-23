@@ -54,26 +54,8 @@
     <ClInclude Include="src\include\common\cpu.h">
       <Filter>include\common</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\crypto\mode.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
     <ClInclude Include="src\include\common\padding.h">
       <Filter>include\common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\ecb.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\cbc.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\cfb.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\ofb.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\ctr.h">
-      <Filter>include\crypto</Filter>
     </ClInclude>
     <ClInclude Include="src\include\common\key_generator.h">
       <Filter>include\common</Filter>
@@ -108,7 +90,10 @@
     <ClInclude Include="src\include\crypto\twofish.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\crypto\secret_key.h">
+    <ClInclude Include="src\include\common\simd.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key_base.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
   </ItemGroup>
@@ -142,21 +127,6 @@
     </ClCompile>
     <ClCompile Include="src\crypto\des.cc">
       <Filter>src\crypto\seckey</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\cbc.cc">
-      <Filter>src\crypto\mode</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\cfb.cc">
-      <Filter>src\crypto\mode</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\ctr.cc">
-      <Filter>src\crypto\mode</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\ecb.cc">
-      <Filter>src\crypto\mode</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\ofb.cc">
-      <Filter>src\crypto\mode</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\rsa.cc">
       <Filter>src\crypto\pubkey</Filter>

@@ -7,7 +7,7 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "secret_key.h"
+#include "secret_key_base.h"
 
 #ifndef CAST256_H
 #define CAST256_H

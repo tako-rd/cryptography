@@ -7,28 +7,31 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "defs.h"
+#include <stdint.h>
+#include <type_traits>
 
-#ifndef ALGORITHM_H
-#define ALGORITHM_H
+#include "simd.h"
+
+#ifndef SECRET_KEY_BASE_H
+#define SECRET_KEY_BASE_H
 
 namespace cryptography {
 
-template <typename SharedKeyCryptosystem,  
+template <typename SecretKeyCryptosystem,  
           bool IsValidSharedKeyCryptosystem = 
-            std::is_base_of<secret_key_interface<SharedKeyCryptosystem>, 
-                            SharedKeyCryptosystem>::value>
-class secret_key {
+            std::is_base_of<secret_key_interface<SecretKeyCryptosystem>, 
+                            SecretKeyCryptosystem>::value>
+class secret_key_cryptosystem {
   static_assert(IsValidSharedKeyCryptosystem, 
                 "*** ERROR : An invalid shared key cryptosystem of block cipher has been specified.");
 };
 
-template <typename SharedKeyCryptosystem>
-class secret_key<SharedKeyCryptosystem, true> {
+template <typename SecretKeyCryptosystem>
+class secret_key_cryptosystem<SecretKeyCryptosystem, true> {
  public:
-  secret_key() {};
+  secret_key_cryptosystem() {};
 
-  ~secret_key() {};
+  ~secret_key_cryptosystem() {};
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept {
     return skc_.initialize(key, ksize);
@@ -47,10 +50,10 @@ class secret_key<SharedKeyCryptosystem, true> {
   };
 
  private:
-  SharedKeyCryptosystem skc_;
+  SecretKeyCryptosystem skc_;
 };
 
-template <typename SharedKeyCryptosystem>
+template <typename SecretKeyCryptosystem>
 class secret_key_interface {
 public:
   secret_key_interface() {};
@@ -58,19 +61,19 @@ public:
   ~secret_key_interface() {};
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept {
-    return (SharedKeyCryptosystem &)(*this).initialize(key, ksize);
+    return (SecretKeyCryptosystem &)(*this).initialize(key, ksize);
   };
 
   int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-    return (SharedKeyCryptosystem &)(*this).encrypt(ptext, psize, ctext, csize);
+    return (SecretKeyCryptosystem &)(*this).encrypt(ptext, psize, ctext, csize);
   };
 
   int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-    return (SharedKeyCryptosystem &)(*this).decrypt(ctext, csize, ptext, psize);
+    return (SecretKeyCryptosystem &)(*this).decrypt(ctext, csize, ptext, psize);
   };
 
   void clear() {
-    (SharedKeyCryptosystem &)(*this).clear();
+    (SecretKeyCryptosystem &)(*this).clear();
   };
 };
 

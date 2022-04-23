@@ -16,165 +16,120 @@
     <Filter Include="common">
       <UniqueIdentifier>{db2992cb-5b2d-48d0-97d0-da5ef0d29406}</UniqueIdentifier>
     </Filter>
-    <Filter Include="crypto\gtest_aes">
-      <UniqueIdentifier>{2d11a3b0-4c69-4744-b50b-ab42baa3b696}</UniqueIdentifier>
+    <Filter Include="crypto\sercret_key">
+      <UniqueIdentifier>{8a2c939e-a311-4465-b447-b2cb4bd17979}</UniqueIdentifier>
     </Filter>
-    <Filter Include="crypto\gtest_des">
-      <UniqueIdentifier>{fbc3f130-3dc4-4d7d-90c6-6506b9993fa4}</UniqueIdentifier>
+    <Filter Include="crypto\sercret_key\gtest_twofish">
+      <UniqueIdentifier>{acab2b15-1fc3-4c23-9101-6d8da4b1ae30}</UniqueIdentifier>
     </Filter>
-    <Filter Include="crypto\gtest_ecb">
-      <UniqueIdentifier>{676a6f06-69da-44b8-8726-5acd23f3313d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="crypto\gtest_cbc">
-      <UniqueIdentifier>{ec88f38f-34a1-46cc-b789-a14608197b44}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="crypto\gtest_cfb">
-      <UniqueIdentifier>{d95c6355-4bc8-4f3f-b905-302ddc029218}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="crypto\gtest_ofb">
-      <UniqueIdentifier>{92fee6c2-162d-485e-9ba8-005adbb06b23}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="crypto\gtest_ctr">
-      <UniqueIdentifier>{74d8320b-5e77-41ec-bf09-dc9d22f8d31a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="crypto\gtest_camelia">
-      <UniqueIdentifier>{16fc8f9e-4f55-42a5-93ab-81bbfc2ed35e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="crypto\gtest_seed">
+    <Filter Include="crypto\sercret_key\gtest_seed">
       <UniqueIdentifier>{b5732e98-d0f9-44cc-b929-f5b993356882}</UniqueIdentifier>
     </Filter>
-    <Filter Include="crypto\gtest_rc6">
+    <Filter Include="crypto\sercret_key\gtest_rc6">
       <UniqueIdentifier>{381820fc-5051-412c-9925-fd36b0f84a80}</UniqueIdentifier>
     </Filter>
-    <Filter Include="crypto\gtest_cast128">
-      <UniqueIdentifier>{fc22bf04-6aaa-40e2-a01c-a1a273004a0b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="crypto\gtest_cast256">
+    <Filter Include="crypto\sercret_key\gtest_cast256">
       <UniqueIdentifier>{4992ddb2-b594-4fd2-a40c-3088cb047baf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="crypto\gtest_twofish">
-      <UniqueIdentifier>{acab2b15-1fc3-4c23-9101-6d8da4b1ae30}</UniqueIdentifier>
+    <Filter Include="crypto\sercret_key\gtest_cast128">
+      <UniqueIdentifier>{fc22bf04-6aaa-40e2-a01c-a1a273004a0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\sercret_key\gtest_camelia">
+      <UniqueIdentifier>{16fc8f9e-4f55-42a5-93ab-81bbfc2ed35e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\sercret_key\gtest_aes">
+      <UniqueIdentifier>{2d11a3b0-4c69-4744-b50b-ab42baa3b696}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\mode">
+      <UniqueIdentifier>{77bd2a8c-2427-432d-b0f2-362c781bce82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\sercret_key\gtest_des">
+      <UniqueIdentifier>{fbc3f130-3dc4-4d7d-90c6-6506b9993fa4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
-      <Filter>crypto\gtest_aes</Filter>
+      <Filter>crypto\sercret_key\gtest_aes</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_des\gtest_des.h">
-      <Filter>crypto\gtest_des</Filter>
+      <Filter>crypto\sercret_key\gtest_des</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_des\gtest_des_defs.h">
-      <Filter>crypto\gtest_des</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_ecb\gtest_ecb.h">
-      <Filter>crypto\gtest_ecb</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_cbc\gtest_cbc.h">
-      <Filter>crypto\gtest_cbc</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_ecb\gtest_ecb_defs.h">
-      <Filter>crypto\gtest_ecb</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_cbc\gtest_cbc_defs.h">
-      <Filter>crypto\gtest_cbc</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_cfb\gtest_cfb.h">
-      <Filter>crypto\gtest_cfb</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_cfb\gtest_cfb_defs.h">
-      <Filter>crypto\gtest_cfb</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_ofb\gtest_ofb.h">
-      <Filter>crypto\gtest_ofb</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_ofb\gtest_ofb_defs.h">
-      <Filter>crypto\gtest_ofb</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_ctr\gtest_ctr.h">
-      <Filter>crypto\gtest_ctr</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_ctr\gtest_ctr_defs.h">
-      <Filter>crypto\gtest_ctr</Filter>
+      <Filter>crypto\sercret_key\gtest_des</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_camellia\gtest_camellia_defs.h">
-      <Filter>crypto\gtest_camelia</Filter>
+      <Filter>crypto\sercret_key\gtest_camelia</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_camellia\gtest_camellia128.h">
-      <Filter>crypto\gtest_camelia</Filter>
+      <Filter>crypto\sercret_key\gtest_camelia</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_seed\gtest_seed.h">
-      <Filter>crypto\gtest_seed</Filter>
+      <Filter>crypto\sercret_key\gtest_seed</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_seed\gtest_seed_defs.h">
-      <Filter>crypto\gtest_seed</Filter>
+      <Filter>crypto\sercret_key\gtest_seed</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_rc6\gtest_rc6.h">
-      <Filter>crypto\gtest_rc6</Filter>
+      <Filter>crypto\sercret_key\gtest_rc6</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_rc6\gtest_rc6_defs.h">
-      <Filter>crypto\gtest_rc6</Filter>
+      <Filter>crypto\sercret_key\gtest_rc6</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_cast128\gtest_cast128.h">
-      <Filter>crypto\gtest_cast128</Filter>
+      <Filter>crypto\sercret_key\gtest_cast128</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_cast128\gtest_cast128_defs.h">
-      <Filter>crypto\gtest_cast128</Filter>
+      <Filter>crypto\sercret_key\gtest_cast128</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_cast256\gtest_cast256.h">
-      <Filter>crypto\gtest_cast256</Filter>
+      <Filter>crypto\sercret_key\gtest_cast256</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_cast256\gtest_cast256_defs.h">
-      <Filter>crypto\gtest_cast256</Filter>
+      <Filter>crypto\sercret_key\gtest_cast256</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_twofish\gtest_twofish.h">
-      <Filter>crypto\gtest_twofish</Filter>
+      <Filter>crypto\sercret_key\gtest_twofish</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_twofish\gtest_twofish_defs.h">
-      <Filter>crypto\gtest_twofish</Filter>
+      <Filter>crypto\sercret_key\gtest_twofish</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_aes\gtest_aes.h">
-      <Filter>crypto\gtest_aes</Filter>
+      <Filter>crypto\sercret_key\gtest_aes</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_ecb\gtest_ecb.h">
+      <Filter>crypto\mode</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_ecb\gtest_ecb_defs.h">
+      <Filter>crypto\mode</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_des\gtest_des.cc">
-      <Filter>crypto\gtest_des</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\gtest_ecb\gtest_ecb.cc">
-      <Filter>crypto\gtest_ecb</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\gtest_cbc\gtest_cbc.cc">
-      <Filter>crypto\gtest_cbc</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\gtest_cfb\gtest_cfb.cc">
-      <Filter>crypto\gtest_cfb</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\gtest_ofb\gtest_ofb.cc">
-      <Filter>crypto\gtest_ofb</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\gtest_ctr\gtest_ctr.cc">
-      <Filter>crypto\gtest_ctr</Filter>
+      <Filter>crypto\sercret_key\gtest_des</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_camellia\gtest_camellia128.cc">
-      <Filter>crypto\gtest_camelia</Filter>
+      <Filter>crypto\sercret_key\gtest_camelia</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_seed\gtest_seed.cc">
-      <Filter>crypto\gtest_seed</Filter>
+      <Filter>crypto\sercret_key\gtest_seed</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_rc6\gtest_rc6.cc">
-      <Filter>crypto\gtest_rc6</Filter>
+      <Filter>crypto\sercret_key\gtest_rc6</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_cast128\gtest_cast128.cc">
-      <Filter>crypto\gtest_cast128</Filter>
+      <Filter>crypto\sercret_key\gtest_cast128</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_cast256\gtest_cast256.cc">
-      <Filter>crypto\gtest_cast256</Filter>
+      <Filter>crypto\sercret_key\gtest_cast256</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_twofish\gtest_twofish.cc">
-      <Filter>crypto\gtest_twofish</Filter>
+      <Filter>crypto\sercret_key\gtest_twofish</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_aes\gtest_aes.cc">
-      <Filter>crypto\gtest_aes</Filter>
+      <Filter>crypto\sercret_key\gtest_aes</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_ecb\gtest_ecb.cc">
+      <Filter>crypto\mode</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
