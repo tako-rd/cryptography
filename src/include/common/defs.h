@@ -55,27 +55,6 @@
 # define GET_CPUID(info, eax)                 __cpuid(eax, info[0], info[1], info[2], info[3])
 #endif
 
-#ifdef CRYPTOGRAPHY_DEBUG
-# define DEBUG_DISPLAY_BIT_8(tag, target)      (std::cout << "[" << __func__ << "]" << tag << " : " << std::bitset<8>(target) << std::endl)
-# define DEBUG_DISPLAY_BIT_16(tag, target)     (std::cout << "[" << __func__ << "]" << tag << " : " << std::bitset<16>(target) << std::endl)
-# define DEBUG_DISPLAY_BIT_32(tag, target)     (std::cout << "[" << __func__ << "]" << tag << " : " << std::bitset<32>(target) << std::endl)
-# define DEBUG_DISPLAY_BIT_64(tag, target)     (std::cout << "[" << __func__ << "]" << tag << " : " << std::bitset<64>(target) << std::endl)
-# define DEBUG_DISPLAY_BIT_COUNT(tag, target)  (std::cout << "[" << __func__ << "]" << tag << " bit count : " << POPCOUNT64(target) << std::endl)
-
-# define DEBUG_START                           printf("[%s] Start.\n", __func__)
-# define DEBUG_END                             printf("[%s] end.\n", __func__)
-# define DEBUG_CHECK_POINT(x)                  printf("[%s] check point %d.\n", __func__, x)
-#else
-# define DEBUG_DISPLAY_BIT_8(tag, target)    
-# define DEBUG_DISPLAY_BIT_16(tag, target)   
-# define DEBUG_DISPLAY_BIT_32(tag, target)   
-# define DEBUG_DISPLAY_BIT_64(tag, target)   
-# define DEBUG_DISPLAY_BIT_COUNT(tag, target)
-
-# define DEBUG_START
-# define DEBUG_END
-#endif
-
 namespace cryptography {
 
 typedef enum cipher_and_hash_type {

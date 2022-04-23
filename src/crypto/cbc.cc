@@ -14,6 +14,10 @@ namespace cryptography {
 #define DES_UNIT_SIZE     8
 #define AES_UNIT_SIZE     16
 
+#define SUCCESS           0
+#define FAILURE           1
+#define PROCEND           2
+
 int32_t cbc::initialize(const uint16_t type, uint8_t *iv, const uint64_t iv_size) noexcept {
   type_ = type_t(type & EXTRACT_TYPE);
   switch(type_) {
@@ -32,18 +36,18 @@ int32_t cbc::initialize(const uint16_t type, uint8_t *iv, const uint64_t iv_size
   }
 
   if (unit_size_ != iv_size) {
-    return MODE_PROC_FAILURE;
+    return FAILURE;
   }
   iv_ = iv;
 
-  return MODE_PROC_SUCCESS;
+  return SUCCESS;
 }
 
 int32_t cbc::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept {
   const uint64_t cursor_end = cursor_ + unit_size_;
 
   if (cbsize != unit_size_) {
-    return MODE_PROC_FAILURE;
+    return FAILURE;
   }
 
   if (false == is_processing_) {
@@ -60,14 +64,14 @@ int32_t cbc::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf,
       cbuf[outcsr] = ptext[incsr] ^ key_[incsr - unit_size_];
     }
   }
-  return MODE_PROC_SUCCESS;
+  return SUCCESS;
 }
 
 int32_t cbc::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept {
   uint64_t cursor_end = cursor_ + unit_size_;
 
   if (cbsize != unit_size_ && csize != key_size_) {
-    return MODE_PROC_FAILURE;
+    return FAILURE;
   }
 
   if (0 == cursor_) {
@@ -85,16 +89,16 @@ int32_t cbc::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctex
     is_processing_ = false;
     cursor_ = 0;
 
-    return MODE_PROC_END;
+    return PROCEND;
   }
-  return MODE_PROC_SUCCESS;
+  return SUCCESS;
 }
 
 int32_t cbc::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept {
   const uint64_t cursor_end = cursor_ + unit_size_;
 
   if (pbsize != unit_size_) {
-    return MODE_PROC_FAILURE;
+    return FAILURE;
   }
 
   if (false == is_processing_) {
@@ -106,14 +110,14 @@ int32_t cbc::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf,
   for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
     pbuf[outcsr] = ctext[incsr];
   }
-  return MODE_PROC_SUCCESS;
+  return SUCCESS;
 }
 
 int32_t cbc::dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept {
   const uint64_t cursor_end = cursor_ + unit_size_;
 
   if (pbsize != unit_size_ && psize != key_size_) {
-    return MODE_PROC_FAILURE;
+    return FAILURE;
   }
 
   if (0 == cursor_) {
@@ -133,9 +137,9 @@ int32_t cbc::dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptex
     is_processing_ = false;
     cursor_ = 0;
 
-    return MODE_PROC_END;
+    return PROCEND;
   }
-  return MODE_PROC_SUCCESS;
+  return SUCCESS;
 }
 
 }

@@ -15,7 +15,7 @@
 
 namespace cryptography {
 
-class ecb : mode<ecb> {
+class ecb : mode_interface<ecb> {
  public:
   ecb() : type_(DEFAULT), is_processing_(false), inlen_(0), cursor_(0), unit_size_(0) {};
 

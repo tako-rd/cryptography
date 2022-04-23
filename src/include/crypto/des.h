@@ -7,18 +7,14 @@
  * see https://opensource.org/licenses/MIT
  */
 
+#include "secret_key.h"
+
 #ifndef DES_H
 #define DES_H
 
-#include <cstring>
-#include <vector>
-
-#include "defs.h"
-#include "block_cipher.h"
-
 namespace cryptography {
 
-class des final : public algorithm<des> {
+class des final : public secret_key_interface<des> {
  public:
 
   des() noexcept : encrypto_subkeys_{0}, decrypto_subkeys_{0}, has_subkeys_(false) {};

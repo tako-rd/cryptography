@@ -24,10 +24,6 @@ namespace cryptography {
 #define AES192_KEY_BYTE_SIZE    24
 #define AES256_KEY_BYTE_SIZE    32
 
-#define AES128_KEY_CONV_SIZE    4
-#define AES192_KEY_CONV_SIZE    6
-#define AES256_KEY_CONV_SIZE    8
-
 #define RCON01  0x0000'0001
 #define RCON02  0x0000'0002
 #define RCON03  0x0000'0004
@@ -40,22 +36,24 @@ namespace cryptography {
 #define RCON10  0x0000'0036
 
 /* k1 = (w3, w2, w1, w0)                     */
+/* f(w4) = SubWord(RotWord(w4))              */
 /* w4  = w0 ^ f(w3)                          */
 /* w5  = w0 ^ w1 ^ f(w3)                     */
 /* w6  = w0 ^ w1 ^ w2 ^ f(w3)                */
 /* w7  = w0 ^ w1 ^ w2 ^ w3 ^ f(w3)           */
-#define EXPAND_128BIT_KEY(k, round, t1, t2, t3, rcon)   \
-    t2 = _mm_slli_si128(t1, 4);                         \
-    t2 = _mm_xor_si128(t1, t2);                         \
-    t3 = _mm_slli_si128(t2, 8);                         \
-    t2 = _mm_xor_si128(t2, t3);                         \
-    t1 = _mm_aeskeygenassist_si128(t1, rcon);           \
-    t1 = _mm_shuffle_epi32(t1, 0xFF);                   \
-    t1 = _mm_xor_si128(t2, t1);                         \
-    k[round] = t1;                                                         
+#define EXPAND_128BIT_KEY(k, round, k1, t1, t2, rcon)   \
+    t1 = _mm_slli_si128(k1, 4);                         \
+    t1 = _mm_xor_si128(k1, t1);                         \
+    t2 = _mm_slli_si128(t1, 8);                         \
+    t1 = _mm_xor_si128(t1, t2);                         \
+    k1 = _mm_aeskeygenassist_si128(k1, rcon);           \
+    k1 = _mm_shuffle_epi32(k1, 0xFF);                   \
+    k1 = _mm_xor_si128(t1, k1);                         \
+    k[round] = k1;                                                         
 
 /* k1 = (w3, w2, w1, w0)                     */
 /* k1 = ( 0,  0, w5, w4)                     */
+/* f(w5) = SubWord(RotWord(w5))              */
 /* w6  = w0 ^ f(w5)                          */
 /* w7  = w0 ^ w1 ^ f(w5)                     */
 /* w8  = w0 ^ w1 ^ w2 ^ f(w5)                */
@@ -118,15 +116,15 @@ namespace cryptography {
 /* w9    = w0 ^ w1 ^ f(w7)               */
 /* w10   = w0 ^ w1 ^ w2 ^ f(w7)          */
 /* w11   = w0 ^ w1 ^ w2 ^ w3 ^ f(w7)     */
-#define EXPAND_256BIT_KEY1(k, round, k1, k2, f, t1, t2, rcon)         \
-  f = _mm_shuffle_epi32(_mm_aeskeygenassist_si128(k2, rcon), 0xFF);   \
-  t1 = _mm_slli_si128(k1, 4);                                         \
-  t2 = _mm_xor_si128(t1, k1);                                         \
-  t1 = _mm_slli_si128(t1, 4);                                         \
-  t2 = _mm_xor_si128(t1, t2);                                         \
-  t1 = _mm_slli_si128(t1, 4);                                         \
-  t2 = _mm_xor_si128(t1, t2);                                         \
-  k1 = _mm_xor_si128(t2, f);                                          \
+#define EXPAND_256BIT_KEY1(k, round, k1, k2, f, t1, t2, rcon)       \
+  f = _mm_shuffle_epi32(_mm_aeskeygenassist_si128(k2, rcon), 0xFF); \
+  t1 = _mm_slli_si128(k1, 4);                                       \
+  t2 = _mm_xor_si128(t1, k1);                                       \
+  t1 = _mm_slli_si128(t1, 4);                                       \
+  t2 = _mm_xor_si128(t1, t2);                                       \
+  t1 = _mm_slli_si128(t1, 4);                                       \
+  t2 = _mm_xor_si128(t1, t2);                                       \
+  k1 = _mm_xor_si128(t2, f);                                        \
   k[round] = k1;
 
 /* k2 = (w7, w6, w5, w4)                 */
@@ -158,22 +156,16 @@ int32_t aes_ni::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   switch (ksize) {
     case AES128_KEY_BYTE_SIZE:
       nr_ = AES128_ROUNDS;
-      nk_ = AES128_KEY_CONV_SIZE;
-      memcpy(k, key, AES128_KEY_BYTE_SIZE);
-      expand_128bit_key(k, encskeys_, decskeys_);
+      expand_128bit_key(key, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
     case AES192_KEY_BYTE_SIZE:
       nr_ = AES192_ROUNDS;
-      nk_ = AES192_KEY_CONV_SIZE;
-      memcpy(k, key, AES192_KEY_BYTE_SIZE);
       expand_192bit_key(key, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
     case AES256_KEY_BYTE_SIZE:
       nr_ = AES256_ROUNDS;
-      nk_ = AES256_KEY_CONV_SIZE;
-      memcpy(k, key, AES256_KEY_BYTE_SIZE);
       expand_256bit_key(key, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
@@ -252,7 +244,6 @@ int32_t aes_ni::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8
 
 void aes_ni::clear() noexcept {
   nr_ = 0;
-  nk_ = 0;
   has_subkeys_ = true;
   memset(encskeys_, 0xCC, sizeof(encskeys_));
   memset(decskeys_, 0xCC, sizeof(decskeys_));
@@ -277,19 +268,17 @@ void aes_ni::expand_128bit_key(const uint8_t * const key, __m128i *encskeys, __m
   EXPAND_128BIT_KEY(encskeys, 10, t1, t2, t3, RCON10);
 
   /* EqInvCipher */
-  decskeys[0] = encskeys[0];
-
-  decskeys[1] = _mm_aesimc_si128(encskeys[1]);
-  decskeys[2] = _mm_aesimc_si128(encskeys[2]);
-  decskeys[3] = _mm_aesimc_si128(encskeys[3]);
-  decskeys[4] = _mm_aesimc_si128(encskeys[4]);
-  decskeys[5] = _mm_aesimc_si128(encskeys[5]);
-  decskeys[6] = _mm_aesimc_si128(encskeys[6]);
-  decskeys[7] = _mm_aesimc_si128(encskeys[7]);
-  decskeys[8] = _mm_aesimc_si128(encskeys[8]);
-  decskeys[9] = _mm_aesimc_si128(encskeys[9]);
-
-  decskeys[nr_] = encskeys[nr_];
+  decskeys[0]  = encskeys[0];   
+  decskeys[1]  = _mm_aesimc_si128(encskeys[1]);
+  decskeys[2]  = _mm_aesimc_si128(encskeys[2]);
+  decskeys[3]  = _mm_aesimc_si128(encskeys[3]);
+  decskeys[4]  = _mm_aesimc_si128(encskeys[4]);
+  decskeys[5]  = _mm_aesimc_si128(encskeys[5]);
+  decskeys[6]  = _mm_aesimc_si128(encskeys[6]);
+  decskeys[7]  = _mm_aesimc_si128(encskeys[7]);
+  decskeys[8]  = _mm_aesimc_si128(encskeys[8]);
+  decskeys[9]  = _mm_aesimc_si128(encskeys[9]);
+  decskeys[10] = encskeys[10];
 }
 
 void aes_ni::expand_192bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept {
@@ -314,8 +303,7 @@ void aes_ni::expand_192bit_key(const uint8_t * const key, __m128i *encskeys, __m
   EXPAND_192BIT_KEY2(encskeys, 12, k1, k2, f, t1, t2, RCON08);
 
   /* EqInvCipher */
-  decskeys[0] = encskeys[0];
-
+  decskeys[0]  = encskeys[0];
   decskeys[1]  = _mm_aesimc_si128(encskeys[1]);
   decskeys[2]  = _mm_aesimc_si128(encskeys[2]);
   decskeys[3]  = _mm_aesimc_si128(encskeys[3]);
@@ -327,8 +315,7 @@ void aes_ni::expand_192bit_key(const uint8_t * const key, __m128i *encskeys, __m
   decskeys[9]  = _mm_aesimc_si128(encskeys[9]);
   decskeys[10] = _mm_aesimc_si128(encskeys[10]);
   decskeys[11] = _mm_aesimc_si128(encskeys[11]);
-
-  decskeys[nr_] = encskeys[nr_];
+  decskeys[12] = encskeys[12];
 }
 
 void aes_ni::expand_256bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept {
@@ -362,8 +349,7 @@ void aes_ni::expand_256bit_key(const uint8_t * const key, __m128i *encskeys, __m
   EXPAND_256BIT_KEY1(encskeys, 14, k1, k2, f, t1, t2, RCON07);
 
   /* EqInvCipher */
-  decskeys[0] = encskeys[0];
-
+  decskeys[0]  = encskeys[0];
   decskeys[1]  = _mm_aesimc_si128(encskeys[1]);
   decskeys[2]  = _mm_aesimc_si128(encskeys[2]);
   decskeys[3]  = _mm_aesimc_si128(encskeys[3]);
@@ -377,9 +363,7 @@ void aes_ni::expand_256bit_key(const uint8_t * const key, __m128i *encskeys, __m
   decskeys[11] = _mm_aesimc_si128(encskeys[11]);
   decskeys[12] = _mm_aesimc_si128(encskeys[12]);
   decskeys[13] = _mm_aesimc_si128(encskeys[13]);
-
-  decskeys[nr_] = encskeys[nr_];
+  decskeys[14] = encskeys[14];
 }
-
 
 }

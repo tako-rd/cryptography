@@ -7,15 +7,14 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "defs.h"
-#include "block_cipher.h"
+#include "secret_key.h"
 
 #ifndef CAST256_H
 #define CAST256_H
 
 namespace cryptography {
 
-class cast256 final : public algorithm<cast256> {
+class cast256 final : public secret_key_interface<cast256> {
 public:
   cast256() noexcept : km_{0}, kr_{0}, has_subkeys_(false) {};
 

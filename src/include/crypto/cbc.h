@@ -15,7 +15,7 @@
 
 namespace cryptography {
 
-class cbc : mode<cbc> {
+class cbc : mode_interface<cbc> {
 public:
   cbc() : type_(DEFAULT), iv_(nullptr), key_(nullptr), key_size_(0), is_processing_(false), cursor_(0), unit_size_(0) {} ; 
 

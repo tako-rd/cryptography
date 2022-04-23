@@ -15,7 +15,7 @@
 
 namespace cryptography {
 
-class ofb : mode<ofb> {
+class ofb : mode_interface<ofb> {
  public:
   ofb() : type_(DEFAULT), iv_(nullptr), key_(nullptr), key_size_(0), input_(nullptr), is_processing_(false), cursor_(0), unit_size_(0) {};
 

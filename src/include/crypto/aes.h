@@ -7,18 +7,16 @@
 * see https://opensource.org/licenses/MIT
 */
 
+#include "secret_key.h"
+
 #ifndef AES_H
 #define AES_H
-
-#include "defs.h"
-
-#include "block_cipher.h"
 
 namespace cryptography {
 
 #define SPEED_PRIORITY_AES    1
 
-class aes final : algorithm<aes> { 
+class aes final : public secret_key_interface<aes> { 
  public:
   aes() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
 
@@ -68,9 +66,9 @@ class aes final : algorithm<aes> {
   bool has_subkeys_;
 };
 
-class aes_ni final : algorithm<aes_ni> { 
+class aes_ni final : secret_key_interface<aes_ni> { 
 public:
-  aes_ni() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
+  aes_ni() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), has_subkeys_(false) {};
 
   ~aes_ni();
 
@@ -94,8 +92,6 @@ private:
   __m128i decskeys_[15];
 
   int32_t nr_;
-
-  int32_t nk_;
 
   bool has_subkeys_;
 };

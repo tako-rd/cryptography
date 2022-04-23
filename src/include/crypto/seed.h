@@ -7,7 +7,7 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "algorithm.h"
+#include "secret_key.h"
 
 #ifndef SEED_H
 #define SEED_H
@@ -16,7 +16,7 @@ namespace cryptography {
 
 #define SPEED_PRIORITY_SEED   1
 
-class seed final : public algorithm<seed> {
+class seed final : public secret_key_interface<seed> {
  public:
   seed() noexcept : subkey_{0}, has_subkeys_(false) {};
 

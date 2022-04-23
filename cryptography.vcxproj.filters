@@ -54,13 +54,7 @@
     <ClInclude Include="src\include\common\cpu.h">
       <Filter>include\common</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\crypto\block_cipher.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
     <ClInclude Include="src\include\crypto\mode.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\algorithm.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
     <ClInclude Include="src\include\common\padding.h">
@@ -112,6 +106,9 @@
       <Filter>include\crypto</Filter>
     </ClInclude>
     <ClInclude Include="src\include\crypto\twofish.h">
+      <Filter>include\crypto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key.h">
       <Filter>include\crypto</Filter>
     </ClInclude>
   </ItemGroup>

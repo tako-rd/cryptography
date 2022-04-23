@@ -15,7 +15,7 @@
 
 namespace cryptography {
 
-class cfb : mode<cfb> {
+class cfb : mode_interface<cfb> {
  public:
   cfb() : type_(DEFAULT), iv_(nullptr), key_(nullptr), key_size_(0), input_(nullptr), is_processing_(false), cursor_(0), unit_size_(0) {};
 

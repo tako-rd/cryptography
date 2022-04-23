@@ -15,7 +15,7 @@
 
 namespace cryptography {
 
-class ctr : mode<ctr> {
+class ctr : mode_interface<ctr> {
  public:
   ctr() : type_(DEFAULT), iv_(nullptr), key_size_(0), input_(nullptr), is_processing_(false), keycsr_(0), cursor_(0), unit_size_(0), counter_(0) {};
 

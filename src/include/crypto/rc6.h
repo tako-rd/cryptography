@@ -7,14 +7,14 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "algorithm.h"
+#include "secret_key.h"
 
 #ifndef RC6_H
 #define RC6_H
 
 namespace cryptography {
 
-class rc6 final : public algorithm<rc6> {
+class rc6 final : public secret_key_interface<rc6> {
  public:
   rc6() noexcept : subkeys_{0}, ksize_(0), has_subkeys_(false) {};
 

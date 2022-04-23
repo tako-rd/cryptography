@@ -7,14 +7,14 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "algorithm.h"
+#include "secret_key.h"
 
 #ifndef TWOFISH_H
 #define TWOFISH_H
 
 namespace cryptography {
 
-class twofish final : public algorithm<twofish> {
+class twofish final : public secret_key_interface<twofish> {
  public:
   twofish() noexcept : subkey_{0}, has_subkeys_(false) {};
 
@@ -56,6 +56,7 @@ class twofish final : public algorithm<twofish> {
 
   uint8_t q1_[256];
 #endif
+
   uint32_t mds_sbox0_[256];
 
   uint32_t mds_sbox1_[256];

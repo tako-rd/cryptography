@@ -7,15 +7,14 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "defs.h"
-#include "block_cipher.h"
+#include "secret_key.h"
 
 #ifndef CAST128_H
 #define CAST128_H
 
 namespace cryptography {
 
-class cast128 final : public algorithm<cast128> {
+class cast128 final : public secret_key_interface<cast128> {
  public:
   cast128() noexcept : km_{0}, kr_{0}, has_subkeys_(false), is_12round_(false) {};
 

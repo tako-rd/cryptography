@@ -898,8 +898,8 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
                       mixed_invsbox_dbe9[sbox[(uint8_t)(encskeys[k + 1] >>  8) & 0x0000'00FF]] ^ 
                       mixed_invsbox_9dbe[sbox[(uint8_t)(encskeys[k + 1] >>  0) & 0x0000'00FF]];
 
-    decskeys[k + 2] = mixed_invsbox_e9db[sbox[(uint8_t)(encskeys[k + 2] >> 24) & 0x0000'00FF]]  ^ 
-                      mixed_invsbox_be9d[sbox[(uint8_t)(encskeys[k + 2] >> 16) & 0x0000'00FF]]  ^ 
+    decskeys[k + 2] = mixed_invsbox_e9db[sbox[(uint8_t)(encskeys[k + 2] >> 24) & 0x0000'00FF]] ^ 
+                      mixed_invsbox_be9d[sbox[(uint8_t)(encskeys[k + 2] >> 16) & 0x0000'00FF]] ^ 
                       mixed_invsbox_dbe9[sbox[(uint8_t)(encskeys[k + 2] >>  8) & 0x0000'00FF]] ^ 
                       mixed_invsbox_9dbe[sbox[(uint8_t)(encskeys[k + 2] >>  0) & 0x0000'00FF]];
 
