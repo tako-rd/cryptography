@@ -12,11 +12,10 @@
 
 #include "gtest/gtest.h"
 #include "gtest_cfb_defs.h"
-#include "aes.h"
 
-#include "cfb.h"
+#include "secret_key.h"
 
-class GTestCfb : public ::testing::Test {
+class GTestCFB : public ::testing::Test {
 public:
   virtual void SetUp() {};
 

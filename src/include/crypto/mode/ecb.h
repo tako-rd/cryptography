@@ -24,7 +24,7 @@ using ECB = ecb<Cryptosystem, UnitSize>;
 template <typename Cryptosystem, uint32_t UnitSize>
 class ecb : private mode<Cryptosystem, UnitSize> {
  public:
-  ecb() {};
+  ecb() noexcept {};
 
   ~ecb() {};
 

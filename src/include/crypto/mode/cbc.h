@@ -26,7 +26,7 @@ using CBC = cbc<Cryptosystem, UnitSize>;
 template <typename Cryptosystem, uint32_t UnitSize>
 class cbc : private mode<Cryptosystem, UnitSize> {
  public:
-  cbc() {};
+  cbc() noexcept : iv_{0} {};
 
   ~cbc() {};
 

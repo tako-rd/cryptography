@@ -38,7 +38,7 @@
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes.h" />
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h" />
-    <ClInclude Include="crypto\gtest_camellia\gtest_camellia128.h" />
+    <ClInclude Include="crypto\gtest_camellia\gtest_camellia.h" />
     <ClInclude Include="crypto\gtest_camellia\gtest_camellia_defs.h" />
     <ClInclude Include="crypto\gtest_cast128\gtest_cast128.h" />
     <ClInclude Include="crypto\gtest_cast128\gtest_cast128_defs.h" />
@@ -46,6 +46,8 @@
     <ClInclude Include="crypto\gtest_cast256\gtest_cast256_defs.h" />
     <ClInclude Include="crypto\gtest_cbc\gtest_cbc.h" />
     <ClInclude Include="crypto\gtest_cbc\gtest_cbc_defs.h" />
+    <ClInclude Include="crypto\gtest_cfb\gtest_cfb.h" />
+    <ClInclude Include="crypto\gtest_cfb\gtest_cfb_defs.h" />
     <ClInclude Include="crypto\gtest_des\gtest_des.h" />
     <ClInclude Include="crypto\gtest_des\gtest_des_defs.h" />
     <ClInclude Include="crypto\gtest_ecb\gtest_ecb.h" />
@@ -59,10 +61,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_aes\gtest_aes.cc" />
-    <ClCompile Include="crypto\gtest_camellia\gtest_camellia128.cc" />
+    <ClCompile Include="crypto\gtest_camellia\gtest_camellia.cc" />
     <ClCompile Include="crypto\gtest_cast128\gtest_cast128.cc" />
     <ClCompile Include="crypto\gtest_cast256\gtest_cast256.cc" />
     <ClCompile Include="crypto\gtest_cbc\gtest_cbc.cc" />
+    <ClCompile Include="crypto\gtest_cfb\gtest_cfb.cc" />
     <ClCompile Include="crypto\gtest_des\gtest_des.cc" />
     <ClCompile Include="crypto\gtest_ecb\gtest_ecb.cc" />
     <ClCompile Include="crypto\gtest_rc6\gtest_rc6.cc" />

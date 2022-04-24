@@ -105,6 +105,9 @@
     <ClInclude Include="src\include\crypto\mode\cbc.h">
       <Filter>include\crypto\mode</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\crypto\mode\cfb.h">
+      <Filter>include\crypto\mode</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc">
@@ -144,6 +147,9 @@
       <Filter>src\crypto\mode</Filter>
     </ClCompile>
     <ClCompile Include="src\crypto\mode\cbc.cc">
+      <Filter>src\crypto\mode</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\mode\cfb.cc">
       <Filter>src\crypto\mode</Filter>
     </ClCompile>
   </ItemGroup>

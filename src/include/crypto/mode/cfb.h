@@ -10,11 +10,37 @@
 #ifndef CFB_H
 #define CFB_H
 
-#include "defs.h"
-#include "mode.h"
+#include <string.h>
+
+#include "crypto/mode/mode.h"
 
 namespace cryptography {
 
+/* Prototype declaration of class. */
+template <typename Cryptosystem, uint32_t UnitSize> class cfb;
+
+/* Alias declaration */
+template <typename Cryptosystem, uint32_t UnitSize>
+using CFB = cfb<Cryptosystem, UnitSize>;
+
+template <typename Cryptosystem, uint32_t UnitSize>
+class cfb : private mode<Cryptosystem, UnitSize> {
+ public:
+  cfb() noexcept {};
+
+  ~cfb() {};
+
+  int32_t initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept;
+
+  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+
+  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+
+ private:
+  uint8_t iv_[UnitSize];
+};
+
+#if 0
 class cfb : mode<cfb> {
  public:
   cfb() : type_(DEFAULT), iv_(nullptr), key_(nullptr), key_size_(0), input_(nullptr), is_processing_(false), cursor_(0), unit_size_(0) {};
@@ -48,7 +74,7 @@ class cfb : mode<cfb> {
 
   uint64_t unit_size_;
 };
-
+#endif
 }
 
 #endif

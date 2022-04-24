@@ -30,17 +30,20 @@ int32_t cbc<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32
 
 template <typename Cryptosystem, uint32_t UnitSize>
 int32_t cbc<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  uint8_t *mask = iv_;
   uint8_t pbuf[UnitSize] = {0};
 
   if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
-  for (uint32_t byte = 0; byte < psize; byte += UnitSize) {
+
+  for (uint32_t i = 0; i < UnitSize; ++i) {
+    pbuf[i] = ptext[i] ^ iv_[i];
+  }
+  (*this).secret_key_cryptosystem_.encrypt(pbuf, UnitSize, ctext, UnitSize);
+
+  for (uint32_t byte = UnitSize; byte < psize; byte += UnitSize) {
     for (uint32_t i = 0; i < UnitSize; ++i) {
-      pbuf[i] = ptext[byte + i] ^ mask[i];
+      pbuf[i] = ptext[byte + i] ^ ctext[byte + i - UnitSize];
     }
     (*this).secret_key_cryptosystem_.encrypt(pbuf, UnitSize, &ctext[byte], UnitSize);
-
-    mask = &ctext[byte];
   }
   return SUCCESS;
 }

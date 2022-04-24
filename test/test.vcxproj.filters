@@ -52,6 +52,9 @@
     <Filter Include="crypto\mode\gtest_cbc">
       <UniqueIdentifier>{7b864dda-e59d-475c-b889-3d24eaa39cdb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\mode\gtest_cfb">
+      <UniqueIdentifier>{1708af14-7a9f-4139-8ae1-30d16b39a818}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -64,9 +67,6 @@
       <Filter>crypto\sercret_key\gtest_des</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_camellia\gtest_camellia_defs.h">
-      <Filter>crypto\sercret_key\gtest_camelia</Filter>
-    </ClInclude>
-    <ClInclude Include="crypto\gtest_camellia\gtest_camellia128.h">
       <Filter>crypto\sercret_key\gtest_camelia</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_seed\gtest_seed.h">
@@ -114,13 +114,19 @@
     <ClInclude Include="crypto\gtest_cbc\gtest_cbc_defs.h">
       <Filter>crypto\mode\gtest_cbc</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_camellia\gtest_camellia.h">
+      <Filter>crypto\sercret_key\gtest_camelia</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_cfb\gtest_cfb.h">
+      <Filter>crypto\mode\gtest_cfb</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_cfb\gtest_cfb_defs.h">
+      <Filter>crypto\mode\gtest_cfb</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_des\gtest_des.cc">
       <Filter>crypto\sercret_key\gtest_des</Filter>
-    </ClCompile>
-    <ClCompile Include="crypto\gtest_camellia\gtest_camellia128.cc">
-      <Filter>crypto\sercret_key\gtest_camelia</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_seed\gtest_seed.cc">
       <Filter>crypto\sercret_key\gtest_seed</Filter>
@@ -145,6 +151,12 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_cbc\gtest_cbc.cc">
       <Filter>crypto\mode\gtest_cbc</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_camellia\gtest_camellia.cc">
+      <Filter>crypto\sercret_key\gtest_camelia</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_cfb\gtest_cfb.cc">
+      <Filter>crypto\mode\gtest_cfb</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
