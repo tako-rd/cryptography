@@ -7,9 +7,9 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "aes.h"
-#include "bit_utill.h"
-#include "byte_utill.h"
+#include "crypto/secret_key/aes.h"
+#include "common/bit_utill.h"
+#include "common/byte_utill.h"
 
 namespace cryptography {
 

@@ -9,7 +9,7 @@
 
 #include <stdlib.h>
 
-#include "defs.h"
+#include "common/defs.h"
 
 #ifndef BIT_UTILL_H
 #define BIT_UTILL_H

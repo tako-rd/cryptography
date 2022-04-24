@@ -34,6 +34,15 @@
     <Filter Include="src\crypto\pubkey">
       <UniqueIdentifier>{b596b397-397d-4e25-b3eb-3149babb30c5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\crypto\secret_key">
+      <UniqueIdentifier>{1dfcabf5-7ec7-4f5d-bbd9-7e65e7f46848}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\crypto\public_key">
+      <UniqueIdentifier>{68109000-b864-4f89-b0d2-dddba7891b91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\crypto\mode">
+      <UniqueIdentifier>{46c0865c-d25b-4970-9d3b-dbd6f8206705}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\include\cryptography.h">
@@ -41,30 +50,6 @@
     </ClInclude>
     <ClInclude Include="src\include\common\base64.h">
       <Filter>include\common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\aes.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\des.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\rsa.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\common\cpu.h">
-      <Filter>include\common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\common\padding.h">
-      <Filter>include\common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\common\key_generator.h">
-      <Filter>include\common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\common\key_ring.h">
-      <Filter>include\common</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\camellia.h">
-      <Filter>include\crypto</Filter>
     </ClInclude>
     <ClInclude Include="src\include\common\byte_utill.h">
       <Filter>include\common</Filter>
@@ -75,72 +60,87 @@
     <ClInclude Include="src\include\common\defs.h">
       <Filter>include\common</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\crypto\seed.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\rc6.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\cast128.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\cast256.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
-    <ClInclude Include="src\include\crypto\twofish.h">
-      <Filter>include\crypto</Filter>
-    </ClInclude>
     <ClInclude Include="src\include\common\simd.h">
       <Filter>include\common</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\crypto\secret_key_base.h">
-      <Filter>include\crypto</Filter>
+    <ClInclude Include="src\include\crypto\secret_key\aes.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\camellia.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\cast128.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\cast256.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\des.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\rc6.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\secret_key_base.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\seed.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\twofish.h">
+      <Filter>include\crypto\secret_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\public_key\rsa.h">
+      <Filter>include\crypto\public_key</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\mode\ecb.h">
+      <Filter>include\crypto\mode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\mode\mode.h">
+      <Filter>include\crypto\mode</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\crypto\secret_key\secret_key.h">
+      <Filter>include\crypto\secret_key</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc">
       <Filter>src\common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\padding.cc">
-      <Filter>src\common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\common\cpu.cc">
-      <Filter>src\common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\common\key_generator.cc">
-      <Filter>src\common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\common\key_ring.cc">
-      <Filter>src\common</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\aes.cc">
+    <ClCompile Include="src\crypto\secret_key\aes.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\camellia.cc">
+    <ClCompile Include="src\crypto\secret_key\aes_ni.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\seed.cc">
+    <ClCompile Include="src\crypto\secret_key\camellia.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\rc6.cc">
+    <ClCompile Include="src\crypto\secret_key\cast128.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\des.cc">
+    <ClCompile Include="src\crypto\secret_key\cast256.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\rsa.cc">
+    <ClCompile Include="src\crypto\secret_key\des.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\secret_key\rc6.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\secret_key\seed.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\secret_key\twofish.cc">
+      <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\crypto\public_key\rsa.cc">
       <Filter>src\crypto\pubkey</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\cast128.cc">
-      <Filter>src\crypto\seckey</Filter>
+    <ClCompile Include="src\crypto\mode\ecb.cc">
+      <Filter>src\crypto\mode</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\cast256.cc">
-      <Filter>src\crypto\seckey</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\twofish.cc">
-      <Filter>src\crypto\seckey</Filter>
-    </ClCompile>
-    <ClCompile Include="src\crypto\aes_ni.cc">
+    <ClCompile Include="src\crypto\secret_key\aes_base.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
   </ItemGroup>

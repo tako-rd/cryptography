@@ -7,10 +7,10 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "secret_key_base.h"
-
 #ifndef TWOFISH_H
 #define TWOFISH_H
+
+#include "crypto/secret_key/secret_key_base.h"
 
 namespace cryptography {
 

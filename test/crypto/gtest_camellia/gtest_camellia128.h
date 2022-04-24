@@ -11,9 +11,6 @@
 #define GTEST_CAMELLIA128_H
 
 #include "gtest/gtest.h"
-
-#include "defs.h"
-#include "block_cipher.h"
 #include "gtest_camellia_defs.h"
 
 #include "camellia.h"

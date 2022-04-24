@@ -7,18 +7,18 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "secret_key_base.h"
+#ifndef CAST256_H
+#define CAST256_H
 
-#ifndef CAST128_H
-#define CAST128_H
+#include "crypto/secret_key/secret_key_base.h"
 
 namespace cryptography {
 
-class cast128 final : public secret_key_interface<cast128> {
- public:
-  cast128() noexcept : km_{0}, kr_{0}, has_subkeys_(false), is_12round_(false) {};
+class cast256 final : public secret_key_interface<cast256> {
+public:
+  cast256() noexcept : km_{0}, kr_{0}, has_subkeys_(false) {};
 
-  ~cast128() {};
+  ~cast256() {};
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 
@@ -28,25 +28,22 @@ class cast128 final : public secret_key_interface<cast128> {
 
   void clear() noexcept;
 
- private:
+private:
   void expand_key(const uint32_t * const key, uint32_t *km, uint32_t *kr) noexcept;
 
-  uint32_t fa_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
- 
-  uint32_t fb_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
+  uint32_t f1_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
 
-  uint32_t fc_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
+  uint32_t f2_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
 
-  uint32_t km_[16];
+  uint32_t f3_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept;
 
-  uint32_t kr_[16];
+  uint32_t km_[48];
+
+  uint32_t kr_[48];
 
   bool has_subkeys_;
-
-  bool is_12round_;
 };
 
 }
 
 #endif
-

@@ -7,18 +7,20 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "secret_key_base.h"
+#ifndef SEED_H
+#define SEED_H
 
-#ifndef RC6_H
-#define RC6_H
+#include "crypto/secret_key/secret_key_base.h"
 
 namespace cryptography {
 
-class rc6 final : public secret_key_interface<rc6> {
- public:
-  rc6() noexcept : subkeys_{0}, ksize_(0), has_subkeys_(false) {};
+#define SPEED_PRIORITY_SEED   1
 
-  ~rc6() {};
+class seed final : public secret_key_interface<seed> {
+ public:
+  seed() noexcept : subkey_{0}, has_subkeys_(false) {};
+
+  ~seed() {};
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 
@@ -29,11 +31,13 @@ class rc6 final : public secret_key_interface<rc6> {
   void clear() noexcept;
 
  private:
-  void expand_key(uint32_t *key, uint32_t *skeys, const uint32_t ksize) noexcept;
+  void expand_key(uint64_t *key, uint64_t *skeys) const noexcept;
 
-  uint32_t subkeys_[44];
+  uint64_t f_function(uint64_t r, uint64_t k) const noexcept;
 
-  uint32_t ksize_;
+  uint32_t g_function(uint32_t r) const noexcept;
+
+  uint64_t subkey_[16];
 
   bool has_subkeys_;
 };

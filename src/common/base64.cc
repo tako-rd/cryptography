@@ -7,7 +7,7 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "base64.h"
+#include "common/base64.h"
 
 namespace cryptography {
 

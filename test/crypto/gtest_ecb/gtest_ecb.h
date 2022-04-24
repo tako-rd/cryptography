@@ -12,9 +12,8 @@
 
 #include "gtest/gtest.h"
 #include "gtest_ecb_defs.h"
-#include "aes.h"
 
-#include "ecb.h"
+#include "secret_key.h"
 
 class GTestEcb : public ::testing::Test {
 public:

@@ -8,12 +8,9 @@
 */
 
 #include "gtest/gtest.h"
-
-#include "defs.h"
-#include "block_cipher.h"
-#include "aes.h"  // Test target.
-
 #include "gtest_aes_defs.h"
+
+#include "aes.h"
 
 #ifndef GTEST_AES128_H
 #define GTEST_AES128_H

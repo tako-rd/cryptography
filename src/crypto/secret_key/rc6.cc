@@ -7,9 +7,9 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "rc6.h"
-#include "bit_utill.h"
-#include "byte_utill.h"
+#include "crypto/secret_key/rc6.h"
+#include "common/bit_utill.h"
+#include "common/byte_utill.h"
 
 namespace cryptography {
 

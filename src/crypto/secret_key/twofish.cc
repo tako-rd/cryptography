@@ -7,9 +7,9 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "twofish.h"
-#include "bit_utill.h"
-#include "byte_utill.h"
+#include "crypto/secret_key/twofish.h"
+#include "common/bit_utill.h"
+#include "common/byte_utill.h"
 
 namespace cryptography {
 
@@ -395,7 +395,6 @@ inline void twofish::expand_key(const uint32_t * const key, uint32_t *skeys) noe
   uint32_t s[4] = {0};
   uint32_t a = 0;
   uint32_t b = 0;
-  uint32_t tmpsbox = 0;
   uint8_t bk[32] = {0};
 
   LITTLEENDIAN_32BIT_U256_TO_U8_COPY(key, bk);

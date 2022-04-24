@@ -7,13 +7,13 @@
 * see https://opensource.org/licenses/MIT
 */
 
+#ifndef BYTE_UTILL_H
+#define BYTE_UTILL_H
+
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "defs.h"
-
-#ifndef BYTE_UTILL_H
-#define BYTE_UTILL_H
+#include "common/defs.h"
 
 #ifdef __LITTLE_ENDIAN__
 # ifdef _MSC_VER

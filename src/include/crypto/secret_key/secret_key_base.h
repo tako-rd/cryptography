@@ -7,13 +7,13 @@
 * see https://opensource.org/licenses/MIT
 */
 
+#ifndef SECRET_KEY_BASE_H
+#define SECRET_KEY_BASE_H
+
 #include <stdint.h>
 #include <type_traits>
 
-#include "simd.h"
-
-#ifndef SECRET_KEY_BASE_H
-#define SECRET_KEY_BASE_H
+#include "common/simd.h"
 
 namespace cryptography {
 

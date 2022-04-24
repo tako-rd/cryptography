@@ -7,16 +7,25 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "secret_key_base.h"
-
 #ifndef AES_H
 #define AES_H
+
+#include "crypto/secret_key/secret_key_base.h"
 
 namespace cryptography {
 
 #define SPEED_PRIORITY_AES    1
 
-class aes final : public secret_key_interface<aes> { 
+class aes_base {
+ public:
+  aes_base() noexcept {};
+
+  ~aes_base() {};
+
+  static const uint32_t unit_size = 16;
+};
+
+class aes final : public aes_base, public secret_key_interface<aes> { 
  public:
   aes() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
 
@@ -66,7 +75,7 @@ class aes final : public secret_key_interface<aes> {
   bool has_subkeys_;
 };
 
-class aes_ni final : secret_key_interface<aes_ni> { 
+class aes_ni final : public aes_base, public secret_key_interface<aes_ni> { 
 public:
   aes_ni() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), has_subkeys_(false) {};
 
