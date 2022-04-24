@@ -14,7 +14,16 @@
 
 namespace cryptography {
 
-class cast256 final : public secret_key_interface<cast256> {
+class cast256_base {
+ public:
+  cast256_base() {};
+
+  ~cast256_base() {};
+
+  static const uint32_t unit_size = 16;
+};
+
+class cast256 final : public cast256_base, public secret_key_interface<cast256> {
 public:
   cast256() noexcept : km_{0}, kr_{0}, has_subkeys_(false) {};
 

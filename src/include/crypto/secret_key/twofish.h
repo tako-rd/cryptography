@@ -14,7 +14,16 @@
 
 namespace cryptography {
 
-class twofish final : public secret_key_interface<twofish> {
+class twofish_base {
+ public:
+  twofish_base() {};
+
+  ~twofish_base() {};
+
+  static const uint32_t unit_size = 16;
+};
+
+class twofish final : public twofish_base, public secret_key_interface<twofish> {
  public:
   twofish() noexcept : subkey_{0}, has_subkeys_(false) {};
 

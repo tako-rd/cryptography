@@ -18,6 +18,12 @@
 
 namespace cryptography {
 
+/*!
+ * Use as follows.
+ *  secret_key<DES, CBC> des_cbc;
+ *  secret_key<AES, ECB> aes_ecb;
+ *  .. etc
+**/
 template <typename SecretKeyCryptosystem, template <typename T, uint32_t U> typename Mode>
 class secret_key {
  public:

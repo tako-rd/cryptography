@@ -16,7 +16,16 @@ namespace cryptography {
 
 #define SPEED_PRIORITY_SEED   1
 
-class seed final : public secret_key_interface<seed> {
+class seed_base {
+ public:
+  seed_base() {};
+
+  ~seed_base() {};
+
+  static const uint32_t unit_size = 16;
+};
+
+class seed final : public seed_base, public secret_key_interface<seed> {
  public:
   seed() noexcept : subkey_{0}, has_subkeys_(false) {};
 
