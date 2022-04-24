@@ -7,10 +7,10 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include <stdint.h>
-
 #ifndef GTEST_ECB_DEFS_H
 #define GTEST_ECB_DEFS_H
+
+#include <stdint.h>
 
 /**********************************************************************************/
 /* Quoted from below.                                                             */

@@ -14,6 +14,13 @@
 
 namespace cryptography {
 
+/* Prototype declaration of class. */
+class cast128_base;
+class cast128;
+
+/* Alias declaration */
+using CAST128 = cast128;
+
 class cast128_base {
  public:
   cast128_base() {};

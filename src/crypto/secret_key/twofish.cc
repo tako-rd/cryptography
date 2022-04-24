@@ -538,7 +538,6 @@ inline uint8_t twofish::fix_q(uint8_t x, const uint8_t * const t0, const uint8_t
 #endif
 inline void twofish::fix_s(uint32_t *s, uint32_t type) noexcept {
   uint8_t bs[4][4] = {0};
-  uint32_t z = 0;
 
   LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[0], bs[0]);
   LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[1], bs[1]);

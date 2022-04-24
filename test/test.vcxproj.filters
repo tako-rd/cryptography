@@ -46,6 +46,12 @@
     <Filter Include="crypto\sercret_key\gtest_des">
       <UniqueIdentifier>{fbc3f130-3dc4-4d7d-90c6-6506b9993fa4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\mode\gtest_ecb">
+      <UniqueIdentifier>{b5b8d6ef-6d25-47b7-889b-9617b9c49288}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\mode\gtest_cbc">
+      <UniqueIdentifier>{7b864dda-e59d-475c-b889-3d24eaa39cdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -97,10 +103,16 @@
       <Filter>crypto\sercret_key\gtest_aes</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_ecb\gtest_ecb.h">
-      <Filter>crypto\mode</Filter>
+      <Filter>crypto\mode\gtest_ecb</Filter>
     </ClInclude>
     <ClInclude Include="crypto\gtest_ecb\gtest_ecb_defs.h">
-      <Filter>crypto\mode</Filter>
+      <Filter>crypto\mode\gtest_ecb</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_cbc\gtest_cbc.h">
+      <Filter>crypto\mode\gtest_cbc</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_cbc\gtest_cbc_defs.h">
+      <Filter>crypto\mode\gtest_cbc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -129,7 +141,10 @@
       <Filter>crypto\sercret_key\gtest_aes</Filter>
     </ClCompile>
     <ClCompile Include="crypto\gtest_ecb\gtest_ecb.cc">
-      <Filter>crypto\mode</Filter>
+      <Filter>crypto\mode\gtest_ecb</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_cbc\gtest_cbc.cc">
+      <Filter>crypto\mode\gtest_cbc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

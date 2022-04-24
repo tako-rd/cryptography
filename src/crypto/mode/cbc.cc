@@ -7,194 +7,111 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "cbc.h"
-#include "aes.h"
-#include "camellia.h"
-#include "cast128.h"
-#include "cast256.h"
-#include "rc6.h"
-#include "seed.h"
-#include "twofish.h"
+#include "crypto/mode/cbc.h"
 
 namespace cryptography {
 
-#define DES_UNIT_SIZE     8
-#define AES_UNIT_SIZE     16
-
 #define SUCCESS           0
 #define FAILURE           1
-#define PROCEND           2
 
-#if 0
-template int32_t cbc<aes, uint32_t>::initialize(const uint16_t type, uint8_t *iv, const uint64_t iv_size) noexcept;
-template int32_t cbc<aes, uint32_t>::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept;
-template int32_t cbc<aes, uint32_t>::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept;
-template int32_t cbc<aes, uint32_t>::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept;
-template int32_t cbc<aes, uint32_t>::dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept;
-#endif
-
-template int32_t cbc<aes, uint32_t>::initialize(uint8_t *iv, const uint32_t iv_size) noexcept;
-template int32_t cbc<aes, uint32_t>::encrypt(uint8_t *ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t cbc<aes, uint32_t>::decrypt(uint8_t *ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-
-template <typename SharedKeyCryptosystem, typename UnitSize>
-int32_t cbc<SharedKeyCryptosystem, UnitSize>::initialize(uint8_t *iv, const uint32_t iv_size) noexcept {
-  return SUCCESS;
-}
-
-template <typename SharedKeyCryptosystem, typename UnitSize>
-int32_t cbc<SharedKeyCryptosystem, UnitSize>::encrypt(uint8_t *ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  uint32_t unit_size = unit_size_;
-  uint8_t buffer[16] = {0};
-
-  for (uint32_t byte = 0; byte < psize; byte += unit_size) {
-    (*this).secret_key_cryptosystem_.encrypt(ptext[byte], unit_size, ctext[byte], unit_size);
-  }
-
-  return SUCCESS;
-}
-
-template <typename SharedKeyCryptosystem, typename UnitSize>
-int32_t cbc<SharedKeyCryptosystem, UnitSize>::decrypt(uint8_t *ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  uint32_t unit_size = unit_size_;
-  uint8_t buffer[16] = {0};
-
-  for (uint32_t byte = 0; byte < psize; byte += unit_size) {
-    (*this).secret_key_cryptosystem_.decrypt(ctext[byte], unit_size, ptext[byte], unit_size);
-  }
-
-  return SUCCESS;
-}
-
-
-#if 0
-template <typename SharedKeyCryptosystem, typename UnitSize>
-int32_t cbc<SharedKeyCryptosystem, typename UnitSize>::initialize(const uint16_t type, uint8_t *iv, const uint64_t iv_size) noexcept {
-  type_ = type_t(type & EXTRACT_TYPE);
-  switch(type_) {
-    case DEFAULT:
-      unit_size_ = AES_UNIT_SIZE;
-    case SIMPLE_DES:
-      unit_size_ = DES_UNIT_SIZE;
-      break;
-    case AES128:
-    case AES192:
-    case AES256:
-      unit_size_ = AES_UNIT_SIZE;
-      break;
-    default:
-      break;
-  }
-
-  if (unit_size_ != iv_size) {
-    return FAILURE;
-  }
-  iv_ = iv;
-
-  return SUCCESS;
-}
-
-template <typename SharedKeyCryptosystem, typename UnitSize>
-int32_t cbc<SharedKeyCryptosystem, typename UnitSize>::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept {
-  const uint64_t cursor_end = cursor_ + unit_size_;
-
-  if (cbsize != unit_size_) {
+template <typename Cryptosystem, uint32_t UnitSize>
+int32_t cbc<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept {
+  if (FAILURE == (*this).secret_key_cryptosystem_.initialize(key, ksize)) {
     return FAILURE;
   }
 
-  if (false == is_processing_) {
-    key_size_ = psize;
-    is_processing_ = true;
-  } 
+  if (UnitSize != ivsize) {
+    return FAILURE;
+  }
+  memcpy(iv_, iv, UnitSize);
 
-  if (0 == cursor_) { 
-    for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      cbuf[outcsr] = ptext[incsr] ^ iv_[outcsr];
+  return SUCCESS;
+}
+
+template <typename Cryptosystem, uint32_t UnitSize>
+int32_t cbc<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+  uint8_t *mask = iv_;
+  uint8_t pbuf[UnitSize] = {0};
+
+  if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
+  for (uint32_t byte = 0; byte < psize; byte += UnitSize) {
+    for (uint32_t i = 0; i < UnitSize; ++i) {
+      pbuf[i] = ptext[byte + i] ^ mask[i];
     }
-  } else {
-    for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      cbuf[outcsr] = ptext[incsr] ^ key_[incsr - unit_size_];
+    (*this).secret_key_cryptosystem_.encrypt(pbuf, UnitSize, &ctext[byte], UnitSize);
+
+    mask = &ctext[byte];
+  }
+  return SUCCESS;
+}
+
+template <typename Cryptosystem, uint32_t UnitSize>
+int32_t cbc<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+  if (0 != csize % UnitSize && 0 != psize % UnitSize) { return FAILURE; }
+
+  (*this).secret_key_cryptosystem_.decrypt(ctext, UnitSize, ptext, UnitSize);
+  for (uint32_t i = 0; i < UnitSize; ++i) {
+    ptext[i] = ptext[i] ^ iv_[i];
+  }
+
+  for (uint32_t byte = UnitSize; byte < csize; byte += UnitSize) {
+    (*this).secret_key_cryptosystem_.decrypt(&ctext[byte], UnitSize, &ptext[byte], UnitSize);
+
+    for (uint32_t i = 0; i < UnitSize; ++i) {
+      ptext[byte + i] = ptext[byte + i] ^ ctext[byte + i - UnitSize];
     }
   }
   return SUCCESS;
 }
 
-template <typename SharedKeyCryptosystem, typename UnitSize>
-int32_t cbc<SharedKeyCryptosystem, typename UnitSize>::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept {
-  uint64_t cursor_end = cursor_ + unit_size_;
+/********************************************************************************/
+/* Declaration of materialization.                                              */
+/* This class does not accept anything other than the following instantiations: */
+/********************************************************************************/
 
-  if (cbsize != unit_size_ && csize != key_size_) {
-    return FAILURE;
-  }
+/* AES */
+template int32_t cbc<aes, aes::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<aes, aes::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<aes, aes::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-  if (0 == cursor_) {
-    key_ = ctext; 
-  }
+/* AES-NI */
+template int32_t cbc<aes_ni, aes_ni::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<aes_ni, aes_ni::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<aes_ni, aes_ni::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-  for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
-    ctext[outcsr] = cbuf[incsr];
-  }
+/* Camellia */
+template int32_t cbc<camellia, camellia::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<camellia, camellia::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<camellia, camellia::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-  cursor_ += unit_size_;
-  if (cursor_ >= key_size_) {
-    key_ = nullptr;
-    key_size_ = 0;
-    is_processing_ = false;
-    cursor_ = 0;
+/* Cast128 */
+template int32_t cbc<cast128, cast128::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<cast128, cast128::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<cast128, cast128::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-    return PROCEND;
-  }
-  return SUCCESS;
-}
+/* Cast256 */
+template int32_t cbc<cast256, cast256::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<cast256, cast256::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<cast256, cast256::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-template <typename SharedKeyCryptosystem, typename UnitSize>
-int32_t cbc<SharedKeyCryptosystem, typename UnitSize>::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept {
-  const uint64_t cursor_end = cursor_ + unit_size_;
+/* DES */
+template int32_t cbc<des, des::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<des, des::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<des, des::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-  if (pbsize != unit_size_) {
-    return FAILURE;
-  }
+/* RC6 */
+template int32_t cbc<rc6, rc6::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<rc6, rc6::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<rc6, rc6::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-  if (false == is_processing_) {
-    key_ = ctext;
-    key_size_ = csize;
-    is_processing_ = true;
-  } 
+/* Seed */
+template int32_t cbc<seed, seed::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<seed, seed::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<seed, seed::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-  for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-    pbuf[outcsr] = ctext[incsr];
-  }
-  return SUCCESS;
-}
+/* twofish */
+template int32_t cbc<twofish, twofish::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t cbc<twofish, twofish::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t cbc<twofish, twofish::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-template <typename SharedKeyCryptosystem, typename UnitSize>
-int32_t cbc<SharedKeyCryptosystem, typename UnitSize>::dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept {
-  const uint64_t cursor_end = cursor_ + unit_size_;
-
-  if (pbsize != unit_size_ && psize != key_size_) {
-    return FAILURE;
-  }
-
-  if (0 == cursor_) {
-    for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
-      ptext[outcsr] = pbuf[incsr] ^ iv_[incsr];
-    }
-  } else {
-    for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
-      ptext[outcsr] = pbuf[incsr] ^ key_[outcsr - unit_size_];
-    }
-  }
-
-  cursor_ += unit_size_;
-  if (cursor_ >= key_size_) {
-    key_ = nullptr;
-    key_size_ = 0;
-    is_processing_ = false;
-    cursor_ = 0;
-
-    return PROCEND;
-  }
-  return SUCCESS;
-}
-#endif
 }

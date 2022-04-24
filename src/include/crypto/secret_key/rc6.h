@@ -14,6 +14,13 @@
 
 namespace cryptography {
 
+/* Prototype declaration of class. */
+class rc6_base;
+class rc6;
+
+/* Alias declaration */
+using RC6 = rc6;
+
 class rc6_base {
  public:
   rc6_base() {};

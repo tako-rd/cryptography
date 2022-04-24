@@ -16,6 +16,13 @@ namespace cryptography {
 
 #define SPEED_PRIORITY_SEED   1
 
+/* Prototype declaration of class. */
+class seed_base;
+class seed;
+
+/* Alias declaration */
+using SEED = seed;
+
 class seed_base {
  public:
   seed_base() {};

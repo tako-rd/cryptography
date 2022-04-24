@@ -12,11 +12,10 @@
 
 #include "gtest/gtest.h"
 #include "gtest_cbc_defs.h"
-#include "aes.h"
 
-#include "cbc.h"
+#include "secret_key.h"
 
-class GTestCbc : public ::testing::Test {
+class GTestCBC : public ::testing::Test {
 public:
   virtual void SetUp() {};
 

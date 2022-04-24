@@ -15,7 +15,7 @@
 
 #include "secret_key.h"
 
-class GTestEcb : public ::testing::Test {
+class GTestECB : public ::testing::Test {
 public:
   virtual void SetUp() {};
 

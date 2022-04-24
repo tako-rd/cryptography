@@ -8,9 +8,11 @@
 */
 
 #include "gtest_ecb.h"
-#include <map>
-TEST_F(GTestEcb, Normal_AES_ECB_001) {
-  cryptography::secret_key<cryptography::aes, cryptography::ecb> aes_ecb;
+
+using namespace cryptography;
+
+TEST_F(GTestECB, Normal_AES_ECB_001) {
+  secret_key<AES, ECB> aes_ecb;
   uint8_t origin_text[64] = {0};
   uint8_t ciphertext[64] = {0};
   uint8_t plaintext[64] = {0};

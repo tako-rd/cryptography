@@ -14,6 +14,13 @@
 
 namespace cryptography {
 
+/* Prototype declaration of class. */
+template <typename Cryptosystem, uint32_t UnitSize> class ecb;
+
+/* Alias declaration */
+template <typename Cryptosystem, uint32_t UnitSize>
+using ECB = ecb<Cryptosystem, UnitSize>;
+
 template <typename Cryptosystem, uint32_t UnitSize>
 class ecb : private mode<Cryptosystem, UnitSize> {
  public:
@@ -26,9 +33,6 @@ class ecb : private mode<Cryptosystem, UnitSize> {
   int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 
   int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-
- protected:
-  Cryptosystem secret_key_cryptosystem_;
 };
 
 }

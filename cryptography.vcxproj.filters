@@ -102,6 +102,9 @@
     <ClInclude Include="src\include\crypto\secret_key\secret_key.h">
       <Filter>include\crypto\secret_key</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\crypto\mode\cbc.h">
+      <Filter>include\crypto\mode</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc">
@@ -140,8 +143,8 @@
     <ClCompile Include="src\crypto\mode\ecb.cc">
       <Filter>src\crypto\mode</Filter>
     </ClCompile>
-    <ClCompile Include="src\crypto\secret_key\aes_base.cc">
-      <Filter>src\crypto\seckey</Filter>
+    <ClCompile Include="src\crypto\mode\cbc.cc">
+      <Filter>src\crypto\mode</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

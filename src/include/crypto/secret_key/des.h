@@ -14,6 +14,13 @@
 
 namespace cryptography {
 
+/* Prototype declaration of class. */
+class des_base;
+class des;
+
+/* Alias declaration */
+using DES = des;
+
 class des_base {
  public:
   des_base() {};

@@ -16,6 +16,13 @@ namespace cryptography {
 
 #define SPEED_PRIORITY_CAMELLIA    1
 
+/* Prototype declaration of class. */
+class camellia_base;
+class camellia;
+
+/* Alias declaration */
+using Camellia = camellia;
+
 class camellia_base {
  public:
   camellia_base() {};

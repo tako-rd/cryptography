@@ -15,6 +15,7 @@
 
 #include "crypto/mode/mode.h"
 #include "crypto/mode/ecb.h"
+#include "crypto/mode/cbc.h"
 
 namespace cryptography {
 
@@ -24,7 +25,7 @@ namespace cryptography {
  *  secret_key<AES, ECB> aes_ecb;
  *  .. etc
 **/
-template <typename SecretKeyCryptosystem, template <typename T, uint32_t U> typename Mode>
+template <typename SecretKeyCryptosystem, template <typename T, uint32_t U> class Mode>
 class secret_key {
  public:
   secret_key() {};
@@ -45,8 +46,7 @@ class secret_key {
 
   void clear() {
     cryptosystem_.clear();
-  };;
-
+  };
 
  private:
   Mode<SecretKeyCryptosystem, SecretKeyCryptosystem::unit_size> cryptosystem_;

@@ -22,7 +22,7 @@ int32_t ecb<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32
 template <typename Cryptosystem, uint32_t UnitSize>
 int32_t ecb<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
   if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
-  for (uint32_t byte = 0; byte < csize; byte += UnitSize) {
+  for (uint32_t byte = 0; byte < psize; byte += UnitSize) {
     (*this).secret_key_cryptosystem_.encrypt(&ptext[byte], UnitSize, &ctext[byte], UnitSize);
   }
   return SUCCESS;
@@ -37,9 +37,10 @@ int32_t ecb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const 
   return SUCCESS;
 }
 
-/**********************************/
-/* Declaration of materialization */
-/**********************************/
+/********************************************************************************/
+/* Declaration of materialization.                                              */
+/* This class does not accept anything other than the following instantiations: */
+/********************************************************************************/
 
 /* AES */
 template int32_t ecb<aes, aes::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;

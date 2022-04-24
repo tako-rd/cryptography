@@ -16,6 +16,15 @@ namespace cryptography {
 
 #define SPEED_PRIORITY_AES    1
 
+/* Prototype declaration of class. */
+class aes_base;
+class aes;
+class aes_ni;
+
+/* Alias declaration */
+using AES   = aes;
+using AESNI = aes_ni;
+
 class aes_base {
  public:
   aes_base() noexcept {};

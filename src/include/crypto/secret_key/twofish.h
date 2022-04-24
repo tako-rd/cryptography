@@ -14,6 +14,13 @@
 
 namespace cryptography {
 
+/* Prototype declaration of class. */
+class twofish_base;
+class twofish;
+
+/* Alias declaration */
+using Twofish = twofish;
+
 class twofish_base {
  public:
   twofish_base() {};

@@ -25,6 +25,7 @@
     <ClInclude Include="src\include\common\defs.h" />
     <ClInclude Include="src\include\common\simd.h" />
     <ClInclude Include="src\include\cryptography.h" />
+    <ClInclude Include="src\include\crypto\mode\cbc.h" />
     <ClInclude Include="src\include\crypto\mode\ecb.h" />
     <ClInclude Include="src\include\crypto\mode\mode.h" />
     <ClInclude Include="src\include\crypto\public_key\rsa.h" />
@@ -41,10 +42,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc" />
+    <ClCompile Include="src\crypto\mode\cbc.cc" />
     <ClCompile Include="src\crypto\mode\ecb.cc" />
     <ClCompile Include="src\crypto\public_key\rsa.cc" />
     <ClCompile Include="src\crypto\secret_key\aes.cc" />
-    <ClCompile Include="src\crypto\secret_key\aes_base.cc" />
     <ClCompile Include="src\crypto\secret_key\aes_ni.cc" />
     <ClCompile Include="src\crypto\secret_key\camellia.cc" />
     <ClCompile Include="src\crypto\secret_key\cast128.cc" />
