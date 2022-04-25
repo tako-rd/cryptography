@@ -15,7 +15,7 @@ namespace cryptography {
 #define FAILURE           1
 
 template <typename Cryptosystem, uint32_t UnitSize>
-int32_t cbc<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept {
+inline int32_t cbc<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept {
   if (FAILURE == (*this).secret_key_cryptosystem_.initialize(key, ksize)) {
     return FAILURE;
   }
@@ -29,7 +29,7 @@ int32_t cbc<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32
 }
 
 template <typename Cryptosystem, uint32_t UnitSize>
-int32_t cbc<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+inline int32_t cbc<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
   uint8_t pbuf[UnitSize] = {0};
 
   if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
@@ -49,7 +49,7 @@ int32_t cbc<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const 
 }
 
 template <typename Cryptosystem, uint32_t UnitSize>
-int32_t cbc<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+inline int32_t cbc<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
   if (0 != csize % UnitSize && 0 != psize % UnitSize) { return FAILURE; }
 
   (*this).secret_key_cryptosystem_.decrypt(ctext, UnitSize, ptext, UnitSize);

@@ -10,11 +10,38 @@
 #ifndef CTR_H
 #define CTR_H
 
-#include "defs.h"
-#include "mode.h"
+#include <string.h>
+
+#include "crypto/mode/mode.h"
 
 namespace cryptography {
 
+/* Prototype declaration of class. */
+template <typename Cryptosystem, uint32_t UnitSize> class ctr;
+
+/* Alias declaration */
+template <typename Cryptosystem, uint32_t UnitSize>
+using CTR = ctr<Cryptosystem, UnitSize>;
+
+template <typename Cryptosystem, uint32_t UnitSize>
+class ctr : private mode<Cryptosystem, UnitSize> {
+ public:
+  ctr() noexcept : iv_{0} {};
+
+  ~ctr() {};
+
+  int32_t initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept;
+
+  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+
+  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+
+ private:
+  uint8_t iv_[UnitSize];
+};
+
+
+#if 0
 class ctr : mode<ctr> {
  public:
   ctr() : type_(DEFAULT), iv_(nullptr), key_size_(0), input_(nullptr), is_processing_(false), keycsr_(0), cursor_(0), unit_size_(0), counter_(0) {};
@@ -52,7 +79,7 @@ class ctr : mode<ctr> {
 
   uint64_t counter_;
 };
+#endif
 
 }
-
 #endif

@@ -12,11 +12,10 @@
 
 #include "gtest/gtest.h"
 #include "gtest_ofb_defs.h"
-#include "aes.h"
 
-#include "ofb.h"
+#include "secret_key.h"
 
-class GTestOfb : public ::testing::Test {
+class GTestOFB : public ::testing::Test {
 public:
   virtual void SetUp() {};
 

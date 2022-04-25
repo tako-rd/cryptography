@@ -38,7 +38,6 @@ class cbc : private mode<Cryptosystem, UnitSize> {
 
  private:
   uint8_t iv_[UnitSize];
-
 };
 
 }

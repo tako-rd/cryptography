@@ -55,6 +55,12 @@
     <Filter Include="crypto\mode\gtest_cfb">
       <UniqueIdentifier>{1708af14-7a9f-4139-8ae1-30d16b39a818}</UniqueIdentifier>
     </Filter>
+    <Filter Include="crypto\mode\gtest_ofb">
+      <UniqueIdentifier>{b60b39eb-91a6-4baa-8314-ecaa479e625e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="crypto\mode\gtest_ctr">
+      <UniqueIdentifier>{ccd78a09-3700-41ad-bc9d-46395f67395c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -123,6 +129,18 @@
     <ClInclude Include="crypto\gtest_cfb\gtest_cfb_defs.h">
       <Filter>crypto\mode\gtest_cfb</Filter>
     </ClInclude>
+    <ClInclude Include="crypto\gtest_ofb\gtest_ofb.h">
+      <Filter>crypto\mode\gtest_ofb</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_ofb\gtest_ofb_defs.h">
+      <Filter>crypto\mode\gtest_ofb</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_ctr\gtest_ctr.h">
+      <Filter>crypto\mode\gtest_ctr</Filter>
+    </ClInclude>
+    <ClInclude Include="crypto\gtest_ctr\gtest_ctr_defs.h">
+      <Filter>crypto\mode\gtest_ctr</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_des\gtest_des.cc">
@@ -157,6 +175,12 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_cfb\gtest_cfb.cc">
       <Filter>crypto\mode\gtest_cfb</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_ofb\gtest_ofb.cc">
+      <Filter>crypto\mode\gtest_ofb</Filter>
+    </ClCompile>
+    <ClCompile Include="crypto\gtest_ctr\gtest_ctr.cc">
+      <Filter>crypto\mode\gtest_ctr</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -17,6 +17,7 @@
 #include "crypto/mode/ecb.h"
 #include "crypto/mode/cbc.h"
 #include "crypto/mode/cfb.h"
+#include "crypto/mode/ofb.h"
 
 namespace cryptography {
 

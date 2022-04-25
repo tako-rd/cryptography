@@ -7,140 +7,115 @@
 * see https://opensource.org/licenses/MIT
 */
 
-#include "ofb.h"
+#include "crypto/mode/ofb.h"
 
 namespace cryptography {
 
-#define DES_UNIT_SIZE     8
-#define AES_UNIT_SIZE     16
-
 #define SUCCESS           0
 #define FAILURE           1
-#define PROCEND           2
 
-int32_t ofb::initialize(const uint16_t type, uint8_t *iv, const uint64_t iv_size) noexcept {
-  type_ = type_t(type & EXTRACT_TYPE);
-  switch(type_) {
-    case DEFAULT:
-      unit_size_ = AES_UNIT_SIZE;
-    case SIMPLE_DES:
-      unit_size_ = DES_UNIT_SIZE;
-      break;
-    case AES128:
-    case AES192:
-    case AES256:
-      unit_size_ = AES_UNIT_SIZE;
-      break;
-    default:
-      break;
-  }
-
-  if (unit_size_ != iv_size) {
+template <typename Cryptosystem, uint32_t UnitSize>
+inline int32_t ofb<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept {
+  if (FAILURE == (*this).secret_key_cryptosystem_.initialize(key, ksize)) {
     return FAILURE;
   }
-  iv_ = iv;
+
+  if (UnitSize != ivsize) {
+    return FAILURE;
+  }
+  memcpy(iv_, iv, UnitSize);
 
   return SUCCESS;
 }
 
-int32_t ofb::enc_preprocess(uint8_t *ptext, const uint64_t psize, uint8_t *cbuf, const uint64_t cbsize) noexcept {
-  const uint64_t cursor_end = cursor_ + unit_size_;
+template <typename Cryptosystem, uint32_t UnitSize>
+inline int32_t ofb<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+  uint8_t mask[UnitSize] = {0};
 
-  if (cbsize != unit_size_) {
-    return FAILURE;
+  if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
+
+  (*this).secret_key_cryptosystem_.encrypt(iv_, UnitSize, mask, UnitSize);
+  for (uint32_t i = 0; i < UnitSize; ++i) {
+    ctext[i] = ptext[i] ^ mask[i];
   }
 
-  if (false == is_processing_) {
-    input_ = ptext;
-    key_size_ = psize;
-    is_processing_ = true;
-  } 
-
-  if (0 == cursor_) {
-    for (uint64_t outcsr = 0; outcsr < cursor_end; ++outcsr) {
-      cbuf[outcsr] = iv_[outcsr];
-    }
-  } else {
-    for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      cbuf[outcsr] = key_[outcsr];
+  for (uint32_t byte = UnitSize; byte < psize; byte += UnitSize) {
+    (*this).secret_key_cryptosystem_.encrypt(mask, UnitSize, mask, UnitSize);
+    for (uint32_t i = 0; i < UnitSize; ++i) {
+      ctext[byte + i] = ptext[byte + i] ^ mask[i];
     }
   }
   return SUCCESS;
 }
 
-int32_t ofb::enc_postprocess(uint8_t *cbuf, const uint64_t cbsize, uint8_t *ctext, const uint64_t csize) noexcept {
-  const uint64_t cursor_end = cursor_ + unit_size_;
+template <typename Cryptosystem, uint32_t UnitSize>
+inline int32_t ofb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+  uint8_t mask[UnitSize] = {0};
 
-  if (cbsize != unit_size_ && csize != key_size_) {
-    return FAILURE;
+  if (0 != csize % UnitSize && 0 != psize % UnitSize) { return FAILURE; }
+
+  (*this).secret_key_cryptosystem_.encrypt(iv_, UnitSize, mask, UnitSize);
+  for (uint32_t i = 0; i < UnitSize; ++i) {
+    ptext[i] = ctext[i] ^ mask[i];
   }
 
-  key_ = cbuf;
-  for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
-    ctext[outcsr] = input_[outcsr] ^ cbuf[incsr];
-  }
-
-  cursor_ += unit_size_;
-  if (cursor_ >= key_size_) {
-    key_ = nullptr;
-    key_size_ = 0;
-    input_ = nullptr;
-    is_processing_ = false;
-    cursor_ = 0;
-
-    return PROCEND;
-  }
-  return SUCCESS;
-}
-
-int32_t ofb::dec_preprocess(uint8_t *ctext, const uint64_t csize, uint8_t *pbuf, const uint64_t pbsize) noexcept {
-  const uint64_t cursor_end = cursor_ + unit_size_;
-
-  if (pbsize != unit_size_) {
-    return FAILURE;
-  }
-
-  if (false == is_processing_) {
-    input_ = ctext;
-    key_size_ = csize;
-    is_processing_ = true;
-  } 
-
-  if (0 == cursor_) {
-    for (uint64_t outcsr = 0; outcsr < cursor_end; ++outcsr) {
-      pbuf[outcsr] = iv_[outcsr];
-    }
-  } else {
-    for (uint64_t incsr = cursor_, outcsr = 0; incsr < cursor_end; ++incsr, ++outcsr) {
-      pbuf[outcsr] = key_[outcsr];
+  for (uint32_t byte = UnitSize; byte < psize; byte += UnitSize) {
+    (*this).secret_key_cryptosystem_.encrypt(mask, UnitSize, mask, UnitSize);
+    for (uint32_t i = 0; i < UnitSize; ++i) {
+      ptext[byte + i] = ctext[byte + i] ^ mask[i];
     }
   }
   return SUCCESS;
 }
 
-int32_t ofb::dec_postprocess(uint8_t *pbuf, const uint64_t pbsize, uint8_t *ptext, const uint64_t psize) noexcept {
-  const uint64_t cursor_end = cursor_ + unit_size_;
+/********************************************************************************/
+/* Declaration of materialization.                                              */
+/* This class does not accept anything other than the following instantiations: */
+/********************************************************************************/
 
-  if (pbsize != unit_size_ && psize != key_size_) {
-    return FAILURE;
-  }
+/* AES */
+template int32_t ofb<aes, aes::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<aes, aes::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<aes, aes::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-  key_ = pbuf;
-  for (uint64_t incsr = 0, outcsr = cursor_; outcsr < cursor_end; ++incsr, ++outcsr) {
-    ptext[outcsr] = input_[outcsr] ^ pbuf[incsr];
-  }
+/* AES-NI */
+template int32_t ofb<aes_ni, aes_ni::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<aes_ni, aes_ni::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<aes_ni, aes_ni::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-  cursor_ += unit_size_;
-  if (cursor_ >= key_size_) {
-    key_ = nullptr;
-    key_size_ = 0;
-    input_ = nullptr;
-    is_processing_ = false;
-    cursor_ = 0;
+/* Camellia */
+template int32_t ofb<camellia, camellia::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<camellia, camellia::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<camellia, camellia::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
-    return PROCEND;
-  }
-  return SUCCESS;
-}
+/* Cast128 */
+template int32_t ofb<cast128, cast128::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<cast128, cast128::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<cast128, cast128::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+
+/* Cast256 */
+template int32_t ofb<cast256, cast256::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<cast256, cast256::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<cast256, cast256::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+
+/* DES */
+template int32_t ofb<des, des::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<des, des::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<des, des::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+
+/* RC6 */
+template int32_t ofb<rc6, rc6::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<rc6, rc6::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<rc6, rc6::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+
+/* Seed */
+template int32_t ofb<seed, seed::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<seed, seed::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<seed, seed::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+
+/* twofish */
+template int32_t ofb<twofish, twofish::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ofb<twofish, twofish::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ofb<twofish, twofish::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
 }
