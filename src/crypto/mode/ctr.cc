@@ -30,14 +30,24 @@ inline int32_t ctr<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ctr<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+  uint64_t counter[UnitSize / 8] = {0};  /* The minimum size of iv is 64bit (8byte). */
+
   if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
+
+  memcpy(counter, iv_, sizeof(counter));
 
   return SUCCESS;
 }
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+  uint64_t counter[UnitSize / 8] = {0};  /* The minimum size of iv is 64bit (8byte). */
+
   if (0 != csize % UnitSize && 0 != psize % UnitSize) { return FAILURE; }
+
+  memcpy(counter, iv_, sizeof(counter));
+  
+  
 
   return SUCCESS;
 }

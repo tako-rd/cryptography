@@ -114,6 +114,9 @@
     <ClInclude Include="src\include\crypto\mode\ctr.h">
       <Filter>include\crypto\mode</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\common\endian.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc">
