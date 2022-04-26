@@ -36,6 +36,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\gtest_endian\gtest_endian.h" />
+    <ClInclude Include="common\gtest_endian\gtest_endian_defs.h" />
     <ClInclude Include="crypto\gtest_aes\gtest_aes.h" />
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h" />
     <ClInclude Include="crypto\gtest_camellia\gtest_camellia.h" />
@@ -64,6 +66,7 @@
     <ClInclude Include="crypto\gtest_twofish\gtest_twofish_defs.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="common\gtest_endian\gtest_endian.cc" />
     <ClCompile Include="crypto\gtest_aes\gtest_aes.cc" />
     <ClCompile Include="crypto\gtest_camellia\gtest_camellia.cc" />
     <ClCompile Include="crypto\gtest_cast128\gtest_cast128.cc" />
@@ -153,7 +156,7 @@
       <Optimization>Full</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\src\include\common;$(MSBuildProjectDirectory)\..\src\include\hash;$(MSBuildProjectDirectory)\..\src\include\crypto\mode;$(MSBuildProjectDirectory)\..\src\include\crypto\public_key;$(MSBuildProjectDirectory)\..\src\include\crypto\secret_key;$(MSBuildProjectDirectory)\..\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AssemblerOutput>AssemblyAndMachineCode</AssemblerOutput>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <CallingConvention>Cdecl</CallingConvention>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -167,8 +170,7 @@
       <EnableCOMDATFolding>
       </EnableCOMDATFolding>
       <AdditionalDependencies>$(MSBuildProjectDirectory)\..\x64\Release\cryptography.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkTimeCodeGeneration>
-      </LinkTimeCodeGeneration>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <HeapCommitSize>
       </HeapCommitSize>
       <StackCommitSize>

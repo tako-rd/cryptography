@@ -61,6 +61,9 @@
     <Filter Include="crypto\mode\gtest_ctr">
       <UniqueIdentifier>{ccd78a09-3700-41ad-bc9d-46395f67395c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common\gtest_endian">
+      <UniqueIdentifier>{45238716-faee-4d16-ac8d-b78eab2505fc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -141,6 +144,12 @@
     <ClInclude Include="crypto\gtest_ctr\gtest_ctr_defs.h">
       <Filter>crypto\mode\gtest_ctr</Filter>
     </ClInclude>
+    <ClInclude Include="common\gtest_endian\gtest_endian.h">
+      <Filter>common\gtest_endian</Filter>
+    </ClInclude>
+    <ClInclude Include="common\gtest_endian\gtest_endian_defs.h">
+      <Filter>common\gtest_endian</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_des\gtest_des.cc">
@@ -181,6 +190,9 @@
     </ClCompile>
     <ClCompile Include="crypto\gtest_ctr\gtest_ctr.cc">
       <Filter>crypto\mode\gtest_ctr</Filter>
+    </ClCompile>
+    <ClCompile Include="common\gtest_endian\gtest_endian.cc">
+      <Filter>common\gtest_endian</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

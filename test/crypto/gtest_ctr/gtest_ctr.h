@@ -12,11 +12,10 @@
 
 #include "gtest/gtest.h"
 #include "gtest_ctr_defs.h"
-#include "aes.h"
 
-#include "ctr.h"
+#include "secret_key.h"
 
-class GTestCtr : public ::testing::Test {
+class GTestCTR : public ::testing::Test {
 public:
   virtual void SetUp() {};
 
