@@ -17,10 +17,6 @@
 
 #include "simd.h"
 
-// 使うものメモ
-// _byteswap_ulong()
-// _byteswap_uint64()
-
 #if !defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
 # if (__BYTE_ORDER == __LITTLE_ENDIAN) || (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 #   define __LITTLE_ENDIAN__
@@ -31,20 +27,20 @@
 
 namespace cryptography {
 
-// image : endian<Big, uint8_t, uint32_t, 16>
-//  例 : uint8_t in[16]をビッグエンディアンでuint32_t out[4]に変換する。
-//  endian<Big, uint32_t, 16>で変換元のサイズはオーバーロードで解決でもよし。
-//  変換先の配列サイズは呼び元側が知っている前提でよし。
-
-// prototype
+/* Prototype declaration of class. */
 template <template <typename T, uint32_t F> class Endian, typename UnitType, uint32_t ByteSize> class endian;
 template <typename UnitType, uint32_t Size> class little_endian;
 template <typename UnitType, uint32_t Size> class big_endian;
 
-// alias
-template <typename UnitType, uint32_t Size> using BIG = big_endian<UnitType, Size>;
+/* Alias declaration */
+template <typename UnitType, uint32_t Size> using BIG    = big_endian<UnitType, Size>;
 template <typename UnitType, uint32_t Size> using LITTLE = little_endian<UnitType, Size>;
 
+/* Endian converter interface.                      */
+/* Use as follows.                                  */
+/*  endian<BIG, uint32, 16>::convert(in, out);      */
+/*  endian<LITTLE, uint32, 16>::convert(in, out);   */
+/*  .. etc                                          */ 
 template <template <typename T, uint32_t F> class Endian, typename UnitType, uint32_t ByteSize>
 class endian {
  public:
@@ -68,15 +64,27 @@ class wrapswap {
   ~wrapswap() {};
 
   static uint16_t byteswap(const uint16_t t) noexcept {
+#if defined(_MSC_VER)
     return _byteswap_ushort(t);
+#elif defined(__GNUC__)
+    return __builtin_bswap16 (t);
+#endif
   }
 
   static uint32_t byteswap(const uint32_t t) noexcept {
+#if defined(_MSC_VER)
     return _byteswap_ulong(t);
+#elif defined(__GNUC__)
+    return __builtin_bswap32(t);
+#endif
   }
 
   static uint64_t byteswap(const uint64_t t) noexcept {
+#if defined(_MSC_VER)
     return _byteswap_uint64(t);
+#elif defined(__GNUC__)
+    return __builtin_bswap64(t);
+#endif
   }
 };
 

@@ -68,14 +68,16 @@ class aes final : public aes_base, public secret_key_interface<aes> {
 
   void inv_mix_columns(uint8_t *words) const noexcept;
 
-  void add_round_key(const uint32_t nr, uint8_t *word) const noexcept;
+  void add_round_key(const uint32_t nr, const uint32_t *key, uint8_t *word) const noexcept;
 
   uint8_t gf_mult(uint8_t x, uint8_t y) const noexcept;
 #endif
 
   uint32_t encskeys_[60];
 
+#if !defined(SPEED_PRIORITY_AES)
   uint32_t decskeys_[60];
+#endif
 
   int32_t nr_;
 

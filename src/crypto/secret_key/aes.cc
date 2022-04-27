@@ -10,6 +10,7 @@
 #include "crypto/secret_key/aes.h"
 #include "common/bit_utill.h"
 #include "common/byte_utill.h"
+#include "common/endian.h"
 
 namespace cryptography {
 
@@ -654,21 +655,21 @@ int32_t aes::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
     case AES128_KEY_BYTE_SIZE:
       nr_ = AES128_ROUNDS;
       nk_ = AES128_KEY_CONV_SIZE;
-      BIGENDIAN_32BIT_U8_TO_U128_COPY(key, k);
+      endian<BIG, uint32_t, AES128_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
     case AES192_KEY_BYTE_SIZE:
       nr_ = AES192_ROUNDS;
       nk_ = AES192_KEY_CONV_SIZE;
-      BIGENDIAN_32BIT_U8_TO_U192_COPY(key, k);
+      endian<BIG, uint32_t, AES192_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
     case AES256_KEY_BYTE_SIZE:
       nr_ = AES256_ROUNDS;
       nk_ = AES256_KEY_CONV_SIZE;
-      BIGENDIAN_32BIT_U8_TO_U256_COPY(key, k);
+      endian<BIG, uint32_t, AES256_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
@@ -692,16 +693,16 @@ int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
 
   memcpy(tmppln, ptext, 16);
 #if defined(SPEED_PRIORITY_AES)
-  BIGENDIAN_32BIT_U8_TO_U128_COPY(tmppln, tmp32pln);
+  endian<BIG, uint32_t, 16>::convert(tmppln, tmp32pln);
 
   tmp32pln[0] = tmp32pln[0] ^ encskeys_[kpos    ];
   tmp32pln[1] = tmp32pln[1] ^ encskeys_[kpos + 1];
   tmp32pln[2] = tmp32pln[2] ^ encskeys_[kpos + 2];
   tmp32pln[3] = tmp32pln[3] ^ encskeys_[kpos + 3];
 
-  BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp32pln, tmppln);
+  endian<BIG, uint32_t, 16>::convert(tmp32pln, tmppln);
 #else
-  add_round_key(0, tmppln);
+  add_round_key(0, encskeys_, tmppln);
 #endif
 
   for (int32_t round = 1; round < nr_; ++round) {
@@ -717,12 +718,12 @@ int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
     tmp32pln[3] = mixed_sbox_2113[tmppln[12]] ^ mixed_sbox_3211[tmppln[1]]  ^ 
                   mixed_sbox_1321[tmppln[6]]  ^ mixed_sbox_1132[tmppln[11]] ^ encskeys_[kpos + 3];
 
-    BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp32pln, tmppln);
+    endian<BIG, uint32_t, 16>::convert(tmp32pln, tmppln);
 #else
     sub_bytes(tmppln);
     shift_rows(tmppln);
     mix_columns(tmppln);
-    add_round_key(round, tmppln);
+    add_round_key(round, encskeys_, tmppln);
 #endif
   }
 
@@ -752,7 +753,7 @@ int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
 #else
   sub_bytes(tmppln);
   shift_rows(tmppln);
-  add_round_key(nr_, tmppln);
+  add_round_key(nr_, encskeys_, tmppln);
 
   memcpy(ctext, tmppln, 16);
 #endif
@@ -770,16 +771,16 @@ int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t 
 
   memcpy(tmpcphr, ctext, 16);
 #if defined(SPEED_PRIORITY_AES)
-  BIGENDIAN_32BIT_U8_TO_U128_COPY(tmpcphr, tmp32cphr);
+  endian<BIG, uint32_t, 16>::convert(tmpcphr, tmp32cphr);
 
   tmp32cphr[0] = tmp32cphr[0] ^ decskeys_[kpos    ];
   tmp32cphr[1] = tmp32cphr[1] ^ decskeys_[kpos + 1];
   tmp32cphr[2] = tmp32cphr[2] ^ decskeys_[kpos + 2];
   tmp32cphr[3] = tmp32cphr[3] ^ decskeys_[kpos + 3];
 
-  BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp32cphr, tmpcphr);
+  endian<BIG, uint32_t, 16>::convert(tmp32cphr, tmpcphr);
 #else
-  add_round_key(nr_, tmpcphr);
+  add_round_key(nr_, encskeys_, tmpcphr);
 #endif
 
   for (uint32_t round = nr_ - 1; round > 0; --round) {
@@ -794,12 +795,11 @@ int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t 
                    mixed_invsbox_dbe9[tmpcphr[2]]  ^ mixed_invsbox_9dbe[tmpcphr[15]] ^ decskeys_[kpos + 2];
     tmp32cphr[3] = mixed_invsbox_e9db[tmpcphr[12]] ^ mixed_invsbox_be9d[tmpcphr[9]]  ^ 
                    mixed_invsbox_dbe9[tmpcphr[6]]  ^ mixed_invsbox_9dbe[tmpcphr[3]]  ^ decskeys_[kpos + 3];
-
-    BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp32cphr, tmpcphr);
+    endian<BIG, uint32_t, 16>::convert(tmp32cphr, tmpcphr);
 #else
     inv_shift_rows(tmpcphr);
     inv_sub_bytes(tmpcphr);
-    add_round_key(round, tmpcphr);
+    add_round_key(round, encskeys_, tmpcphr);
     inv_mix_columns(tmpcphr);
 #endif
   }
@@ -829,7 +829,7 @@ int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t 
 #else
   inv_shift_rows(tmpcphr);
   inv_sub_bytes(tmpcphr);
-  add_round_key(0, tmpcphr);
+  add_round_key(0, encskeys_, tmpcphr);
 
   memcpy(ptext, tmpcphr, 16);
 #endif
@@ -919,17 +919,17 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
 #if !defined(SPEED_PRIORITY_AES)
 inline uint32_t aes::rot_word(uint32_t word) const noexcept {
   uint32_t out = 0;
-  uint8_t *tmp_p = nullptr;
-  uint8_t tmp[4] = {0};
+  uint8_t tmp_u8[4] = {0};
+  uint8_t tmp_out[4] = {0};
 
-  BIGENDIAN_U32_TO_U8(word, tmp_p);
+  endian<BIG, uint32_t, 4>::convert(&word, tmp_u8);
 
-  tmp[0] = tmp_p[1];
-  tmp[1] = tmp_p[2];
-  tmp[2] = tmp_p[3];
-  tmp[3] = tmp_p[0];
+  tmp_out[0] = tmp_u8[1];
+  tmp_out[1] = tmp_u8[2];
+  tmp_out[2] = tmp_u8[3];
+  tmp_out[3] = tmp_u8[0];
 
-  BIGENDIAN_U8_TO_U32_COPY(tmp, out);
+  endian<BIG, uint32_t, 4>::convert(tmp_out, &out);
 
   return out;
 }
@@ -937,10 +937,9 @@ inline uint32_t aes::rot_word(uint32_t word) const noexcept {
 
 #if !defined(SPEED_PRIORITY_AES)
 inline uint32_t aes::sub_word(uint32_t word) const noexcept {
-  uint8_t *tmp = nullptr;
+  uint8_t tmp[4] = {0};
 
-  BIGENDIAN_U32_TO_U8(word, tmp);
-
+  endian<BIG, uint32_t, 4>::convert(&word, tmp);
   return (uint32_t)sbox[tmp[0]] << 24 | 
          (uint32_t)sbox[tmp[1]] << 16 | 
          (uint32_t)sbox[tmp[2]] << 8  | 
@@ -1068,18 +1067,18 @@ inline void aes::inv_mix_columns(uint8_t *words) const noexcept {
 }
 
 
-inline void aes::add_round_key(const uint32_t nr, uint8_t *word) const noexcept {
+inline void aes::add_round_key(const uint32_t nr, const uint32_t *key, uint8_t *word) const noexcept {
   const uint32_t kpos = 4 * nr;
   uint32_t tmp[4] = {0};
 
-  BIGENDIAN_32BIT_U8_TO_U128_COPY(word, tmp);
+  endian<BIG, uint32_t, 16>::convert(word, tmp);
 
-  tmp[0] = tmp[0] ^ encskeys_[kpos    ];
-  tmp[1] = tmp[1] ^ encskeys_[kpos + 1];
-  tmp[2] = tmp[2] ^ encskeys_[kpos + 2];
-  tmp[3] = tmp[3] ^ encskeys_[kpos + 3];
+  tmp[0] = tmp[0] ^ key[kpos    ];
+  tmp[1] = tmp[1] ^ key[kpos + 1];
+  tmp[2] = tmp[2] ^ key[kpos + 2];
+  tmp[3] = tmp[3] ^ key[kpos + 3];
 
-  BIGENDIAN_32BIT_U128_TO_U8_COPY(tmp, word);
+  endian<BIG, uint32_t, 16>::convert(tmp, word);
 }
 
 inline uint8_t aes::gf_mult(uint8_t x, uint8_t y) const noexcept {
