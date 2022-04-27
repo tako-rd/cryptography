@@ -9,7 +9,7 @@
 
 #include "crypto/secret_key/des.h"
 #include "common/bit_utill.h"
-#include "common/byte_utill.h"
+#include "common/endian.h"
 
 namespace cryptography {
 
@@ -195,14 +195,7 @@ int32_t des::initialize(const uint8_t *key, const uint32_t ksize) {
 
   if (8 != ksize) { return FAILURE; }
 
-  tmpkey |= (uint64_t)key[0] << 56;
-  tmpkey |= (uint64_t)key[1] << 48;
-  tmpkey |= (uint64_t)key[2] << 40;
-  tmpkey |= (uint64_t)key[3] << 32;
-  tmpkey |= (uint64_t)key[4] << 24;
-  tmpkey |= (uint64_t)key[5] << 16;
-  tmpkey |= (uint64_t)key[6] <<  8;
-  tmpkey |= (uint64_t)key[7] <<  0;
+  endian<BIG, uint64_t, 8>::convert(key, &tmpkey);
 
   create_encrypto_subkeys(tmpkey, encrypto_subkeys_);
   create_decrypto_subkeys(tmpkey, decrypto_subkeys_);
@@ -215,14 +208,12 @@ int32_t des::initialize(const uint8_t *key, const uint32_t ksize) {
 int32_t des::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) {
   uint32_t tmppln32bit[2] = {0};
   uint32_t out[2] = {0};
-  uint8_t tmp8bit[8] = {0};
 
   if (8 != psize || 8 != csize) { return FAILURE; }
   if (true != has_subkeys_) { return FAILURE; };
 
-  memcpy(tmp8bit, ptext, 8);
-  BIGENDIAN_32BIT_U8_TO_U64_COPY(tmp8bit, tmppln32bit);
-
+  endian<BIG, uint32_t, 8>::convert(ptext, tmppln32bit);
+ 
   initialize_permute(tmppln32bit);
 
   for (int8_t stg = 0; stg < 16; ++stg) {
@@ -237,7 +228,7 @@ int32_t des::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
 
   finalize_permute(out);
 
-  BIGENDIAN_32BIT_U64_TO_U8_COPY(out, ctext);
+  endian<BIG, uint32_t, 8>::convert(out, ctext);
 
   return SUCCESS;
 }
@@ -245,13 +236,11 @@ int32_t des::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
 int32_t des::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) {
   uint32_t tmpcphr32bit[2] = {0};
   uint32_t out[2] = {0};
-  uint8_t tmp8bit[8] = {0};
 
   if (8 != psize || 8 != csize) { return FAILURE; }
   if (true != has_subkeys_) { return FAILURE; };
 
-  memcpy(tmp8bit, ctext, 8);
-  BIGENDIAN_32BIT_U8_TO_U64_COPY(tmp8bit, tmpcphr32bit);
+  endian<BIG, uint32_t, 8>::convert(ctext, tmpcphr32bit);
 
   initialize_permute(tmpcphr32bit);
 
@@ -267,7 +256,7 @@ int32_t des::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t 
 
   finalize_permute(out);
 
-  BIGENDIAN_32BIT_U64_TO_U8_COPY(out, ptext);
+  endian<BIG, uint32_t, 8>::convert(out, ptext);
 
   return SUCCESS;
 }

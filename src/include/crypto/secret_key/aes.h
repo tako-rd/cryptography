@@ -75,9 +75,7 @@ class aes final : public aes_base, public secret_key_interface<aes> {
 
   uint32_t encskeys_[60];
 
-#if !defined(SPEED_PRIORITY_AES)
   uint32_t decskeys_[60];
-#endif
 
   int32_t nr_;
 

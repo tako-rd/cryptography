@@ -9,7 +9,7 @@
 
 #include "crypto/secret_key/rc6.h"
 #include "common/bit_utill.h"
-#include "common/byte_utill.h"
+#include "common/endian.h"
 
 namespace cryptography {
 
@@ -29,20 +29,20 @@ int32_t rc6::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint32_t k[8] = {0};
 
   switch (ksize) {
-    case RC6_128_KEY_BYTE_SIZE :
-      LITTLEENDIAN_32BIT_U8_TO_U128_COPY(key, k);
+    case RC6_128_KEY_BYTE_SIZE:
+      endian<LITTLE, uint32_t, RC6_128_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, subkeys_, RC6_128_KEY_BYTE_SIZE);
       memset(k, 0xCC, sizeof(k));
       has_subkeys_ = true;
       break;
     case RC6_192_KEY_BYTE_SIZE:
-      LITTLEENDIAN_32BIT_U8_TO_U192_COPY(key, k);
+      endian<LITTLE, uint32_t, RC6_192_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, subkeys_, RC6_192_KEY_BYTE_SIZE);
       has_subkeys_ = true;
       memset(k, 0xCC, sizeof(k));
       break;
     case RC6_256_KEY_BYTE_SIZE:
-      LITTLEENDIAN_32BIT_U8_TO_U256_COPY(key, k);
+      endian<LITTLE, uint32_t, RC6_256_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, subkeys_, RC6_256_KEY_BYTE_SIZE);
       memset(k, 0xCC, sizeof(k));
       has_subkeys_ = true;
@@ -60,7 +60,7 @@ int32_t rc6::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ptext, reg);
+  endian<LITTLE, uint32_t, 16>::convert(ptext, reg);
 
   reg[1] = reg[1] + subkeys_[0];
   reg[3] = reg[3] + subkeys_[1];
@@ -82,7 +82,7 @@ int32_t rc6::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
   reg[0] = reg[0] + subkeys_[42];
   reg[2] = reg[2] + subkeys_[43];
 
-  LITTLEENDIAN_32BIT_U128_TO_U8_COPY(reg, ctext);
+  endian<LITTLE, uint32_t, 16>::convert(reg, ctext);
 
   return SUCCESS;
 }
@@ -94,7 +94,7 @@ int32_t rc6::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t 
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ctext, reg);
+  endian<LITTLE, uint32_t, 16>::convert(ctext, reg);
 
   reg[2] = reg[2] - subkeys_[43];
   reg[0] = reg[0] - subkeys_[42];
@@ -116,7 +116,7 @@ int32_t rc6::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t 
   reg[3] = reg[3] - subkeys_[1];
   reg[1] = reg[1] - subkeys_[0];
 
-  LITTLEENDIAN_32BIT_U128_TO_U8_COPY(reg, ptext);
+  endian<LITTLE, uint32_t, 16>::convert(reg, ptext);
 
   return SUCCESS;
 }

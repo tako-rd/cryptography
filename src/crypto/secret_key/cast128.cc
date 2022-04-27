@@ -9,7 +9,7 @@
 
 #include "crypto/secret_key/cast128.h"
 #include "common/bit_utill.h"
-#include "common/byte_utill.h"
+#include "common/endian.h"
 
 namespace cryptography {
 
@@ -391,7 +391,7 @@ int32_t cast128::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
   if (8 != psize || 8 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  BIGENDIAN_32BIT_U8_TO_U64_COPY(ptext, tmppln1);
+  endian<BIG, uint32_t, 8>::convert(ptext, tmppln1);
 
   tmppln2[0] = tmppln1[1];
   tmppln2[1] = tmppln1[0] ^ fa_function(tmppln1[1], km_[0], kr_[0]);
@@ -448,7 +448,7 @@ int32_t cast128::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
     tmppln1[0] = tmppln2[0] ^ fa_function(tmppln2[1], km_[15], kr_[15]);
   }
 
-  BIGENDIAN_32BIT_U64_TO_U8_COPY(tmppln1, ctext);
+  endian<BIG, uint32_t, 8>::convert(tmppln1, ctext);
 
   return SUCCESS;
 }
@@ -460,7 +460,7 @@ int32_t cast128::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
   if (8 != psize || 8 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  BIGENDIAN_32BIT_U8_TO_U64_COPY(ctext, tmpchpr1);
+  endian<BIG, uint32_t, 8>::convert(ctext, tmpchpr1);
 
   if (NROUND_FOR_KEY_80BIT != is_12round_) {
     tmpchpr2[0] = tmpchpr1[1];
@@ -512,7 +512,7 @@ int32_t cast128::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
   tmpchpr1[1] = tmpchpr2[1];
   tmpchpr1[0] = tmpchpr2[0] ^ fa_function(tmpchpr2[1], km_[0], kr_[0]);
 
-  BIGENDIAN_32BIT_U64_TO_U8_COPY(tmpchpr1, ptext);
+  endian<BIG, uint32_t, 8>::convert(tmpchpr1, ptext);
 
   return SUCCESS;
 }
@@ -615,29 +615,29 @@ inline void cast128::expand_key(const uint32_t * const key, uint32_t *km, uint32
 
 inline uint32_t cast128::fa_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
   uint32_t i = 0;
-  uint8_t *iptr = nullptr;
+  uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi + d, kri & 0x0000'001F);
-  BIGENDIAN_U32_TO_U8(i, iptr);
-  return ((sbox1[iptr[0]] ^ sbox2[iptr[1]]) - sbox3[iptr[2]]) + sbox4[iptr[3]];
+  endian<BIG, uint32_t, 4>::convert(&i, out);
+  return ((sbox1[out[0]] ^ sbox2[out[1]]) - sbox3[out[2]]) + sbox4[out[3]];
 }
 
 inline uint32_t cast128::fb_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
   uint32_t i = 0;
-  uint8_t *iptr = nullptr;
+  uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000'001F);
-  BIGENDIAN_U32_TO_U8(i, iptr);
-  return ((sbox1[iptr[0]] - sbox2[iptr[1]]) + sbox3[iptr[2]]) ^ sbox4[iptr[3]];
+  endian<BIG, uint32_t, 4>::convert(&i, out);
+  return ((sbox1[out[0]] - sbox2[out[1]]) + sbox3[out[2]]) ^ sbox4[out[3]];
 }
 
 inline uint32_t cast128::fc_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
   uint32_t i = 0;
-  uint8_t *iptr = nullptr;
+  uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi - d, kri & 0x0000'001F);
-  BIGENDIAN_U32_TO_U8(i, iptr);
-  return ((sbox1[iptr[0]] + sbox2[iptr[1]]) ^ sbox3[iptr[2]]) - sbox4[iptr[3]];
+  endian<BIG, uint32_t, 4>::convert(&i, out);
+  return ((sbox1[out[0]] + sbox2[out[1]]) ^ sbox3[out[2]]) - sbox4[out[3]];
 }
 
 }

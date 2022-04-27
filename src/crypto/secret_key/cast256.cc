@@ -9,7 +9,8 @@
 
 #include "crypto/secret_key/cast256.h"
 #include "common/bit_utill.h"
-#include "common/byte_utill.h"
+//#include "common/byte_utill.h"
+#include "common/endian.h"
 
 namespace cryptography {
 
@@ -171,18 +172,28 @@ int32_t cast256::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
 
   switch (ksize) {
     case CAST256_128_KEY_BYTE_SIZE:
+      endian<BIG, uint32_t, CAST256_128_KEY_BYTE_SIZE>::convert(key, k);
+      break;
     case CAST256_160_KEY_BYTE_SIZE:
+      endian<BIG, uint32_t, CAST256_160_KEY_BYTE_SIZE>::convert(key, k);
+      break;
     case CAST256_192_KEY_BYTE_SIZE:
+      endian<BIG, uint32_t, CAST256_192_KEY_BYTE_SIZE>::convert(key, k);
+      break;
     case CAST256_224_KEY_BYTE_SIZE:
+      endian<BIG, uint32_t, CAST256_224_KEY_BYTE_SIZE>::convert(key, k);
+      break;
     case CAST256_256_KEY_BYTE_SIZE:
-      BENDIAN_32BIT_KEY_SET(key, k, ksize);
-      expand_key(k, km_, kr_);
-      memset(k, 0xCC, sizeof(k));
-      has_subkeys_ = true;
+      endian<BIG, uint32_t, CAST256_256_KEY_BYTE_SIZE>::convert(key, k);
       break;
     default:
       return FAILURE;
   }
+
+  expand_key(k, km_, kr_);
+  memset(k, 0xCC, sizeof(k));
+  has_subkeys_ = true;
+
   return SUCCESS;
 }
 
@@ -192,7 +203,7 @@ int32_t cast256::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  BIGENDIAN_32BIT_U8_TO_U128_COPY(ptext, beta);
+  endian<BIG, uint32_t, 16>::convert(ptext, beta);
 
   /* BETA <- Qi(BETA) */
   for (int32_t i = 0; i < 6; ++i) {
@@ -210,8 +221,8 @@ int32_t cast256::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
     beta[2] = beta[2] ^ f1_function(beta[3], km_[4 * i],     kr_[4 * i]);
   }
 
-  BIGENDIAN_32BIT_U128_TO_U8_COPY(beta, ctext);
-
+  endian<BIG, uint32_t, 16>::convert(beta, ctext);
+  
   return SUCCESS;
 }
 
@@ -221,7 +232,7 @@ int32_t cast256::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  BIGENDIAN_32BIT_U8_TO_U128_COPY(ctext, beta);
+  endian<BIG, uint32_t, 16>::convert(ctext, beta);
 
   /* BETA <- Qi(BETA) */
   for (int32_t i = 11; i >= 6; --i) {
@@ -239,7 +250,7 @@ int32_t cast256::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
     beta[2] = beta[2] ^ f1_function(beta[3], km_[4 * i],     kr_[4 * i]);
   }
 
-  BIGENDIAN_32BIT_U128_TO_U8_COPY(beta, ptext);
+  endian<BIG, uint32_t, 16>::convert(beta, ptext);
 
   return SUCCESS;
 }
@@ -306,29 +317,29 @@ inline void cast256::expand_key(const uint32_t * const key, uint32_t *km, uint32
 
 inline uint32_t cast256::f1_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
   uint32_t i = 0;
-  uint8_t *iptr = nullptr;
+  uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi + d, kri & 0x0000'001F);
-  BIGENDIAN_U32_TO_U8(i, iptr);
-  return ((sbox1[iptr[0]] ^ sbox2[iptr[1]]) - sbox3[iptr[2]]) + sbox4[iptr[3]];
+  endian<BIG, uint32_t, 16>::convert(&i, out);
+  return ((sbox1[out[0]] ^ sbox2[out[1]]) - sbox3[out[2]]) + sbox4[out[3]];
 }
 
 inline uint32_t cast256::f2_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
   uint32_t i = 0;
-  uint8_t *iptr = nullptr;
+  uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000'001F);
-  BIGENDIAN_U32_TO_U8(i, iptr);
-  return ((sbox1[iptr[0]] - sbox2[iptr[1]]) + sbox3[iptr[2]]) ^ sbox4[iptr[3]];
+  endian<BIG, uint32_t, 16>::convert(&i, out);
+  return ((sbox1[out[0]] - sbox2[out[1]]) + sbox3[out[2]]) ^ sbox4[out[3]];
 }
 
 inline uint32_t cast256::f3_function(uint32_t d, uint32_t kmi, uint32_t kri) const noexcept {
   uint32_t i = 0;
-  uint8_t *iptr = nullptr;
+  uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi - d, kri & 0x0000'001F);
-  BIGENDIAN_U32_TO_U8(i, iptr);
-  return ((sbox1[iptr[0]] + sbox2[iptr[1]]) ^ sbox3[iptr[2]]) - sbox4[iptr[3]];
+  endian<BIG, uint32_t, 16>::convert(&i, out);
+  return ((sbox1[out[0]] + sbox2[out[1]]) ^ sbox3[out[2]]) - sbox4[out[3]];
 }
 
 }

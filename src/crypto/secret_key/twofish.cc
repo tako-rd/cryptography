@@ -9,7 +9,7 @@
 
 #include "crypto/secret_key/twofish.h"
 #include "common/bit_utill.h"
-#include "common/byte_utill.h"
+#include "common/endian.h"
 
 namespace cryptography {
 
@@ -286,21 +286,21 @@ int32_t twofish::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
     case TWOFISH_128BIT_KEY_BYTE_SIZE:
       k_ = TWOFISH_128BIT_KVALUE;
       has_subkeys_ = true;
-      LITTLEENDIAN_32BIT_U8_TO_U128_COPY(key, k);
+      endian<LITTLE, uint32_t, TWOFISH_128BIT_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, subkey_);
       memset(k, 0xCC, sizeof(k));
       break;
     case TWOFISH_192BIT_KEY_BYTE_SIZE:
       k_ = TWOFISH_192BIT_KVALUE;
       has_subkeys_ = true;
-      LITTLEENDIAN_32BIT_U8_TO_U192_COPY(key, k);
+      endian<LITTLE, uint32_t, TWOFISH_192BIT_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, subkey_);
       memset(k, 0xCC, sizeof(k));
       break;
     case TWOFISH_256BIT_KEY_BYTE_SIZE:
       k_ = TWOFISH_256BIT_KVALUE;
       has_subkeys_ = true;
-      LITTLEENDIAN_32BIT_U8_TO_U256_COPY(key, k);
+      endian<LITTLE, uint32_t, TWOFISH_256BIT_KEY_BYTE_SIZE>::convert(key, k);
       expand_key(k, subkey_);
       memset(k, 0xCC, sizeof(k));
       break;
@@ -318,7 +318,7 @@ int32_t twofish::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ptext, tmpp);
+  endian<LITTLE, uint32_t, 16>::convert(ptext, tmpp);
 
   tmpp[0] ^= subkey_[0];
   tmpp[1] ^= subkey_[1];
@@ -340,7 +340,7 @@ int32_t twofish::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
   out[2] ^= tmpp[0] ^ subkey_[6];
   out[3] ^= tmpp[1] ^ subkey_[7];
 
-  LITTLEENDIAN_32BIT_U128_TO_U8_COPY(out, ctext);
+  endian<LITTLE, uint32_t, 16>::convert(out, ctext);
 
   return SUCCESS;
 }
@@ -353,7 +353,7 @@ int32_t twofish::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  LITTLEENDIAN_32BIT_U8_TO_U128_COPY(ctext, tmpc);
+  endian<LITTLE, uint32_t, 16>::convert(ctext, tmpc);
 
   tmpc[0] ^= subkey_[4];
   tmpc[1] ^= subkey_[5];
@@ -375,7 +375,7 @@ int32_t twofish::decrypt(const uint8_t * const ctext, const uint32_t csize, uint
   out[2] = tmpc[0] ^ subkey_[2];
   out[3] = tmpc[1] ^ subkey_[3];
 
-  LITTLEENDIAN_32BIT_U128_TO_U8_COPY(out, ptext);
+  endian<LITTLE, uint32_t, 16>::convert(out, ptext);
 
   return SUCCESS;
 }
@@ -397,7 +397,7 @@ inline void twofish::expand_key(const uint32_t * const key, uint32_t *skeys) noe
   uint32_t b = 0;
   uint8_t bk[32] = {0};
 
-  LITTLEENDIAN_32BIT_U256_TO_U8_COPY(key, bk);
+  endian<LITTLE, uint32_t, 32>::convert(key, bk);
 #if 0
   for (uint32_t i = 0; i < 256; ++i) {
     q0_[i] = fix_q((uint8_t)i, q0t0, q0t1, q0t2, q0t3);
@@ -463,7 +463,7 @@ inline void twofish::f_function(uint32_t r0, uint32_t r1, int32_t round, uint32_
 inline uint32_t twofish::g_function(uint32_t x) const noexcept {
   uint8_t xi[4] = {0};
 
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(x, xi);
+  endian<LITTLE, uint32_t, 4>::convert(&x, xi);
   return mds_sbox0_[xi[0]] ^ mds_sbox1_[xi[1]] ^ mds_sbox2_[xi[2]] ^ mds_sbox3_[xi[3]];
 }
 
@@ -471,11 +471,11 @@ inline uint32_t twofish::h_function(uint32_t x, uint32_t *l, uint32_t type) cons
   uint8_t by[4] = {0};
   uint8_t bl[4][4] = {0};
 
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(x, by);
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(l[0], bl[0]);
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(l[1], bl[1]);
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(l[2], bl[2]);
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(l[3], bl[3]);
+  endian<LITTLE, uint32_t, 4>::convert(&x, by);
+  endian<LITTLE, uint32_t, 4>::convert(&l[0], bl[0]);
+  endian<LITTLE, uint32_t, 4>::convert(&l[1], bl[1]);
+  endian<LITTLE, uint32_t, 4>::convert(&l[2], bl[2]);
+  endian<LITTLE, uint32_t, 4>::convert(&l[3], bl[3]);
 
   switch (type) {
     case 4:
@@ -539,10 +539,10 @@ inline uint8_t twofish::fix_q(uint8_t x, const uint8_t * const t0, const uint8_t
 inline void twofish::fix_s(uint32_t *s, uint32_t type) noexcept {
   uint8_t bs[4][4] = {0};
 
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[0], bs[0]);
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[1], bs[1]);
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[2], bs[2]);
-  LITTLEENDIAN_32BIT_U32_TO_U8_COPY(s[3], bs[3]);
+  endian<LITTLE, uint32_t, 4>::convert(&s[0], bs[0]);
+  endian<LITTLE, uint32_t, 4>::convert(&s[1], bs[1]);
+  endian<LITTLE, uint32_t, 4>::convert(&s[2], bs[2]);
+  endian<LITTLE, uint32_t, 4>::convert(&s[3], bs[3]);
 
   switch (type) {
     case 4:

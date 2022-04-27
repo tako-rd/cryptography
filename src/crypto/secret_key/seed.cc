@@ -9,7 +9,7 @@
 
 #include "crypto/secret_key/seed.h"
 #include "common/bit_utill.h"
-#include "common/byte_utill.h"
+#include "common/endian.h"
 
 namespace cryptography {
 
@@ -259,7 +259,7 @@ int32_t seed::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint64_t k[2] = {0};
 
   if (SEED_KEY_BYTE_SIZE != ksize) { return FAILURE; }
-  BIGENDIAN_64BIT_U8_TO_U128_COPY(key, k);
+  endian<BIG, uint64_t, SEED_KEY_BYTE_SIZE>::convert(key, k);
   expand_key(k, subkey_);
   has_subkeys_ = true;
 
@@ -273,7 +273,7 @@ int32_t seed::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  BIGENDIAN_64BIT_U8_TO_U128_COPY(ptext, tmppln);
+  endian<BIG, uint64_t, 16>::convert(ptext, tmppln);
 
   for (int32_t round = 0; round < 15; ++round) {
     t = tmppln[1];
@@ -282,7 +282,7 @@ int32_t seed::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t
   }
   tmppln[0] ^= f_function(tmppln[1], subkey_[15]);
 
-  BIGENDIAN_64BIT_U128_TO_U8_COPY(tmppln, ctext);
+  endian<BIG, uint64_t, 16>::convert(tmppln, ctext);
 
   return SUCCESS;
 }
@@ -294,7 +294,7 @@ int32_t seed::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  BIGENDIAN_64BIT_U8_TO_U128_COPY(ctext, tmpcphr);
+  endian<BIG, uint64_t, 16>::convert(ctext, tmpcphr);
 
   for (int32_t round = 15; round > 0; --round) {
     t = tmpcphr[1];
@@ -303,7 +303,7 @@ int32_t seed::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t
   }
   tmpcphr[0] ^= f_function(tmpcphr[1], subkey_[0]);
 
-  BIGENDIAN_64BIT_U128_TO_U8_COPY(tmpcphr, ptext);
+  endian<BIG, uint64_t, 16>::convert(tmpcphr, ptext);
 
   return SUCCESS;
 }
@@ -362,9 +362,9 @@ inline uint32_t seed::g_function(uint32_t r) const noexcept {
 #else
 
 #endif
-  uint8_t *r8bit = nullptr;
+  uint8_t r8bit[4] = {0};
 
-  BIGENDIAN_U32_TO_U8(r, r8bit);
+  endian<BIG, uint32_t, 16>::convert(&r, r8bit);
 #if !defined(SPEED_PRIORITY_SEED)
   z8bit[3]  = (sbox0[r8bit[3]] & M0)  ^ (sbox1[r8bit[2]] & M1)  ^ (sbox0[r8bit[1]] & M2)  ^ (sbox1[r8bit[0]] & M3);
   z8bit[2]  = (sbox0[r8bit[3]] & M1)  ^ (sbox1[r8bit[2]] & M2)  ^ (sbox0[r8bit[1]] & M3)  ^ (sbox1[r8bit[0]] & M0);

@@ -51,9 +51,6 @@
     <ClInclude Include="src\include\common\base64.h">
       <Filter>include\common</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\common\byte_utill.h">
-      <Filter>include\common</Filter>
-    </ClInclude>
     <ClInclude Include="src\include\common\bit_utill.h">
       <Filter>include\common</Filter>
     </ClInclude>

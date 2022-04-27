@@ -9,7 +9,7 @@
 
 #include "crypto/secret_key/camellia.h"
 #include "common/bit_utill.h"
-#include "common/byte_utill.h"
+#include "common/endian.h"
 
 namespace cryptography {
 
@@ -922,7 +922,7 @@ int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
 
   switch (ksize) {
     case CAMELLIA_128_KEY_BYTE_SIZE:
-      BIGENDIAN_64BIT_U8_TO_U128_COPY(key, k);
+      endian<BIG, uint64_t, CAMELLIA_128_KEY_BYTE_SIZE>::convert(key, k);
       ksize_ = CAMELLIA_128_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 17;
@@ -932,7 +932,7 @@ int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
       memset(k, 0xCC, 16);
       break;
     case CAMELLIA_192_KEY_BYTE_SIZE:
-      BIGENDIAN_64BIT_U8_TO_U192_COPY(key, k);
+      endian<BIG, uint64_t, CAMELLIA_192_KEY_BYTE_SIZE>::convert(key, k);
       ksize_ = CAMELLIA_192_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 23;
@@ -942,7 +942,7 @@ int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
       memset(k, 0xCC, 24);
       break;
     case CAMELLIA_256_KEY_BYTE_SIZE:
-      BIGENDIAN_64BIT_U8_TO_U256_COPY(key, k);
+      endian<BIG, uint64_t, CAMELLIA_256_KEY_BYTE_SIZE>::convert(key, k);
       ksize_ = CAMELLIA_256_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 23;
@@ -965,7 +965,7 @@ int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t psize, uin
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; };
 
-  BIGENDIAN_64BIT_U8_TO_U128_COPY(ptext, tmptext);
+  endian<BIG, uint64_t, 16>::convert(ptext, tmptext);
 
   tmptext[0] ^= kw_[0];
   tmptext[1] ^= kw_[1];
@@ -1007,7 +1007,7 @@ int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t psize, uin
   out[0] = tmptext[1] ^ kw_[2];
   out[1] = tmptext[0] ^ kw_[3];
 
-  BIGENDIAN_64BIT_U128_TO_U8_COPY(out, ctext);
+  endian<BIG, uint64_t, 16>::convert(out, ctext);
 
   return SUCCESS;
 }
@@ -1020,7 +1020,7 @@ int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t csize, uin
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; };
 
-  BIGENDIAN_64BIT_U8_TO_U128_COPY(ctext, tmptext);
+  endian<BIG, uint64_t, 16>::convert(ctext, tmptext);
 
   tmptext[0] ^= kw_[2];
   tmptext[1] ^= kw_[3];
@@ -1063,7 +1063,7 @@ int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t csize, uin
   out[0] = tmptext[1] ^ kw_[0];
   out[1] = tmptext[0] ^ kw_[1];
 
-  BIGENDIAN_64BIT_U128_TO_U8_COPY(out, ptext);
+  endian<BIG, uint64_t, 16>::convert(out, ptext);
 
   return SUCCESS;
 }
