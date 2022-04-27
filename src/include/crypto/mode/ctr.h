@@ -37,6 +37,8 @@ class ctr : private mode<Cryptosystem, UnitSize> {
   int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
  private:
+  void inc_counter(uint8_t *counter) const noexcept;
+
   uint8_t iv_[UnitSize];
 };
 

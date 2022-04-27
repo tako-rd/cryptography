@@ -38,8 +38,8 @@ template <typename UnitType, uint32_t Size> using LITTLE = little_endian<UnitTyp
 
 /* Endian converter interface.                      */
 /* Use as follows.                                  */
-/*  endian<BIG, uint32, 16>::convert(in, out);      */
-/*  endian<LITTLE, uint32, 16>::convert(in, out);   */
+/*  endian<BIG, uint32_t, 16>::convert(in, out);    */
+/*  endian<LITTLE, uint32_t, 16>::convert(in, out); */
 /*  .. etc                                          */ 
 template <template <typename T, uint32_t F> class Endian, typename UnitType, uint32_t ByteSize>
 class endian {
