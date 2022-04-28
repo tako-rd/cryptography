@@ -30,7 +30,7 @@ class des_base {
   static const uint32_t unit_size = 8;
 };
 
-class des final : public des_base, public secret_key_interface<des> {
+class des final : public des_base, public secret_key_base<des> {
  public:
 
   des() noexcept : encrypto_subkeys_{0}, decrypto_subkeys_{0}, has_subkeys_(false) {};

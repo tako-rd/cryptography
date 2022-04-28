@@ -27,11 +27,11 @@ namespace cryptography {
  *  secret_key<DES, CBC> des_cbc;
  *  secret_key<AES, ECB> aes_ecb;
  *  .. etc
-**/
+ */
 template <typename SecretKeyCryptosystem, template <typename T, uint32_t U> class Mode>
 class secret_key {
  public:
-  secret_key() {};
+  secret_key() noexcept {};
 
   ~secret_key() {};
 
@@ -47,7 +47,7 @@ class secret_key {
     return cryptosystem_.decrypt(ctext, csize, ptext, psize);
   };
 
-  void clear() {
+  void clear() noexcept {
     cryptosystem_.clear();
   };
 
@@ -56,5 +56,4 @@ class secret_key {
 };
 
 }
-
 #endif

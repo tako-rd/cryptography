@@ -55,6 +55,16 @@ class endian {
   static uint8_t* convert(const UnitType * const in, uint8_t *out) noexcept {
     return Endian<UnitType, ByteSize>::convert(in, out);
   };
+
+  static_assert(true == std::is_same<UnitType, uint16_t>::value ||
+                true == std::is_same<UnitType, uint32_t>::value ||
+                true == std::is_same<UnitType, uint64_t>::value, 
+                "Select unitType, which is the conversion source and destination type, from uint16_t, uint32_t, and uint64_t.");
+  static_assert(true == std::is_same<Endian<UnitType, ByteSize>, big_endian<UnitType, ByteSize>>::value ||
+                true == std::is_same<Endian<UnitType, ByteSize>, little_endian<UnitType, ByteSize>>::value,
+                "Select Endian, which is in byte order, from BIG or LITTLE.");
+  static_assert(0 == (ByteSize % sizeof(UnitType)), 
+                "Specify the number of bytes that can be divided by the byte size of the type name specified in UnitType in ByteSize.");
 };
 
 class wrapswap {

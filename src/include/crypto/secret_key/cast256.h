@@ -30,7 +30,7 @@ class cast256_base {
   static const uint32_t unit_size = 16;
 };
 
-class cast256 final : public cast256_base, public secret_key_interface<cast256> {
+class cast256 final : public cast256_base, public secret_key_base<cast256> {
 public:
   cast256() noexcept : km_{0}, kr_{0}, has_subkeys_(false) {};
 

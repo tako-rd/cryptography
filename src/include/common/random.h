@@ -7,27 +7,26 @@
  * see https://opensource.org/licenses/MIT
  */
 
-#ifndef RSA_H
-#define RSA_H
+#ifndef RANDOM_H
+#define RANDOM_H
 
-#include "common/defs.h"
+#include <stdint.h>
+
+#include "common/simd.h"
 
 namespace cryptography {
 
-class rsa_base {
+class random {
  public:
+  random() {};
 
-};
+  ~random() {};
 
-class rsa final : public rsa_base {
- public:
-  rsa() noexcept {};
+  int32_t generate_u32() const noexcept;
 
-  ~rsa() {};
-
+  int32_t generate_u64() const noexcept;
 
  private:
-
 
 };
 

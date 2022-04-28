@@ -37,7 +37,7 @@ class mode {
   int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {};
 
  protected:
-  Cryptosystem secret_key_cryptosystem_;
+   Cryptosystem secret_key_cryptosystem_;
 };
 
 }

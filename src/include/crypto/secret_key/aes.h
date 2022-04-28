@@ -34,7 +34,7 @@ class aes_base {
   static const uint32_t unit_size = 16;
 };
 
-class aes final : public aes_base, public secret_key_interface<aes> { 
+class aes final : public aes_base, public secret_key_base<aes> { 
  public:
   aes() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
 
@@ -84,7 +84,7 @@ class aes final : public aes_base, public secret_key_interface<aes> {
   bool has_subkeys_;
 };
 
-class aes_ni final : public aes_base, public secret_key_interface<aes_ni> { 
+class aes_ni final : public aes_base, public secret_key_base<aes_ni> { 
 public:
   aes_ni() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), has_subkeys_(false) {};
 

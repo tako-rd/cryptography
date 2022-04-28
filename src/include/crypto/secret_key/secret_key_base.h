@@ -18,18 +18,17 @@
 namespace cryptography {
 
 template <typename SecretKeyCryptosystem,  
-          bool IsValidSharedKeyCryptosystem = 
-            std::is_base_of<secret_key_interface<SecretKeyCryptosystem>, 
-                            SecretKeyCryptosystem>::value>
+  bool IsValidSharedKeyCryptosystem = std::is_base_of<secret_key_base<SecretKeyCryptosystem>, 
+                                                      SecretKeyCryptosystem>::value>
 class secret_key_cryptosystem {
   static_assert(IsValidSharedKeyCryptosystem, 
-                "*** ERROR : An invalid shared key cryptosystem of block cipher has been specified.");
+                "*** ERROR : An invalid secret key cryptosystem has been specified.");
 };
 
 template <typename SecretKeyCryptosystem>
 class secret_key_cryptosystem<SecretKeyCryptosystem, true> {
  public:
-  secret_key_cryptosystem() {};
+  secret_key_cryptosystem() noexcept {};
 
   ~secret_key_cryptosystem() {};
 
@@ -45,7 +44,7 @@ class secret_key_cryptosystem<SecretKeyCryptosystem, true> {
     return skc_.decrypt(ctext, csize, ptext, psize);
   };
 
-  void clear() {
+  void clear() const noexcept {
     skc_.clear();
   };
 
@@ -53,12 +52,16 @@ class secret_key_cryptosystem<SecretKeyCryptosystem, true> {
   SecretKeyCryptosystem skc_;
 };
 
-template <typename SecretKeyCryptosystem>
-class secret_key_interface {
-public:
-  secret_key_interface() {};
+/*****************************************************/
+/* A template for the secret key cryptosystem class. */
+/*****************************************************/
 
-  ~secret_key_interface() {};
+template <typename SecretKeyCryptosystem>
+class secret_key_base {
+public:
+  secret_key_base() {};
+
+  ~secret_key_base() {};
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept {
     return (SecretKeyCryptosystem &)(*this).initialize(key, ksize);

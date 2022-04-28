@@ -30,7 +30,7 @@ class cast128_base {
   static const uint32_t unit_size = 8;
 };
 
-class cast128 final : public cast128_base, public secret_key_interface<cast128> {
+class cast128 final : public cast128_base, public secret_key_base<cast128> {
  public:
   cast128() noexcept : km_{0}, kr_{0}, has_subkeys_(false), is_12round_(false) {};
 

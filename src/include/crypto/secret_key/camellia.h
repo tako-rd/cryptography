@@ -32,7 +32,7 @@ class camellia_base {
   static const uint32_t unit_size = 16;
 };
 
-class camellia final : public camellia_base, public secret_key_interface<camellia> {
+class camellia final : public camellia_base, public secret_key_base<camellia> {
  public:
   camellia() noexcept : ksize_(0), nk_(0), nkl_(0), n6r_(4), kw_{0}, k_{0}, kl_{0}, has_subkeys_(false) {};
 
