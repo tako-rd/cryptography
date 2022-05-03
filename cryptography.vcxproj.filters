@@ -120,6 +120,9 @@
     <ClInclude Include="src\include\crypto\public_key\public_key_base.h">
       <Filter>include\crypto\public_key</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\common\bigint.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc">
@@ -171,6 +174,9 @@
       <Filter>src\crypto\mode</Filter>
     </ClCompile>
     <ClCompile Include="src\common\random.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\bigint.cc">
       <Filter>src\common</Filter>
     </ClCompile>
   </ItemGroup>

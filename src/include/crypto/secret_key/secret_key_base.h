@@ -17,6 +17,8 @@
 
 namespace cryptography {
 
+template <typename SecretKeyCryptosystem> class secret_key_base;
+
 template <typename SecretKeyCryptosystem,  
   bool IsValidSharedKeyCryptosystem = std::is_base_of<secret_key_base<SecretKeyCryptosystem>, 
                                                       SecretKeyCryptosystem>::value>

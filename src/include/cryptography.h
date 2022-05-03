@@ -12,13 +12,15 @@
 
 #include "common/defs.h"
 #include "common/base64.h"
-#include "crypto/secret_key/secret_key_base.h"
+#include "crypto/secret_key/secret_key.h"
 #include "crypto/secret_key/aes.h"
 #include "crypto/secret_key/des.h"
 #include "crypto/secret_key/camellia.h"
 #include "crypto/secret_key/seed.h"
 #include "crypto/secret_key/rc6.h"
 #include "crypto/secret_key/cast128.h"
+#include "crypto/secret_key/cast256.h"
+#include "crypto/secret_key/twofish.h"
 #include "crypto/public_key/rsa.h"
 
 namespace cryptography {

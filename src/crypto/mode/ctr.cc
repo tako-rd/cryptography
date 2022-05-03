@@ -97,7 +97,7 @@ inline void ctr<Cryptosystem, UnitSize>::inc_counter(uint8_t *counter) const noe
     while (true) {
       if (0xFFFF'FFFF'FFFF'FFFF == cnt_u64[pos]) {
         cnt_u64[pos] = 0;
-        pos -= 1;
+        pos = (0 == pos) ? u64msb : pos - 1;
       } else {
         cnt_u64[u64msb] += 1;
         break;

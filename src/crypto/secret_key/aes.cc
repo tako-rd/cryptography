@@ -28,6 +28,28 @@ namespace cryptography {
 #define AES192_KEY_CONV_SIZE    6
 #define AES256_KEY_CONV_SIZE    8
 
+#define GET_BYTE32(in, pos)     (uint8_t)(((in) >> (24 - ((pos) << 3))) & 0xFF)
+
+#define ENCRYPT_ROUND(in, pos, key, out)  \
+    out[0] = mixed_sbox_2113[GET_BYTE32(in[0], 0)] ^ mixed_sbox_3211[GET_BYTE32(in[1], 1)] ^                \
+             mixed_sbox_1321[GET_BYTE32(in[2], 2)] ^ mixed_sbox_1132[GET_BYTE32(in[3], 3)] ^ key[pos    ];  \
+    out[1] = mixed_sbox_2113[GET_BYTE32(in[1], 0)] ^ mixed_sbox_3211[GET_BYTE32(in[2], 1)] ^                \
+             mixed_sbox_1321[GET_BYTE32(in[3], 2)] ^ mixed_sbox_1132[GET_BYTE32(in[0], 3)] ^ key[pos + 1];  \
+    out[2] = mixed_sbox_2113[GET_BYTE32(in[2], 0)] ^ mixed_sbox_3211[GET_BYTE32(in[3], 1)] ^                \
+             mixed_sbox_1321[GET_BYTE32(in[0], 2)] ^ mixed_sbox_1132[GET_BYTE32(in[1], 3)] ^ key[pos + 2];  \
+    out[3] = mixed_sbox_2113[GET_BYTE32(in[3], 0)] ^ mixed_sbox_3211[GET_BYTE32(in[0], 1)] ^                \
+             mixed_sbox_1321[GET_BYTE32(in[1], 2)] ^ mixed_sbox_1132[GET_BYTE32(in[2], 3)] ^ key[pos + 3];
+
+#define DECRYPT_ROUND(in, pos, key, out)  \
+    out[0] = mixed_invsbox_e9db[GET_BYTE32(in[0], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[3], 1)] ^                \
+             mixed_invsbox_dbe9[GET_BYTE32(in[2], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[1], 3)] ^ key[pos    ];  \
+    out[1] = mixed_invsbox_e9db[GET_BYTE32(in[1], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[0], 1)] ^                \
+             mixed_invsbox_dbe9[GET_BYTE32(in[3], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[2], 3)] ^ key[pos + 1];  \
+    out[2] = mixed_invsbox_e9db[GET_BYTE32(in[2], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[1], 1)] ^                \
+             mixed_invsbox_dbe9[GET_BYTE32(in[0], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[3], 3)] ^ key[pos + 2];  \
+    out[3] = mixed_invsbox_e9db[GET_BYTE32(in[3], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[2], 1)] ^                \
+             mixed_invsbox_dbe9[GET_BYTE32(in[1], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[0], 3)] ^ key[pos + 3];
+
 #if defined(_MSC_VER)
 # if defined(_WIN64)
 #   define BYTE_SWAP32(x)       _byteswap_ulong((x))     
@@ -684,70 +706,75 @@ int32_t aes::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
 
 int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
   uint32_t kpos = 0;
-  uint32_t tmp32pln[4] = {0};
-  uint8_t tmppln[16] = {0};
+  uint32_t tmp1[4] = {0};
+  uint32_t tmp2[4] = {0};
 
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  memcpy(tmppln, ptext, 16);
 #if defined(SPEED_PRIORITY_AES)
-  endian<BIG, uint32_t, 16>::convert(tmppln, tmp32pln);
-
-  tmp32pln[0] = tmp32pln[0] ^ encskeys_[kpos    ];
-  tmp32pln[1] = tmp32pln[1] ^ encskeys_[kpos + 1];
-  tmp32pln[2] = tmp32pln[2] ^ encskeys_[kpos + 2];
-  tmp32pln[3] = tmp32pln[3] ^ encskeys_[kpos + 3];
-
-  endian<BIG, uint32_t, 16>::convert(tmp32pln, tmppln);
+  endian<BIG, uint32_t, 16>::convert(ptext, tmp1);
+  tmp1[0] = tmp1[0] ^ encskeys_[kpos    ];
+  tmp1[1] = tmp1[1] ^ encskeys_[kpos + 1];
+  tmp1[2] = tmp1[2] ^ encskeys_[kpos + 2];
+  tmp1[3] = tmp1[3] ^ encskeys_[kpos + 3];
 #else
+  memcpy(tmppln, ptext, 16);
   add_round_key(0, encskeys_, tmppln);
 #endif
 
-  for (int32_t round = 1; round < nr_; ++round) {
 #if defined(SPEED_PRIORITY_AES)
-    kpos = 4 * round;
+  ENCRYPT_ROUND(tmp1,  4, encskeys_, tmp2); /* round  1 */
+  ENCRYPT_ROUND(tmp2,  8, encskeys_, tmp1); /* round  2 */
+  ENCRYPT_ROUND(tmp1, 12, encskeys_, tmp2); /* round  3 */
+  ENCRYPT_ROUND(tmp2, 16, encskeys_, tmp1); /* round  4 */
+  ENCRYPT_ROUND(tmp1, 20, encskeys_, tmp2); /* round  5 */
+  ENCRYPT_ROUND(tmp2, 24, encskeys_, tmp1); /* round  6 */
+  ENCRYPT_ROUND(tmp1, 28, encskeys_, tmp2); /* round  7 */
+  ENCRYPT_ROUND(tmp2, 32, encskeys_, tmp1); /* round  8 */
+  ENCRYPT_ROUND(tmp1, 36, encskeys_, tmp2); /* round  9 */
 
-    tmp32pln[0] = mixed_sbox_2113[tmppln[0]]  ^ mixed_sbox_3211[tmppln[5]]  ^ 
-                  mixed_sbox_1321[tmppln[10]] ^ mixed_sbox_1132[tmppln[15]] ^ encskeys_[kpos    ];
-    tmp32pln[1] = mixed_sbox_2113[tmppln[4]]  ^ mixed_sbox_3211[tmppln[9]]  ^ 
-                  mixed_sbox_1321[tmppln[14]] ^ mixed_sbox_1132[tmppln[3]]  ^ encskeys_[kpos + 1];
-    tmp32pln[2] = mixed_sbox_2113[tmppln[8]]  ^ mixed_sbox_3211[tmppln[13]] ^ 
-                  mixed_sbox_1321[tmppln[2]]  ^ mixed_sbox_1132[tmppln[7]]  ^ encskeys_[kpos + 2];
-    tmp32pln[3] = mixed_sbox_2113[tmppln[12]] ^ mixed_sbox_3211[tmppln[1]]  ^ 
-                  mixed_sbox_1321[tmppln[6]]  ^ mixed_sbox_1132[tmppln[11]] ^ encskeys_[kpos + 3];
+  if (AES192_ROUNDS == nr_) {
+    ENCRYPT_ROUND(tmp2, 40, encskeys_, tmp1); /* round 10 */
+    ENCRYPT_ROUND(tmp1, 44, encskeys_, tmp2); /* round 11 */
 
-    endian<BIG, uint32_t, 16>::convert(tmp32pln, tmppln);
-#else
+  } else if (AES256_ROUNDS == nr_) {
+    ENCRYPT_ROUND(tmp2, 40, encskeys_, tmp1); /* round 10 */
+    ENCRYPT_ROUND(tmp1, 44, encskeys_, tmp2); /* round 11 */
+    ENCRYPT_ROUND(tmp2, 48, encskeys_, tmp1); /* round 12 */
+    ENCRYPT_ROUND(tmp1, 52, encskeys_, tmp2); /* round 13 */
+  }  
+#else 
+  for (int32_t round = 1; round < nr_; round += 2) {
     sub_bytes(tmppln);
     shift_rows(tmppln);
     mix_columns(tmppln);
     add_round_key(round, encskeys_, tmppln);
-#endif
   }
+#endif
 
 #if defined(SPEED_PRIORITY_AES)
-  kpos = 4 * nr_;
+  kpos = nr_ << 2;
 
-  ctext[0]  = sbox[tmppln[0]]  ^ (uint8_t)((encskeys_[kpos]     >> 24) & 0x0000'00FF);
-  ctext[1]  = sbox[tmppln[5]]  ^ (uint8_t)((encskeys_[kpos]     >> 16) & 0x0000'00FF);
-  ctext[2]  = sbox[tmppln[10]] ^ (uint8_t)((encskeys_[kpos]     >>  8) & 0x0000'00FF);
-  ctext[3]  = sbox[tmppln[15]] ^ (uint8_t)( encskeys_[kpos]            & 0x0000'00FF);
+  ctext[0]  = sbox[GET_BYTE32(tmp2[0], 0)] ^ (uint8_t)((encskeys_[kpos]     >> 24) & 0x0000'00FF);
+  ctext[1]  = sbox[GET_BYTE32(tmp2[1], 1)] ^ (uint8_t)((encskeys_[kpos]     >> 16) & 0x0000'00FF);
+  ctext[2]  = sbox[GET_BYTE32(tmp2[2], 2)] ^ (uint8_t)((encskeys_[kpos]     >>  8) & 0x0000'00FF);
+  ctext[3]  = sbox[GET_BYTE32(tmp2[3], 3)] ^ (uint8_t)( encskeys_[kpos]            & 0x0000'00FF);
 
-  ctext[4]  = sbox[tmppln[4]]  ^ (uint8_t)((encskeys_[kpos + 1] >> 24) & 0x0000'00FF);
-  ctext[5]  = sbox[tmppln[9]]  ^ (uint8_t)((encskeys_[kpos + 1] >> 16) & 0x0000'00FF);
-  ctext[6]  = sbox[tmppln[14]] ^ (uint8_t)((encskeys_[kpos + 1] >>  8) & 0x0000'00FF);
-  ctext[7]  = sbox[tmppln[3]]  ^ (uint8_t)( encskeys_[kpos + 1]        & 0x0000'00FF);
+  ctext[4]  = sbox[GET_BYTE32(tmp2[1], 0)] ^ (uint8_t)((encskeys_[kpos + 1] >> 24) & 0x0000'00FF);
+  ctext[5]  = sbox[GET_BYTE32(tmp2[2], 1)] ^ (uint8_t)((encskeys_[kpos + 1] >> 16) & 0x0000'00FF);
+  ctext[6]  = sbox[GET_BYTE32(tmp2[3], 2)] ^ (uint8_t)((encskeys_[kpos + 1] >>  8) & 0x0000'00FF);
+  ctext[7]  = sbox[GET_BYTE32(tmp2[0], 3)] ^ (uint8_t)( encskeys_[kpos + 1]        & 0x0000'00FF);
 
-  ctext[8]  = sbox[tmppln[8]]  ^ (uint8_t)((encskeys_[kpos + 2] >> 24) & 0x0000'00FF);
-  ctext[9]  = sbox[tmppln[13]] ^ (uint8_t)((encskeys_[kpos + 2] >> 16) & 0x0000'00FF);
-  ctext[10] = sbox[tmppln[2]]  ^ (uint8_t)((encskeys_[kpos + 2] >>  8) & 0x0000'00FF);
-  ctext[11] = sbox[tmppln[7]]  ^ (uint8_t)( encskeys_[kpos + 2]        & 0x0000'00FF);
+  ctext[8]  = sbox[GET_BYTE32(tmp2[2], 0)] ^ (uint8_t)((encskeys_[kpos + 2] >> 24) & 0x0000'00FF);
+  ctext[9]  = sbox[GET_BYTE32(tmp2[3], 1)] ^ (uint8_t)((encskeys_[kpos + 2] >> 16) & 0x0000'00FF);
+  ctext[10] = sbox[GET_BYTE32(tmp2[0], 2)] ^ (uint8_t)((encskeys_[kpos + 2] >>  8) & 0x0000'00FF);
+  ctext[11] = sbox[GET_BYTE32(tmp2[1], 3)] ^ (uint8_t)( encskeys_[kpos + 2]        & 0x0000'00FF);
 
-  ctext[12] = sbox[tmppln[12]] ^ (uint8_t)((encskeys_[kpos + 3] >> 24) & 0x0000'00FF);
-  ctext[13] = sbox[tmppln[1]]  ^ (uint8_t)((encskeys_[kpos + 3] >> 16) & 0x0000'00FF);
-  ctext[14] = sbox[tmppln[6]]  ^ (uint8_t)((encskeys_[kpos + 3] >>  8) & 0x0000'00FF);
-  ctext[15] = sbox[tmppln[11]] ^ (uint8_t)( encskeys_[kpos + 3]        & 0x0000'00FF);
+  ctext[12] = sbox[GET_BYTE32(tmp2[3], 0)] ^ (uint8_t)((encskeys_[kpos + 3] >> 24) & 0x0000'00FF);
+  ctext[13] = sbox[GET_BYTE32(tmp2[0], 1)] ^ (uint8_t)((encskeys_[kpos + 3] >> 16) & 0x0000'00FF);
+  ctext[14] = sbox[GET_BYTE32(tmp2[1], 2)] ^ (uint8_t)((encskeys_[kpos + 3] >>  8) & 0x0000'00FF);
+  ctext[15] = sbox[GET_BYTE32(tmp2[2], 3)] ^ (uint8_t)( encskeys_[kpos + 3]        & 0x0000'00FF);
 
 #else
   sub_bytes(tmppln);
@@ -756,75 +783,80 @@ int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
 
   memcpy(ctext, tmppln, 16);
 #endif
-
   return SUCCESS;
 }
 
 int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  uint32_t kpos = 4 * nr_;
-  uint32_t tmp32cphr[4] = {0};
-  uint8_t tmpcphr[16] = {0};
+  uint32_t kpos = nr_ << 2;
+  uint32_t tmp1[4] = {0};
+  uint32_t tmp2[4] = {0};
 
   if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
-  memcpy(tmpcphr, ctext, 16);
 #if defined(SPEED_PRIORITY_AES)
-  endian<BIG, uint32_t, 16>::convert(tmpcphr, tmp32cphr);
-
-  tmp32cphr[0] = tmp32cphr[0] ^ decskeys_[kpos    ];
-  tmp32cphr[1] = tmp32cphr[1] ^ decskeys_[kpos + 1];
-  tmp32cphr[2] = tmp32cphr[2] ^ decskeys_[kpos + 2];
-  tmp32cphr[3] = tmp32cphr[3] ^ decskeys_[kpos + 3];
-
-  endian<BIG, uint32_t, 16>::convert(tmp32cphr, tmpcphr);
+  endian<BIG, uint32_t, 16>::convert(ctext, tmp1);
+  tmp1[0] = tmp1[0] ^ decskeys_[kpos    ];
+  tmp1[1] = tmp1[1] ^ decskeys_[kpos + 1];
+  tmp1[2] = tmp1[2] ^ decskeys_[kpos + 2];
+  tmp1[3] = tmp1[3] ^ decskeys_[kpos + 3];
 #else
+  memcpy(tmpcphr, ctext, 16);
   add_round_key(nr_, encskeys_, tmpcphr);
 #endif
 
-  for (uint32_t round = nr_ - 1; round > 0; --round) {
 #if defined(SPEED_PRIORITY_AES)
-    kpos = 4 * round;
+  if (AES192_ROUNDS == nr_) {
+    DECRYPT_ROUND(tmp1, 44, decskeys_, tmp2); /* round 11 */
+    DECRYPT_ROUND(tmp2, 40, decskeys_, tmp1); /* round 10 */
 
-    tmp32cphr[0] = mixed_invsbox_e9db[tmpcphr[0]]  ^ mixed_invsbox_be9d[tmpcphr[13]] ^ 
-                   mixed_invsbox_dbe9[tmpcphr[10]] ^ mixed_invsbox_9dbe[tmpcphr[7]]  ^ decskeys_[kpos    ];
-    tmp32cphr[1] = mixed_invsbox_e9db[tmpcphr[4]]  ^ mixed_invsbox_be9d[tmpcphr[1]]  ^ 
-                   mixed_invsbox_dbe9[tmpcphr[14]] ^ mixed_invsbox_9dbe[tmpcphr[11]] ^ decskeys_[kpos + 1];
-    tmp32cphr[2] = mixed_invsbox_e9db[tmpcphr[8]]  ^ mixed_invsbox_be9d[tmpcphr[5]]  ^ 
-                   mixed_invsbox_dbe9[tmpcphr[2]]  ^ mixed_invsbox_9dbe[tmpcphr[15]] ^ decskeys_[kpos + 2];
-    tmp32cphr[3] = mixed_invsbox_e9db[tmpcphr[12]] ^ mixed_invsbox_be9d[tmpcphr[9]]  ^ 
-                   mixed_invsbox_dbe9[tmpcphr[6]]  ^ mixed_invsbox_9dbe[tmpcphr[3]]  ^ decskeys_[kpos + 3];
-    endian<BIG, uint32_t, 16>::convert(tmp32cphr, tmpcphr);
+  } else if (AES256_ROUNDS == nr_) {
+    DECRYPT_ROUND(tmp1, 52, decskeys_, tmp2); /* round 13 */
+    DECRYPT_ROUND(tmp2, 48, decskeys_, tmp1); /* round 12 */
+    DECRYPT_ROUND(tmp1, 44, decskeys_, tmp2); /* round 11 */
+    DECRYPT_ROUND(tmp2, 40, decskeys_, tmp1); /* round 10 */
+  }
+
+  DECRYPT_ROUND(tmp1, 36, decskeys_, tmp2); /* round  9 */
+  DECRYPT_ROUND(tmp2, 32, decskeys_, tmp1); /* round  8 */
+  DECRYPT_ROUND(tmp1, 28, decskeys_, tmp2); /* round  7 */
+  DECRYPT_ROUND(tmp2, 24, decskeys_, tmp1); /* round  6 */
+  DECRYPT_ROUND(tmp1, 20, decskeys_, tmp2); /* round  5 */
+  DECRYPT_ROUND(tmp2, 16, decskeys_, tmp1); /* round  4 */
+  DECRYPT_ROUND(tmp1, 12, decskeys_, tmp2); /* round  3 */
+  DECRYPT_ROUND(tmp2,  8, decskeys_, tmp1); /* round  2 */
+  DECRYPT_ROUND(tmp1,  4, decskeys_, tmp2); /* round  1 */
 #else
+  for (int32_t round = nr_ - 1; round > 0; round -= 2) {
     inv_shift_rows(tmpcphr);
     inv_sub_bytes(tmpcphr);
     add_round_key(round, encskeys_, tmpcphr);
     inv_mix_columns(tmpcphr);
-#endif
   }
+#endif
 
 #if defined(SPEED_PRIORITY_AES)
   kpos = 0;
 
-  ptext[0]  = invsbox[tmpcphr[0]]  ^ (uint8_t)((decskeys_[kpos]     >> 24) & 0x0000'00FF);
-  ptext[1]  = invsbox[tmpcphr[13]] ^ (uint8_t)((decskeys_[kpos]     >> 16) & 0x0000'00FF);
-  ptext[2]  = invsbox[tmpcphr[10]] ^ (uint8_t)((decskeys_[kpos]     >>  8) & 0x0000'00FF);
-  ptext[3]  = invsbox[tmpcphr[7]]  ^ (uint8_t)( decskeys_[kpos]            & 0x0000'00FF);
+  ptext[0]  = invsbox[GET_BYTE32(tmp2[0], 0)] ^ (uint8_t)((decskeys_[kpos]     >> 24) & 0x0000'00FF);
+  ptext[1]  = invsbox[GET_BYTE32(tmp2[3], 1)] ^ (uint8_t)((decskeys_[kpos]     >> 16) & 0x0000'00FF);
+  ptext[2]  = invsbox[GET_BYTE32(tmp2[2], 2)] ^ (uint8_t)((decskeys_[kpos]     >>  8) & 0x0000'00FF);
+  ptext[3]  = invsbox[GET_BYTE32(tmp2[1], 3)] ^ (uint8_t)( decskeys_[kpos]            & 0x0000'00FF);
 
-  ptext[4]  = invsbox[tmpcphr[4]]  ^ (uint8_t)((decskeys_[kpos + 1] >> 24) & 0x0000'00FF);
-  ptext[5]  = invsbox[tmpcphr[1]]  ^ (uint8_t)((decskeys_[kpos + 1] >> 16) & 0x0000'00FF);
-  ptext[6]  = invsbox[tmpcphr[14]] ^ (uint8_t)((decskeys_[kpos + 1] >>  8) & 0x0000'00FF);
-  ptext[7]  = invsbox[tmpcphr[11]] ^ (uint8_t)( decskeys_[kpos + 1]        & 0x0000'00FF);
+  ptext[4]  = invsbox[GET_BYTE32(tmp2[1], 0)] ^ (uint8_t)((decskeys_[kpos + 1] >> 24) & 0x0000'00FF);
+  ptext[5]  = invsbox[GET_BYTE32(tmp2[0], 1)] ^ (uint8_t)((decskeys_[kpos + 1] >> 16) & 0x0000'00FF);
+  ptext[6]  = invsbox[GET_BYTE32(tmp2[3], 2)] ^ (uint8_t)((decskeys_[kpos + 1] >>  8) & 0x0000'00FF);
+  ptext[7]  = invsbox[GET_BYTE32(tmp2[2], 3)] ^ (uint8_t)( decskeys_[kpos + 1]        & 0x0000'00FF);
 
-  ptext[8]  = invsbox[tmpcphr[8]]  ^ (uint8_t)((decskeys_[kpos + 2] >> 24) & 0x0000'00FF);
-  ptext[9]  = invsbox[tmpcphr[5]]  ^ (uint8_t)((decskeys_[kpos + 2] >> 16) & 0x0000'00FF);
-  ptext[10] = invsbox[tmpcphr[2]]  ^ (uint8_t)((decskeys_[kpos + 2] >>  8) & 0x0000'00FF);
-  ptext[11] = invsbox[tmpcphr[15]] ^ (uint8_t)( decskeys_[kpos + 2]        & 0x0000'00FF);
+  ptext[8]  = invsbox[GET_BYTE32(tmp2[2], 0)] ^ (uint8_t)((decskeys_[kpos + 2] >> 24) & 0x0000'00FF);
+  ptext[9]  = invsbox[GET_BYTE32(tmp2[1], 1)] ^ (uint8_t)((decskeys_[kpos + 2] >> 16) & 0x0000'00FF);
+  ptext[10] = invsbox[GET_BYTE32(tmp2[0], 2)] ^ (uint8_t)((decskeys_[kpos + 2] >>  8) & 0x0000'00FF);
+  ptext[11] = invsbox[GET_BYTE32(tmp2[3], 3)] ^ (uint8_t)( decskeys_[kpos + 2]        & 0x0000'00FF);
 
-  ptext[12] = invsbox[tmpcphr[12]] ^ (uint8_t)((decskeys_[kpos + 3] >> 24) & 0x0000'00FF);
-  ptext[13] = invsbox[tmpcphr[9]]  ^ (uint8_t)((decskeys_[kpos + 3] >> 16) & 0x0000'00FF);
-  ptext[14] = invsbox[tmpcphr[6]]  ^ (uint8_t)((decskeys_[kpos + 3] >>  8) & 0x0000'00FF);
-  ptext[15] = invsbox[tmpcphr[3]]  ^ (uint8_t)( decskeys_[kpos + 3]        & 0x0000'00FF);
+  ptext[12] = invsbox[GET_BYTE32(tmp2[3], 0)] ^ (uint8_t)((decskeys_[kpos + 3] >> 24) & 0x0000'00FF);
+  ptext[13] = invsbox[GET_BYTE32(tmp2[2], 1)] ^ (uint8_t)((decskeys_[kpos + 3] >> 16) & 0x0000'00FF);
+  ptext[14] = invsbox[GET_BYTE32(tmp2[1], 2)] ^ (uint8_t)((decskeys_[kpos + 3] >>  8) & 0x0000'00FF);
+  ptext[15] = invsbox[GET_BYTE32(tmp2[0], 3)] ^ (uint8_t)( decskeys_[kpos + 3]        & 0x0000'00FF);
 #else
   inv_shift_rows(tmpcphr);
   inv_sub_bytes(tmpcphr);
@@ -832,7 +864,6 @@ int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t 
 
   memcpy(ptext, tmpcphr, 16);
 #endif
-
   return SUCCESS;
 }
 
@@ -865,7 +896,7 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
              (uint32_t)sbox[(tmp)       & 0xFF]) ^
              rcon[j / nk_];
 #else
-      tmp = sub_word(rot_word(tmp)) ^ rcon[j / nk_];
+      tmp2 = sub_word(rot_word(tmp2)) ^ rcon[j / nk_];
 #endif
     } else if (nk_ > 6 && 4 == (j % nk_)) {
 #if defined(SPEED_PRIORITY_AES)
@@ -874,7 +905,7 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
              (uint32_t)sbox[(tmp >>  8) & 0xFF] <<  8 | 
              (uint32_t)sbox[(tmp)       & 0xFF]);
 #else
-      tmp = sub_word(tmp);
+      tmp2 = sub_word(tmp2);
 #endif
     }
     encskeys[j] = encskeys[j - nk_] ^ tmp;
@@ -932,17 +963,15 @@ inline uint32_t aes::rot_word(uint32_t word) const noexcept {
 
   return out;
 }
-#endif
 
-#if !defined(SPEED_PRIORITY_AES)
 inline uint32_t aes::sub_word(uint32_t word) const noexcept {
-  uint8_t tmp[4] = {0};
+  uint8_t tmp2[4] = {0};
 
-  endian<BIG, uint32_t, 4>::convert(&word, tmp);
-  return (uint32_t)sbox[tmp[0]] << 24 | 
-         (uint32_t)sbox[tmp[1]] << 16 | 
-         (uint32_t)sbox[tmp[2]] << 8  | 
-         (uint32_t)sbox[tmp[3]];
+  endian<BIG, uint32_t, 4>::convert(&word, tmp2);
+  return (uint32_t)sbox[tmp2[0]] << 24 | 
+         (uint32_t)sbox[tmp2[1]] << 16 | 
+         (uint32_t)sbox[tmp2[2]] << 8  | 
+         (uint32_t)sbox[tmp2[3]];
 }
 
 inline void aes::sub_bytes(uint8_t *words) const noexcept {
@@ -964,120 +993,119 @@ inline void aes::inv_sub_bytes(uint8_t *words) const noexcept {
 }
 
 inline void aes::shift_rows(uint8_t *words) const noexcept {
-  uint8_t tmp[16] = {0};
+  uint8_t tmp2[16] = {0};
 
-  memcpy(tmp, words, 16);
+  memcpy(tmp2, words, 16);
 
-  words[1]  = tmp[5];
-  words[5]  = tmp[9];
-  words[9]  = tmp[13];
-  words[13] = tmp[1];
+  words[1]  = tmp2[5];
+  words[5]  = tmp2[9];
+  words[9]  = tmp2[13];
+  words[13] = tmp2[1];
 
-  words[2]  = tmp[10];
-  words[6]  = tmp[14];
-  words[10] = tmp[2];
-  words[14] = tmp[6];
+  words[2]  = tmp2[10];
+  words[6]  = tmp2[14];
+  words[10] = tmp2[2];
+  words[14] = tmp2[6];
 
-  words[3]  = tmp[15];
-  words[7]  = tmp[3];
-  words[11] = tmp[7];
-  words[15] = tmp[11];
+  words[3]  = tmp2[15];
+  words[7]  = tmp2[3];
+  words[11] = tmp2[7];
+  words[15] = tmp2[11];
 }
 
 inline void aes::inv_shift_rows(uint8_t *words) const noexcept {
-  uint8_t tmp[16] = {0};
+  uint8_t tmp2[16] = {0};
 
-  memcpy(tmp, words, 16);
+  memcpy(tmp2, words, 16);
 
-  words[1]  = tmp[13];
-  words[5]  = tmp[1];
-  words[9]  = tmp[5];
-  words[13] = tmp[9];
+  words[1]  = tmp2[13];
+  words[5]  = tmp2[1];
+  words[9]  = tmp2[5];
+  words[13] = tmp2[9];
 
-  words[2]  = tmp[10];
-  words[6]  = tmp[14];
-  words[10] = tmp[2];
-  words[14] = tmp[6];
+  words[2]  = tmp2[10];
+  words[6]  = tmp2[14];
+  words[10] = tmp2[2];
+  words[14] = tmp2[6];
 
-  words[3]  = tmp[7];
-  words[7]  = tmp[11];
-  words[11] = tmp[15];
-  words[15] = tmp[3];
+  words[3]  = tmp2[7];
+  words[7]  = tmp2[11];
+  words[11] = tmp2[15];
+  words[15] = tmp2[3];
 }
 
 inline void aes::mix_columns(uint8_t *words) const noexcept {
-  uint8_t tmp[16] = {0};
+  uint8_t tmp2[16] = {0};
   
   /* Line 1 */
-  tmp[0]  = gf_mult(0x02, words[0]) ^ gf_mult(0x03, words[1])   ^               words[2]   ^               words[3];
-  tmp[1]  =               words[0]  ^ gf_mult(0x02, words[1])   ^ gf_mult(0x03, words[2])  ^               words[3];
-  tmp[2]  =               words[0]  ^               words[1]    ^ gf_mult(0x02, words[2])  ^ gf_mult(0x03, words[3]);
-  tmp[3]  = gf_mult(0x03, words[0]) ^               words[1]    ^               words[2]   ^ gf_mult(0x02, words[3]);
+  tmp2[0]  = gf_mult(0x02, words[0]) ^ gf_mult(0x03, words[1])   ^               words[2]   ^               words[3];
+  tmp2[1]  =               words[0]  ^ gf_mult(0x02, words[1])   ^ gf_mult(0x03, words[2])  ^               words[3];
+  tmp2[2]  =               words[0]  ^               words[1]    ^ gf_mult(0x02, words[2])  ^ gf_mult(0x03, words[3]);
+  tmp2[3]  = gf_mult(0x03, words[0]) ^               words[1]    ^               words[2]   ^ gf_mult(0x02, words[3]);
                                                                                                     
   /* Line 2 */                                                                                      
-  tmp[4]  = gf_mult(0x02, words[4]) ^ gf_mult(0x03, words[5])   ^               words[6]   ^               words[7];
-  tmp[5]  =               words[4]  ^ gf_mult(0x02, words[5])   ^ gf_mult(0x03, words[6])  ^               words[7];
-  tmp[6]  =               words[4]  ^               words[5]    ^ gf_mult(0x02, words[6])  ^ gf_mult(0x03, words[7]);
-  tmp[7]  = gf_mult(0x03, words[4]) ^               words[5]    ^               words[6]   ^ gf_mult(0x02, words[7]);
+  tmp2[4]  = gf_mult(0x02, words[4]) ^ gf_mult(0x03, words[5])   ^               words[6]   ^               words[7];
+  tmp2[5]  =               words[4]  ^ gf_mult(0x02, words[5])   ^ gf_mult(0x03, words[6])  ^               words[7];
+  tmp2[6]  =               words[4]  ^               words[5]    ^ gf_mult(0x02, words[6])  ^ gf_mult(0x03, words[7]);
+  tmp2[7]  = gf_mult(0x03, words[4]) ^               words[5]    ^               words[6]   ^ gf_mult(0x02, words[7]);
                                                                          
   /* Line 3 */                                                           
-  tmp[8]  = gf_mult(0x02, words[8]) ^ gf_mult(0x03, words[9])   ^               words[10]  ^               words[11];
-  tmp[9]  =               words[8]  ^ gf_mult(0x02, words[9])   ^ gf_mult(0x03, words[10]) ^               words[11];
-  tmp[10] =               words[8]  ^               words[9]    ^ gf_mult(0x02, words[10]) ^ gf_mult(0x03, words[11]);
-  tmp[11] = gf_mult(0x03, words[8]) ^               words[9]    ^               words[10]  ^ gf_mult(0x02, words[11]);
+  tmp2[8]  = gf_mult(0x02, words[8]) ^ gf_mult(0x03, words[9])   ^               words[10]  ^               words[11];
+  tmp2[9]  =               words[8]  ^ gf_mult(0x02, words[9])   ^ gf_mult(0x03, words[10]) ^               words[11];
+  tmp2[10] =               words[8]  ^               words[9]    ^ gf_mult(0x02, words[10]) ^ gf_mult(0x03, words[11]);
+  tmp2[11] = gf_mult(0x03, words[8]) ^               words[9]    ^               words[10]  ^ gf_mult(0x02, words[11]);
 
   /* Line 4 */
-  tmp[12] = gf_mult(0x02, words[12]) ^ gf_mult(0x03, words[13]) ^               words[14]  ^               words[15];
-  tmp[13] =               words[12]  ^ gf_mult(0x02, words[13]) ^ gf_mult(0x03, words[14]) ^               words[15];
-  tmp[14] =               words[12]  ^               words[13]  ^ gf_mult(0x02, words[14]) ^ gf_mult(0x03, words[15]);
-  tmp[15] = gf_mult(0x03, words[12]) ^               words[13]  ^               words[14]  ^ gf_mult(0x02, words[15]);
+  tmp2[12] = gf_mult(0x02, words[12]) ^ gf_mult(0x03, words[13]) ^               words[14]  ^               words[15];
+  tmp2[13] =               words[12]  ^ gf_mult(0x02, words[13]) ^ gf_mult(0x03, words[14]) ^               words[15];
+  tmp2[14] =               words[12]  ^               words[13]  ^ gf_mult(0x02, words[14]) ^ gf_mult(0x03, words[15]);
+  tmp2[15] = gf_mult(0x03, words[12]) ^               words[13]  ^               words[14]  ^ gf_mult(0x02, words[15]);
 
-  memcpy(words, tmp, 16);
+  memcpy(words, tmp2, 16);
 }
 
 inline void aes::inv_mix_columns(uint8_t *words) const noexcept {
-  uint8_t tmp[16] = {0};
+  uint8_t tmp2[16] = {0};
 
   /* Line 1 */
-  tmp[0]  = gf_mult(0x0e, words[0])  ^ gf_mult(0x0b, words[1])  ^ gf_mult(0x0d, words[2])  ^ gf_mult(0x09, words[3]);
-  tmp[1]  = gf_mult(0x09, words[0])  ^ gf_mult(0x0e, words[1])  ^ gf_mult(0x0b, words[2])  ^ gf_mult(0x0d, words[3]);
-  tmp[2]  = gf_mult(0x0d, words[0])  ^ gf_mult(0x09, words[1])  ^ gf_mult(0x0e, words[2])  ^ gf_mult(0x0b, words[3]);
-  tmp[3]  = gf_mult(0x0b, words[0])  ^ gf_mult(0x0d, words[1])  ^ gf_mult(0x09, words[2])  ^ gf_mult(0x0e, words[3]);
+  tmp2[0]  = gf_mult(0x0e, words[0])  ^ gf_mult(0x0b, words[1])  ^ gf_mult(0x0d, words[2])  ^ gf_mult(0x09, words[3]);
+  tmp2[1]  = gf_mult(0x09, words[0])  ^ gf_mult(0x0e, words[1])  ^ gf_mult(0x0b, words[2])  ^ gf_mult(0x0d, words[3]);
+  tmp2[2]  = gf_mult(0x0d, words[0])  ^ gf_mult(0x09, words[1])  ^ gf_mult(0x0e, words[2])  ^ gf_mult(0x0b, words[3]);
+  tmp2[3]  = gf_mult(0x0b, words[0])  ^ gf_mult(0x0d, words[1])  ^ gf_mult(0x09, words[2])  ^ gf_mult(0x0e, words[3]);
                                                                                              
   /* Line 2 */                                                                               
-  tmp[4]  = gf_mult(0x0e, words[4])  ^ gf_mult(0x0b, words[5])  ^ gf_mult(0x0d, words[6])  ^ gf_mult(0x09, words[7]);
-  tmp[5]  = gf_mult(0x09, words[4])  ^ gf_mult(0x0e, words[5])  ^ gf_mult(0x0b, words[6])  ^ gf_mult(0x0d, words[7]);
-  tmp[6]  = gf_mult(0x0d, words[4])  ^ gf_mult(0x09, words[5])  ^ gf_mult(0x0e, words[6])  ^ gf_mult(0x0b, words[7]);
-  tmp[7]  = gf_mult(0x0b, words[4])  ^ gf_mult(0x0d, words[5])  ^ gf_mult(0x09, words[6])  ^ gf_mult(0x0e, words[7]);
+  tmp2[4]  = gf_mult(0x0e, words[4])  ^ gf_mult(0x0b, words[5])  ^ gf_mult(0x0d, words[6])  ^ gf_mult(0x09, words[7]);
+  tmp2[5]  = gf_mult(0x09, words[4])  ^ gf_mult(0x0e, words[5])  ^ gf_mult(0x0b, words[6])  ^ gf_mult(0x0d, words[7]);
+  tmp2[6]  = gf_mult(0x0d, words[4])  ^ gf_mult(0x09, words[5])  ^ gf_mult(0x0e, words[6])  ^ gf_mult(0x0b, words[7]);
+  tmp2[7]  = gf_mult(0x0b, words[4])  ^ gf_mult(0x0d, words[5])  ^ gf_mult(0x09, words[6])  ^ gf_mult(0x0e, words[7]);
                                                                    
   /* Line 3 */                                                     
-  tmp[8]  = gf_mult(0x0e, words[8])  ^ gf_mult(0x0b, words[9])  ^ gf_mult(0x0d, words[10]) ^ gf_mult(0x09, words[11]);
-  tmp[9]  = gf_mult(0x09, words[8])  ^ gf_mult(0x0e, words[9])  ^ gf_mult(0x0b, words[10]) ^ gf_mult(0x0d, words[11]);
-  tmp[10] = gf_mult(0x0d, words[8])  ^ gf_mult(0x09, words[9])  ^ gf_mult(0x0e, words[10]) ^ gf_mult(0x0b, words[11]);
-  tmp[11] = gf_mult(0x0b, words[8])  ^ gf_mult(0x0d, words[9])  ^ gf_mult(0x09, words[10]) ^ gf_mult(0x0e, words[11]);
+  tmp2[8]  = gf_mult(0x0e, words[8])  ^ gf_mult(0x0b, words[9])  ^ gf_mult(0x0d, words[10]) ^ gf_mult(0x09, words[11]);
+  tmp2[9]  = gf_mult(0x09, words[8])  ^ gf_mult(0x0e, words[9])  ^ gf_mult(0x0b, words[10]) ^ gf_mult(0x0d, words[11]);
+  tmp2[10] = gf_mult(0x0d, words[8])  ^ gf_mult(0x09, words[9])  ^ gf_mult(0x0e, words[10]) ^ gf_mult(0x0b, words[11]);
+  tmp2[11] = gf_mult(0x0b, words[8])  ^ gf_mult(0x0d, words[9])  ^ gf_mult(0x09, words[10]) ^ gf_mult(0x0e, words[11]);
 
   /* Line 4 */
-  tmp[12] = gf_mult(0x0e, words[12]) ^ gf_mult(0x0b, words[13]) ^ gf_mult(0x0d, words[14]) ^ gf_mult(0x09, words[15]);
-  tmp[13] = gf_mult(0x09, words[12]) ^ gf_mult(0x0e, words[13]) ^ gf_mult(0x0b, words[14]) ^ gf_mult(0x0d, words[15]);
-  tmp[14] = gf_mult(0x0d, words[12]) ^ gf_mult(0x09, words[13]) ^ gf_mult(0x0e, words[14]) ^ gf_mult(0x0b, words[15]);
-  tmp[15] = gf_mult(0x0b, words[12]) ^ gf_mult(0x0d, words[13]) ^ gf_mult(0x09, words[14]) ^ gf_mult(0x0e, words[15]);
+  tmp2[12] = gf_mult(0x0e, words[12]) ^ gf_mult(0x0b, words[13]) ^ gf_mult(0x0d, words[14]) ^ gf_mult(0x09, words[15]);
+  tmp2[13] = gf_mult(0x09, words[12]) ^ gf_mult(0x0e, words[13]) ^ gf_mult(0x0b, words[14]) ^ gf_mult(0x0d, words[15]);
+  tmp2[14] = gf_mult(0x0d, words[12]) ^ gf_mult(0x09, words[13]) ^ gf_mult(0x0e, words[14]) ^ gf_mult(0x0b, words[15]);
+  tmp2[15] = gf_mult(0x0b, words[12]) ^ gf_mult(0x0d, words[13]) ^ gf_mult(0x09, words[14]) ^ gf_mult(0x0e, words[15]);
 
-  memcpy(words, tmp, 16);
+  memcpy(words, tmp2, 16);
 }
-
 
 inline void aes::add_round_key(const uint32_t nr, const uint32_t *key, uint8_t *word) const noexcept {
   const uint32_t kpos = 4 * nr;
-  uint32_t tmp[4] = {0};
+  uint32_t tmp2[4] = {0};
 
-  endian<BIG, uint32_t, 16>::convert(word, tmp);
+  endian<BIG, uint32_t, 16>::convert(word, tmp2);
 
-  tmp[0] = tmp[0] ^ key[kpos    ];
-  tmp[1] = tmp[1] ^ key[kpos + 1];
-  tmp[2] = tmp[2] ^ key[kpos + 2];
-  tmp[3] = tmp[3] ^ key[kpos + 3];
+  tmp2[0] = tmp2[0] ^ key[kpos    ];
+  tmp2[1] = tmp2[1] ^ key[kpos + 1];
+  tmp2[2] = tmp2[2] ^ key[kpos + 2];
+  tmp2[3] = tmp2[3] ^ key[kpos + 3];
 
-  endian<BIG, uint32_t, 16>::convert(tmp, word);
+  endian<BIG, uint32_t, 16>::convert(tmp2, word);
 }
 
 inline uint8_t aes::gf_mult(uint8_t x, uint8_t y) const noexcept {
