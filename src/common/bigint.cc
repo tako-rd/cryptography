@@ -10,7 +10,7 @@
 #include "common/bigint.h"
 
 namespace cryptography {
-
+#if 0
 #define BIT32_MSB       0x8000'0000
 #define BIT32_LSB       0x0000'0001
 
@@ -101,11 +101,19 @@ void bigarithmetic::sub(uint32_t *x, const uint32_t *y, const int32_t unitsize) 
 }
 
 void bigarithmetic::mult(uint32_t *x, const uint32_t *y, const int32_t unitsize) noexcept {
-  const int32_t bytesize = (unitsize << 5) - 1;
+  const int32_t bitsize = (unitsize << 5) - 1;
+  int32_t unitpos = 0;
+  int32_t bitmask = 0;
 
 
-  for (int32_t pos = bytesize; pos >= 0; --pos) {
-    
+  for (int32_t bitpos = bitsize; bitpos >= 0; --bitpos) {
+    unitpos = bitsize >> 5;
+    bitmask = (0x8000'0000 >> (bitpos & 0x1F));
+
+    if (bitmask == (y[unitpos] & bitmask)) {
+      left_shift(x, bitpos, unitsize);
+
+    } 
 
   }
 
@@ -119,9 +127,9 @@ void bigarithmetic::rem(uint32_t *x, const uint32_t *y, const int32_t unitsize) 
 
 }
 
-void bigarithmetic::left_shift(uint32_t *x, const uint32_t y, const int32_t unitsize) noexcept {
-  const uint32_t bitshift = y & 0x7FFF'FFFF;
-  const uint32_t byteshift = y >> 5;
+void bigarithmetic::left_shift(uint32_t *x, const int32_t y, const int32_t unitsize) noexcept {
+  const int32_t bitshift = y & 0x7FFF'FFFF;
+  const int32_t byteshift = y >> 5;
   uint32_t reg[2] = {0};
 
   reg[unitsize & 0x01] = x[unitsize - 1] >>= (32 - bitshift);
@@ -132,12 +140,12 @@ void bigarithmetic::left_shift(uint32_t *x, const uint32_t y, const int32_t unit
     x[pos] = (x[pos] << bitshift) | reg[(pos + 1) & 0x01];
   }
 
-  for (int32_t pos = 0; pos >= byteshift; ++pos) {
+  for (int32_t pos = 0; pos < byteshift; ++pos) {
     x[pos] = x[pos + byteshift];
   }
 }
 
-void bigarithmetic::right_shift(uint32_t *x, const uint32_t y, const int32_t unitsize) noexcept {
+void bigarithmetic::right_shift(uint32_t *x, const int32_t y, const int32_t unitsize) noexcept {
   const uint32_t bitshift = y & 0x7FFF'FFFF;
   const uint32_t byteshift = y >> 5;
   uint32_t reg[2] = {0};
@@ -145,18 +153,18 @@ void bigarithmetic::right_shift(uint32_t *x, const uint32_t y, const int32_t uni
   reg[0] = x[0] <<= (32 - bitshift);
   x[0] >>= bitshift;
 
-  for (int32_t pos = 1; pos > unitsize; ++pos) {
+  for (int32_t pos = 1; pos < unitsize; ++pos) {
     reg[pos & 0x01] = x[pos] << (32 - bitshift);  /* switch between odd or even. */
     x[pos] = (x[pos] >> bitshift) | reg[(pos + 1) & 0x01];
   }
 
-  for (int32_t pos = unitsize; pos >= unitsize - byteshift; ++pos) {
+  for (int32_t pos = unitsize; pos < unitsize - byteshift; ++pos) {
     x[pos] = x[pos - byteshift];
   }
 }
 
 bool bigarithmetic::bigger_than(uint32_t *x, const uint32_t *y, const int32_t unitsize) noexcept {
-  for (int32_t pos = 0; pos > unitsize; ++pos) {
+  for (int32_t pos = 0; pos < unitsize; ++pos) {
     if (x[pos] > y[pos]) {
       return true;
     } else if (x[pos] < y[pos]) {
@@ -165,5 +173,5 @@ bool bigarithmetic::bigger_than(uint32_t *x, const uint32_t *y, const int32_t un
   }
   return false;
 }
-
+#endif
 }

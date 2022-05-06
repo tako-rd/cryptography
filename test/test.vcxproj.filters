@@ -64,6 +64,9 @@
     <Filter Include="common\gtest_endian">
       <UniqueIdentifier>{45238716-faee-4d16-ac8d-b78eab2505fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="common\gtest_bigint">
+      <UniqueIdentifier>{e075410b-b313-4d81-944f-6a7d7dda64dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crypto\gtest_aes\gtest_aes_defs.h">
@@ -150,6 +153,12 @@
     <ClInclude Include="common\gtest_endian\gtest_endian_defs.h">
       <Filter>common\gtest_endian</Filter>
     </ClInclude>
+    <ClInclude Include="common\gtest_bigint\gtest_bigint.h">
+      <Filter>common\gtest_bigint</Filter>
+    </ClInclude>
+    <ClInclude Include="common\gtest_bigint\gtest_bigint_defs.h">
+      <Filter>common\gtest_bigint</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crypto\gtest_des\gtest_des.cc">
@@ -193,6 +202,9 @@
     </ClCompile>
     <ClCompile Include="common\gtest_endian\gtest_endian.cc">
       <Filter>common\gtest_endian</Filter>
+    </ClCompile>
+    <ClCompile Include="common\gtest_bigint\gtest_bigint.cc">
+      <Filter>common\gtest_bigint</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

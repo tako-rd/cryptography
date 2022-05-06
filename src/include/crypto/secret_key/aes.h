@@ -27,11 +27,14 @@ using AESNI = aes_ni;
 
 class aes_base {
  public:
-  aes_base() noexcept {};
+  aes_base() noexcept : padding_{0} {};
 
   ~aes_base() {};
 
   static const uint32_t unit_size = 16;
+
+ private:
+  uint32_t padding_[4];
 };
 
 class aes final : public aes_base, public secret_key_base<aes> { 
@@ -114,7 +117,5 @@ private:
   bool has_subkeys_;
 };
 
-
 }
-
 #endif

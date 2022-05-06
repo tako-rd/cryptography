@@ -11,6 +11,7 @@
 #define GTEST_BIGINT_H
 
 #include "gtest/gtest.h"
+#include "gtest_bigint_defs.h"
 
 #include "common/bigint.h"
 

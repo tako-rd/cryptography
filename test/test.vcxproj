@@ -36,6 +36,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\gtest_bigint\gtest_bigint.h" />
+    <ClInclude Include="common\gtest_bigint\gtest_bigint_defs.h" />
     <ClInclude Include="common\gtest_endian\gtest_endian.h" />
     <ClInclude Include="common\gtest_endian\gtest_endian_defs.h" />
     <ClInclude Include="crypto\gtest_aes\gtest_aes.h" />
@@ -66,6 +68,7 @@
     <ClInclude Include="crypto\gtest_twofish\gtest_twofish_defs.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="common\gtest_bigint\gtest_bigint.cc" />
     <ClCompile Include="common\gtest_endian\gtest_endian.cc" />
     <ClCompile Include="crypto\gtest_aes\gtest_aes.cc" />
     <ClCompile Include="crypto\gtest_camellia\gtest_camellia.cc" />
