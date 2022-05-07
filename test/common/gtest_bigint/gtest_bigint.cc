@@ -28,6 +28,34 @@ TEST_F(GTestBigint, Normal_Biguint64_Add_001) {
   }
 }
 
+TEST_F(GTestBigint, Normal_Biguint64_Add_002) {
+  uint32_t u32data[2] = {0};
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
+  uint64_t num1 = BIG_NUMBER_64BIT_001;
+
+  for (int32_t i = 0; i < 50; i += 1) {
+    bigunum1 = bigunum1 + 1;
+    num1 = num1 + 1;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Add_003) {
+  uint32_t u32data[2] = {0};
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
+  uint64_t num1 = BIG_NUMBER_64BIT_001;
+
+  for (int32_t i = 0; i < 50; i += 1) {
+    bigunum1 = bigunum1 + BIG_NUMBER_64BIT_ARRAY_001;
+    num1 = num1 + BIG_NUMBER_64BIT_001;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
 TEST_F(GTestBigint, Normal_Biguint64_Sub_001) {
   biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_002;
   biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
@@ -37,6 +65,32 @@ TEST_F(GTestBigint, Normal_Biguint64_Sub_001) {
   for (int32_t i = 0; i < 50; i += 1) {
     bigunum1 = bigunum1 - bigunum2;
     num1 = num1 - num2;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Sub_002) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_002;
+  uint64_t num1 = BIG_NUMBER_64BIT_002;
+ 
+  for (int32_t i = 0; i < 50; i += 1) {
+    bigunum1 = bigunum1 - 1;
+    num1 = num1 - 1;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Sub_003) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_002;
+  uint64_t num1 = BIG_NUMBER_64BIT_002;
+
+  for (int32_t i = 0; i < 50; i += 1) {
+    bigunum1 = bigunum1 - BIG_NUMBER_64BIT_ARRAY_001;
+    num1 = num1 - BIG_NUMBER_64BIT_001;
 
     EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
     EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
@@ -58,30 +112,112 @@ TEST_F(GTestBigint, Normal_Biguint64_Mult_001) {
   }
 }
 
+TEST_F(GTestBigint, Normal_Biguint64_Mult_002) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
+  uint64_t num1 = BIG_NUMBER_64BIT_001;
+
+  for (int32_t i = 0; i < 50; i += 1) {
+    bigunum1 = bigunum1 * i;
+    num1 = num1 * i;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Mult_003) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
+  uint64_t num1 = BIG_NUMBER_64BIT_001;
+
+  for (int32_t i = 0; i < 50; i += 1) {
+    bigunum1 = bigunum1 * BIG_NUMBER_64BIT_ARRAY_001;
+    num1 = num1 * BIG_NUMBER_64BIT_001;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
 TEST_F(GTestBigint, Normal_Biguint64_Div_001) {
   biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
   biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
   uint64_t num1 = BIG_NUMBER_64BIT_001;
   uint64_t num2 = BIG_NUMBER_64BIT_001;
 
-  bigunum1 = bigunum1 / bigunum2;
-  num1 = num1 / num2;
+  for (int32_t i = 0; i < 50; i += 1) {
+    bigunum1 = bigunum1 / bigunum2;
+    num1 = num1 / num2;
 
-  EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
-  EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
 }
 
-TEST_F(GTestBigint, Normal_Biguint64_Rem_001) {
+TEST_F(GTestBigint, Normal_Biguint64_Div_002) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
+  uint64_t num1 = BIG_NUMBER_64BIT_001;
+
+  for (int32_t i = 1; i < 50; i += 1) {
+    bigunum1 = bigunum1 / i;
+    num1 = num1 / i;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Div_003) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_002;
+  uint64_t num1 = BIG_NUMBER_64BIT_002;
+
+  for (int32_t i = 1; i < 50; i += 1) {
+    bigunum1 = bigunum1 / BIG_NUMBER_64BIT_ARRAY_001;
+    num1 = num1 / BIG_NUMBER_64BIT_001;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Mod_001) {
   biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
   biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
   uint64_t num1 = BIG_NUMBER_64BIT_001;
   uint64_t num2 = BIG_NUMBER_64BIT_001;
 
-  bigunum1 = bigunum1 % bigunum2;
-  num1 = num1 % num2;
+  for (int32_t i = 1; i < 50; i += 1) {
+    bigunum1 = bigunum1 % bigunum2;
+    num1 = num1 % num2;
 
-  EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
-  EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Mod_002) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
+  uint64_t num1 = BIG_NUMBER_64BIT_001;
+  
+  for (int32_t i = 1; i < 50; i += 1) {
+    bigunum1 = bigunum1 % i;
+    num1 = num1 % i;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Mod_003) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_002;
+  uint64_t num1 = BIG_NUMBER_64BIT_002;
+
+  for (int32_t i = 1; i < 50; i += 1) {
+    bigunum1 = bigunum1 % BIG_NUMBER_64BIT_ARRAY_001;
+    num1 = num1 % BIG_NUMBER_64BIT_001;
+
+    EXPECT_EQ((uint32_t)((num1 >> 32) & 0xFFFF'FFFF), bigunum1[0]);
+    EXPECT_EQ((uint32_t)(num1 & 0xFFFF'FFFF), bigunum1[1]);
+  }
 }
 
 TEST_F(GTestBigint, Normal_Biguint64_LeftShift_001) {
@@ -120,4 +256,6 @@ TEST_F(GTestBigint, Normal_Biguint64_Compare_001) {
 
   EXPECT_EQ(false, (bigunum1 > bigunum2));
   EXPECT_EQ(true, (bigunum1 < bigunum2));
-  }
+  EXPECT_EQ(false, (bigunum1 >= bigunum2));
+  EXPECT_EQ(true, (bigunum1 <= bigunum2));
+}
