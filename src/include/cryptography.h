@@ -11,7 +11,7 @@
 #define CRYPTOGRAPHY_H
 
 #include "common/defs.h"
-#include "common/base64.h"
+#include "common/bignumber.h"
 #include "crypto/secret_key/secret_key.h"
 #include "crypto/secret_key/aes.h"
 #include "crypto/secret_key/des.h"

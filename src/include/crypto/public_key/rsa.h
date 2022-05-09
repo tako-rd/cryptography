@@ -11,11 +11,24 @@
 #define RSA_H
 
 #include "common/defs.h"
+#include "common/endian.h"
+#include "common/bignumber.h"
 
 namespace cryptography {
 
+/* Prototype declaration of class. */
+class rsa_base;
+class rsa;
+class rsa_key;
+
+/* Alias declaration */
+using RSA = rsa;
+
 class rsa_base {
  public:
+  rsa_base() {};
+
+  ~rsa_base() {};
 
 };
 
@@ -28,6 +41,16 @@ class rsa final : public rsa_base {
 
  private:
 
+
+};
+
+class rsa_key {
+ public:
+  rsa_key() noexcept {};
+
+  ~rsa_key() {};
+
+ private:
 
 };
 

@@ -250,12 +250,33 @@ TEST_F(GTestBigint, Normal_Biguint64_RightShift_001) {
   }
 }
 
-TEST_F(GTestBigint, Normal_Biguint64_Compare_001) {
+TEST_F(GTestBigint, Normal_Biguint64_Equal_001) {
   biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
-  biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_002;
+  biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
+  biguint<64> bigunum3 = BIG_NUMBER_64BIT_ARRAY_002;
+
+  EXPECT_EQ(true, (bigunum1 == bigunum2));
+  EXPECT_EQ(false, (bigunum1 == bigunum3));
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_Greator_001) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
+  biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
+  biguint<64> bigunum3 = BIG_NUMBER_64BIT_ARRAY_002;
 
   EXPECT_EQ(false, (bigunum1 > bigunum2));
-  EXPECT_EQ(true, (bigunum1 < bigunum2));
-  EXPECT_EQ(false, (bigunum1 >= bigunum2));
+  EXPECT_EQ(false, (bigunum1 > bigunum3));
+  EXPECT_EQ(false, (bigunum1 < bigunum2));
+  EXPECT_EQ(true, (bigunum1 < bigunum3));
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_NoLess_001) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
+  biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
+  biguint<64> bigunum3 = BIG_NUMBER_64BIT_ARRAY_002;
+
+  EXPECT_EQ(true, (bigunum1 >= bigunum2));
   EXPECT_EQ(true, (bigunum1 <= bigunum2));
+  EXPECT_EQ(false, (bigunum1 >= bigunum3));
+  EXPECT_EQ(true, (bigunum1 <= bigunum3));
 }
