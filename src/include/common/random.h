@@ -18,16 +18,13 @@ namespace cryptography {
 
 class random {
  public:
-  random() {};
+  random() noexcept {};
 
   ~random() {};
 
-  int32_t generate_u32() const noexcept;
+  uint32_t generate_u32() const noexcept;
 
-  int32_t generate_u64() const noexcept;
-
- private:
-
+  uint64_t generate_u64() const noexcept;
 };
 
 }

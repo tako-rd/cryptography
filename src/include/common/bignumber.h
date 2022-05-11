@@ -13,6 +13,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "common/random.h"
+
 namespace cryptography {
 
 #define BIT32_MSB       0x8000'0000
@@ -26,8 +28,11 @@ namespace cryptography {
 #define BINT_BYTE_SIZE(x) ((x) >> 3)
 #define BINT_UNIT_SIZE(x) ((x) >> 5)
 
+#define NPRIMELITY_TESTS  20
+
 template <int32_t BitSize> class biguint;
-template <int32_t BitSize> class bigarithmetic;
+template <int32_t BitSize> class arithmetic;
+template <int32_t BitSize> class mathematics;
 
 template <int32_t BitSize>
 class biguint {
@@ -38,30 +43,53 @@ class biguint {
     copy(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
   };
 
+  biguint(const biguint &inst) noexcept {
+    copy(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+  };
+
   biguint(biguint &&inst) noexcept {
     copy(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
   };
 
-  biguint(const uint32_t value[BINT_UNIT_SIZE(BitSize)]) noexcept {
+  biguint(const biguint &&inst) noexcept {
+    copy(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+  };
+
+  biguint(uint32_t (&value)[BINT_UNIT_SIZE(BitSize)]) noexcept {
     copy(this->value_, BINT_UNIT_SIZE(BitSize), value, BINT_UNIT_SIZE(BitSize));
+  };
+
+  biguint(const uint32_t (&value)[BINT_UNIT_SIZE(BitSize)]) noexcept {
+    copy(this->value_, BINT_UNIT_SIZE(BitSize), value, BINT_UNIT_SIZE(BitSize));
+  };
+
+  biguint(uint32_t value) noexcept {
+    copy(this->value_, BINT_UNIT_SIZE(BitSize), &value, 1);
   };
 
   ~biguint() {};
 
+  /*********************/
+  /* Utillity methods. */
+  /*********************/
+  int32_t bitsize() noexcept {
+    return BIT_SIZE;
+  };
+
+  bool is_prime() noexcept {
+    biguint<BitSize> out = this->value_;
+    return mathematics_.is_prime(out);
+  }
+
   /***************************/
   /* Substitution functions. */
   /***************************/
-  const biguint operator=(const uint32_t value) noexcept {
-    copy(this->value_, BINT_UNIT_SIZE(BitSize), value, 1);
+  biguint operator=(biguint &inst) noexcept {
+    copy(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return *this;
   };
 
-  const biguint operator=(const uint32_t value[BINT_UNIT_SIZE(BitSize)]) noexcept {
-    copy(this->value_, BINT_UNIT_SIZE(BitSize), value, BINT_UNIT_SIZE(BitSize));
-    return *this;
-  };
-
-  const biguint operator=(const biguint &inst) noexcept {
+  biguint operator=(const biguint &inst) noexcept {
     copy(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return *this;
   };
@@ -69,150 +97,163 @@ class biguint {
   /***********************/
   /* Addition functions. */
   /***********************/
-  const biguint operator+(const uint32_t value) noexcept { 
+  biguint operator+(biguint &inst) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.add(out.value_, BINT_UNIT_SIZE(BitSize), &value, 1);
+    arithmetic_.add(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
-  const biguint operator+(const uint32_t value[BINT_UNIT_SIZE(BitSize)]) noexcept { 
+  biguint operator+(const biguint &inst) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.add(out.value_, BINT_UNIT_SIZE(BitSize), value, BINT_UNIT_SIZE(BitSize));
-    return out;
-  };
-
-  const biguint operator+(const biguint &inst) noexcept { 
-    biguint<BitSize> out = this->value_;
-    bigarith_.add(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    arithmetic_.add(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
   /**************************/
   /* Subtraction functions. */
   /**************************/
-  const biguint operator-(const uint32_t value) noexcept { 
+  biguint operator-(biguint &inst) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.subtract(out.value_, BINT_UNIT_SIZE(BitSize), &value, 1);
+    arithmetic_.subtract(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
-  const biguint operator-(const uint32_t value[BINT_UNIT_SIZE(BitSize)]) noexcept { 
+  biguint operator-(const biguint &inst) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.subtract(out.value_, BINT_UNIT_SIZE(BitSize), value, BINT_UNIT_SIZE(BitSize));
-    return out;
-  };
-
-  const biguint operator-(const biguint &inst) noexcept { 
-    biguint<BitSize> out = this->value_;
-    bigarith_.subtract(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    arithmetic_.subtract(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
   /*****************************/
   /* Multiplication functions. */
   /*****************************/
-  const biguint operator*(const uint32_t value) noexcept { 
+  biguint operator*(biguint &inst) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.multiply(out.value_, BINT_UNIT_SIZE(BitSize), &value, 1);
+    arithmetic_.multiply(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
-  const biguint operator*(const uint32_t value[BINT_UNIT_SIZE(BitSize)]) noexcept { 
+  biguint operator*(const biguint &inst) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.multiply(out.value_, BINT_UNIT_SIZE(BitSize), value, BINT_UNIT_SIZE(BitSize));
-    return out;
-  };
-
-  const biguint operator*(const biguint &inst) noexcept { 
-    biguint<BitSize> out = this->value_;
-    bigarith_.multiply(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    arithmetic_.multiply(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
   /***********************/
   /* Division functions. */
   /***********************/
-  const biguint operator/(const uint32_t value) noexcept {
+  biguint operator/(biguint &inst) noexcept {
     biguint<BitSize> out = this->value_;
-    bigarith_.divide(out.value_, BINT_UNIT_SIZE(BitSize), &value, 1);
+    arithmetic_.divide(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
-  const biguint operator/(const uint32_t value[BINT_UNIT_SIZE(BitSize)]) noexcept {
+  biguint operator/(const biguint &inst) noexcept {
     biguint<BitSize> out = this->value_;
-    bigarith_.divide(out.value_, BINT_UNIT_SIZE(BitSize), value, BINT_UNIT_SIZE(BitSize));
-    return out;
-  };
-
-  const biguint operator/(const biguint &inst) noexcept {
-    biguint<BitSize> out = this->value_;
-    bigarith_.divide(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    arithmetic_.divide(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
   /*********************/
   /* Modulo functions. */
   /*********************/
-  const biguint operator%(const uint32_t value) noexcept { 
+  biguint operator%(biguint &inst) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.modulo(out.value_, BINT_UNIT_SIZE(BitSize), &value, 1);
+    arithmetic_.modulo(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
-  const biguint operator%(const uint32_t value[BINT_UNIT_SIZE(BitSize)]) noexcept { 
+  biguint operator%(const biguint &inst) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.modulo(out.value_, BINT_UNIT_SIZE(BitSize), value, BINT_UNIT_SIZE(BitSize));
-    return out;
-  };
-
-  const biguint operator%(const biguint &inst) noexcept { 
-    biguint<BitSize> out = this->value_;
-    bigarith_.modulo(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    arithmetic_.modulo(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
     return out;
   };
 
   /*************************/
   /* Comparison functions. */
   /*************************/
-  const bool operator==(const biguint &inst) noexcept { 
-    return bigarith_.equal(this->value_, BINT_UNIT_SIZE(BIT_SIZE), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+  bool operator==(const biguint &inst) noexcept { 
+    return arithmetic_.equal(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
   };
 
-  const bool operator<(const biguint &inst) noexcept { 
-    return bigarith_.greater(inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE), this->value_, BINT_UNIT_SIZE(BIT_SIZE));
+  bool operator!=(const biguint &inst) noexcept { 
+    return !arithmetic_.equal(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
   };
 
-  const bool operator>(const biguint &inst) noexcept { 
-    return bigarith_.greater(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+  bool operator<(const biguint &inst) noexcept { 
+    return arithmetic_.greater(inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE), this->value_, BINT_UNIT_SIZE(BitSize));
   };
 
-  const bool operator<=(const biguint &inst) noexcept { 
-    return bigarith_.no_less(inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE), this->value_, BINT_UNIT_SIZE(BIT_SIZE));
+  bool operator>(const biguint &inst) noexcept { 
+    return arithmetic_.greater(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
   };
 
-  const bool operator>=(const biguint &inst) noexcept { 
-    return bigarith_.no_less(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+  bool operator<=(const biguint &inst) noexcept { 
+    return arithmetic_.no_less(inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE), this->value_, BINT_UNIT_SIZE(BitSize));
+  };
+
+  bool operator>=(const biguint &inst) noexcept { 
+    return arithmetic_.no_less(this->value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+  };
+
+  /******************************/
+  /* Bitwise operator function. */
+  /******************************/
+  biguint operator&(biguint &inst) noexcept { 
+    biguint<BitSize> out = this->value_;
+    arithmetic_.logical_and(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    return out;
+  };
+
+  biguint operator&(const biguint &inst) noexcept { 
+    biguint<BitSize> out = this->value_;
+    arithmetic_.logical_and(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    return out;
+  };
+
+  biguint operator|(biguint &inst) noexcept { 
+    biguint<BitSize> out = this->value_;
+    arithmetic_.logical_or(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    return out;
+  };
+
+  biguint operator|(const biguint &inst) noexcept { 
+    biguint<BitSize> out = this->value_;
+    arithmetic_.logical_or(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    return out;
+  };
+
+  biguint operator^(biguint &inst) noexcept { 
+    biguint<BitSize> out = this->value_;
+    arithmetic_.logical_xor(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    return out;
+  };
+
+  biguint operator^(const biguint &inst) noexcept { 
+    biguint<BitSize> out = this->value_;
+    arithmetic_.logical_xor(out.value_, BINT_UNIT_SIZE(BitSize), inst.value_, BINT_UNIT_SIZE(inst.BIT_SIZE));
+    return out;
   };
 
   /********************/
   /* Shift functions. */
   /********************/
-  const biguint operator<<(const int32_t shift) noexcept { 
+  biguint operator<<(const int32_t shift) noexcept { 
     biguint<BitSize> out = this->value_;
-    bigarith_.left_shift(out.value_, shift, BINT_UNIT_SIZE(BitSize));
+    arithmetic_.left_shift(out.value_, shift, BINT_UNIT_SIZE(BitSize));
     return out;
   };
 
-  const biguint operator>>(const int32_t &shift) noexcept {
+  biguint operator>>(const int32_t &shift) noexcept {
     biguint<BitSize> out = this->value_;
-    bigarith_.right_shift(out.value_, shift, BINT_UNIT_SIZE(BitSize));
+    arithmetic_.right_shift(out.value_, shift, BINT_UNIT_SIZE(BitSize));
     return out;
   };
 
   /********************/
   /* Other functions. */
   /********************/
-  const uint32_t operator[](const uint32_t pos) noexcept { 
+  uint32_t& operator[](const uint32_t pos) noexcept { 
     return this->value_[pos];
   };
 
@@ -222,12 +263,15 @@ class biguint {
     int32_t xend = xsize - 1; 
     int32_t yend = ysize - 1; 
 
+    memset(x, 0x00, BINT_BYTE_SIZE(BitSize));
     for (int32_t i = 0; i < end; ++i) {
       x[xend - i] = y[yend - i];
     }
   };
 
-  bigarithmetic<BitSize> bigarith_;
+  arithmetic<BitSize> arithmetic_;
+
+  mathematics<BitSize> mathematics_;
 
   uint32_t value_[BINT_UNIT_SIZE(BitSize)];
 
@@ -239,11 +283,11 @@ class biguint {
 };
 
 template <int32_t BitSize>
-class bigarithmetic {
+class arithmetic {
  public:
-  bigarithmetic() noexcept {};
+  arithmetic() noexcept {};
 
-  ~bigarithmetic() {};
+  ~arithmetic() {};
 
   void add(uint32_t *x, const int32_t xsize, const uint32_t *y, const int32_t ysize) noexcept {
     uint32_t x_msb = 0;
@@ -568,6 +612,132 @@ class bigarithmetic {
     }
     return true;
   }
+
+  void logical_and(uint32_t *x, const int32_t xsize, const uint32_t *y, const int32_t ysize) noexcept {
+    int32_t xstart = (xsize >= ysize) ? xsize - ysize : 0;
+    int32_t ystart = (xsize >= ysize) ? 0 : ysize - xsize;
+
+    if (xsize > ysize) {
+      for (int32_t xpos = 0; xpos < xstart; ++xpos) {
+        x[xpos] &= 0x0000'0000;
+      }
+    }
+
+    for (int32_t xpos = xstart, ypos = ystart; xpos < xsize && ypos < ysize; ++xpos, ++ypos) {
+      x[xpos] &= y[ypos];
+    }
+  }
+
+  void logical_or(uint32_t *x, const int32_t xsize, const uint32_t *y, const int32_t ysize) noexcept {
+    int32_t xstart = (xsize >= ysize) ? xsize - ysize : 0;
+    int32_t ystart = (xsize >= ysize) ? 0 : ysize - xsize;
+
+    if (xsize > ysize) {
+      for (int32_t xpos = 0; xpos < xstart; ++xpos) {
+        x[xpos] |= 0x0000'0000;
+      }
+    }
+
+    for (int32_t xpos = xstart, ypos = ystart; xpos < xsize && ypos < ysize; ++xpos, ++ypos) {
+      x[xpos] |= y[ypos];
+    }
+  }
+
+  void logical_xor(uint32_t *x, const int32_t xsize, const uint32_t *y, const int32_t ysize) noexcept {
+    int32_t xstart = (xsize >= ysize) ? xsize - ysize : 0;
+    int32_t ystart = (xsize >= ysize) ? 0 : ysize - xsize;
+
+    if (xsize > ysize) {
+      for (int32_t xpos = 0; xpos < xstart; ++xpos) {
+        x[xpos] ^= 0x0000'0000;
+      }
+    }
+
+    for (int32_t xpos = xstart, ypos = ystart; xpos < xsize && ypos < ysize; ++xpos, ++ypos) {
+      x[xpos] ^= y[ypos];
+    }
+  }
+};
+
+template <int32_t BitSize>
+class mathematics {
+ public:
+  mathematics() noexcept {};
+
+  ~mathematics() {};
+
+  void extended_gcd(biguint<BitSize> a, biguint<BitSize> b, biguint<BitSize> &nx, biguint<BitSize> &ny) noexcept {
+    biguint<BitSize> x = 0;
+    biguint<BitSize> y = 0;
+
+    nx = 0;
+    ny = 1;
+    while (a % b != 0) {
+      biguint<BitSize> q = a / b;
+      biguint<BitSize> r = a % b;
+      biguint<BitSize> tx = x - q * nx;
+      biguint<BitSize> ty = y - q * ny;
+
+      a = b;
+      b = r;
+      x = nx;
+      y = ny;
+      nx = tx;
+      ny = ty;
+    }
+  }
+
+  bool is_prime(biguint<BitSize> &n) noexcept {
+    if (n == 1 || (n & 0x0000'0001) == 0) {
+      return false;
+    } else if (n == 2) {
+      return true;
+    }
+
+    biguint<BitSize> d = n - 1;
+    biguint<BitSize> a = 0U;
+    biguint<BitSize> t = 0U;
+    biguint<BitSize> y = 0U;
+
+    while ((d & 0x0000'0001) == 0) {
+      d = d >> 1;
+    }
+
+    for (int32_t k = 0; k < NPRIMELITY_TESTS; ++k) {
+      for (int32_t i = 0; i < BINT_UNIT_SIZE(BitSize); ++i) {
+        a[i] = ramdom_.generate_u32();
+      }
+      a = (a + 1) % n;
+      t = d;
+      y = mod_power(a, t, n);
+
+      while ((t != (n - 1)) && (y != 0x0000'0001) && (y != (n - 1))) {
+        y = (y * y) % n;
+        t = t << 1;
+      }
+      
+      if ((y != n - 1) && (t & 0x0000'0001) == 0) { 
+        return false; 
+      }
+    }
+    return true;
+  }
+
+ private:
+  const biguint<BitSize> mod_power(biguint<BitSize> &base, biguint<BitSize> exp, const biguint<BitSize> &mod) noexcept {
+    biguint<BitSize> out = 1;
+  
+    while (exp > 0) {
+      if ((exp & 0x0000'0001) == 0x0000'0001) {
+        out = (out * base) % mod;
+      }
+      base = (base * base) % mod;
+      exp = exp >> 1;
+    }
+    return out;
+  }
+
+  random ramdom_;
 };
 
 }

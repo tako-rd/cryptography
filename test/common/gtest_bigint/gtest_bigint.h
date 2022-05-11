@@ -13,7 +13,7 @@
 #include "gtest/gtest.h"
 #include "gtest_bigint_defs.h"
 
-#include "common/bigint.h"
+#include "common/bignumber.h"
 
 class GTestBigint : public ::testing::Test {
 public:

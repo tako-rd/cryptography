@@ -1,11 +1,11 @@
 /*!
-* cryptography library
-*
-* Copyright (c) 2022 tako
-*
-* This software is released under the MIT license.
-* see https://opensource.org/licenses/MIT
-*/
+ * cryptography library
+ *
+ * Copyright (c) 2022 tako
+ *
+ * This software is released under the MIT license.
+ * see https://opensource.org/licenses/MIT
+ */
 
 #ifndef CAST128_H
 #define CAST128_H

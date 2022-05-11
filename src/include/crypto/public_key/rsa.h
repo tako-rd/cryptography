@@ -26,7 +26,7 @@ using RSA = rsa;
 
 class rsa_base {
  public:
-  rsa_base() {};
+  rsa_base() noexcept {};
 
   ~rsa_base() {};
 

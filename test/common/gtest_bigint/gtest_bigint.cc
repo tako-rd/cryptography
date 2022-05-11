@@ -222,7 +222,7 @@ TEST_F(GTestBigint, Normal_Biguint64_Mod_003) {
 
 TEST_F(GTestBigint, Normal_Biguint64_LeftShift_001) {
   biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
-  biguint<64> bigunum2;
+  biguint<64> bigunum2 = 0;
   uint64_t num1 = BIG_NUMBER_64BIT_001;
   uint64_t num2 = 0;
 
@@ -254,29 +254,59 @@ TEST_F(GTestBigint, Normal_Biguint64_Equal_001) {
   biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
   biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
   biguint<64> bigunum3 = BIG_NUMBER_64BIT_ARRAY_002;
+  biguint<64> bigunum4 = BIG_NUMBER_64BIT_ARRAY_003;
 
   EXPECT_EQ(true, (bigunum1 == bigunum2));
   EXPECT_EQ(false, (bigunum1 == bigunum3));
+  EXPECT_EQ(true, (bigunum1 == BIG_NUMBER_64BIT_ARRAY_001));
+  EXPECT_EQ(true, (bigunum4 == 1));
+  EXPECT_EQ(false, (bigunum4 == 0));
 }
 
 TEST_F(GTestBigint, Normal_Biguint64_Greator_001) {
   biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
   biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
   biguint<64> bigunum3 = BIG_NUMBER_64BIT_ARRAY_002;
+  biguint<64> bigunum4 = BIG_NUMBER_64BIT_ARRAY_003;
 
   EXPECT_EQ(false, (bigunum1 > bigunum2));
   EXPECT_EQ(false, (bigunum1 > bigunum3));
   EXPECT_EQ(false, (bigunum1 < bigunum2));
   EXPECT_EQ(true, (bigunum1 < bigunum3));
+  EXPECT_EQ(false, (bigunum4 < 1));
+  EXPECT_EQ(false, (bigunum4 > 1));
+  EXPECT_EQ(true, (bigunum4 > 0));
+  EXPECT_EQ(false, (bigunum4 < 0));
 }
 
 TEST_F(GTestBigint, Normal_Biguint64_NoLess_001) {
   biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_001;
   biguint<64> bigunum2 = BIG_NUMBER_64BIT_ARRAY_001;
   biguint<64> bigunum3 = BIG_NUMBER_64BIT_ARRAY_002;
+  biguint<64> bigunum4 = BIG_NUMBER_64BIT_ARRAY_003;
 
   EXPECT_EQ(true, (bigunum1 >= bigunum2));
   EXPECT_EQ(true, (bigunum1 <= bigunum2));
   EXPECT_EQ(false, (bigunum1 >= bigunum3));
   EXPECT_EQ(true, (bigunum1 <= bigunum3));
+  EXPECT_EQ(true, (bigunum4 <= 1));
+  EXPECT_EQ(true, (bigunum4 >= 1));
+  EXPECT_EQ(false, (bigunum4 <= 0));
+  EXPECT_EQ(true, (bigunum4 >= 0));
+}
+
+TEST_F(GTestBigint, Normal_Biguint64_IsPrime_001) {
+  biguint<64> bigunum1 = BIG_NUMBER_64BIT_ARRAY_003;
+  int32_t idx = 0;
+
+  for (int32_t i = 0; i < 10000; ++i) {
+    if (true == bigunum1.is_prime()) {
+      for (int32_t j = 0; j < sizeof(PRIME_NUMBER_LIST); ++j) {
+        if (bigunum1 == PRIME_NUMBER_LIST[j]) {
+          EXPECT_EQ(true, true);
+        }
+      }
+    }
+    bigunum1 = bigunum1 + 1;
+  }
 }
