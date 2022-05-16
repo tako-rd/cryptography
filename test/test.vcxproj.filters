@@ -153,10 +153,10 @@
     <ClInclude Include="common\gtest_endian\gtest_endian_defs.h">
       <Filter>common\gtest_endian</Filter>
     </ClInclude>
-    <ClInclude Include="common\gtest_bigint\gtest_bigint.h">
+    <ClInclude Include="common\gtest_bigint\gtest_bignumber.h">
       <Filter>common\gtest_bigint</Filter>
     </ClInclude>
-    <ClInclude Include="common\gtest_bigint\gtest_bigint_defs.h">
+    <ClInclude Include="common\gtest_bigint\gtest_bignumber_defs.h">
       <Filter>common\gtest_bigint</Filter>
     </ClInclude>
   </ItemGroup>
@@ -203,7 +203,7 @@
     <ClCompile Include="common\gtest_endian\gtest_endian.cc">
       <Filter>common\gtest_endian</Filter>
     </ClCompile>
-    <ClCompile Include="common\gtest_bigint\gtest_bigint.cc">
+    <ClCompile Include="common\gtest_bigint\gtest_bignumber.cc">
       <Filter>common\gtest_bigint</Filter>
     </ClCompile>
   </ItemGroup>

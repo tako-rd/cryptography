@@ -81,6 +81,13 @@ inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
   return SUCCESS;
 }
 
+
+template <typename Cryptosystem, uint32_t UnitSize>
+inline void ctr<Cryptosystem, UnitSize>::clear() noexcept {
+  (*this).secret_key_cryptosystem_.clear();
+}
+
+
 template <typename Cryptosystem, uint32_t UnitSize>
 inline void ctr<Cryptosystem, UnitSize>::inc_counter(uint8_t *counter) const noexcept {
   constexpr uint32_t u64size = UnitSize / 8;
@@ -117,54 +124,63 @@ inline void ctr<Cryptosystem, UnitSize>::inc_counter(uint8_t *counter) const noe
 template int32_t ctr<aes, aes::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<aes, aes::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<aes, aes::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<aes, aes::unit_size>::clear() noexcept;
 template void ctr<aes, aes::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 /* AES-NI */
 template int32_t ctr<aes_ni, aes_ni::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<aes_ni, aes_ni::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<aes_ni, aes_ni::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<aes_ni, aes_ni::unit_size>::clear() noexcept;
 template void ctr<aes_ni, aes_ni::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 /* Camellia */
 template int32_t ctr<camellia, camellia::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<camellia, camellia::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<camellia, camellia::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<camellia, camellia::unit_size>::clear() noexcept;
 template void ctr<camellia, camellia::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 /* Cast128 */
 template int32_t ctr<cast128, cast128::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<cast128, cast128::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<cast128, cast128::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<cast128, cast128::unit_size>::clear() noexcept;
 template void ctr<cast128, cast128::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 /* Cast256 */
 template int32_t ctr<cast256, cast256::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<cast256, cast256::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<cast256, cast256::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<cast256, cast256::unit_size>::clear() noexcept;
 template void ctr<cast256, cast256::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 /* DES */
 template int32_t ctr<des, des::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<des, des::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<des, des::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<des, des::unit_size>::clear() noexcept;
 template void ctr<des, des::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 /* RC6 */
 template int32_t ctr<rc6, rc6::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<rc6, rc6::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<rc6, rc6::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<rc6, rc6::unit_size>::clear() noexcept;
 template void ctr<rc6, rc6::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 /* Seed */
 template int32_t ctr<seed, seed::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<seed, seed::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<seed, seed::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<seed, seed::unit_size>::clear() noexcept;
 template void ctr<seed, seed::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 /* twofish */
 template int32_t ctr<twofish, twofish::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<twofish, twofish::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ctr<twofish, twofish::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<twofish, twofish::unit_size>::clear() noexcept;
 template void ctr<twofish, twofish::unit_size>::inc_counter(uint8_t *counter) const noexcept;
 
 }

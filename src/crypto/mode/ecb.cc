@@ -37,6 +37,12 @@ inline int32_t ecb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
   return SUCCESS;
 }
 
+template <typename Cryptosystem, uint32_t UnitSize>
+inline void ecb<Cryptosystem, UnitSize>::clear() noexcept {
+  (*this).secret_key_cryptosystem_.clear();
+}
+
+
 /********************************************************************************/
 /* Declaration of materialization.                                              */
 /* This class does not accept anything other than the following instantiations: */
@@ -46,45 +52,54 @@ inline int32_t ecb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
 template int32_t ecb<aes, aes::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<aes, aes::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<aes, aes::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<aes, aes::unit_size>::clear() noexcept;
 
 /* AES-NI */
 template int32_t ecb<aes_ni, aes_ni::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<aes_ni, aes_ni::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<aes_ni, aes_ni::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<aes_ni, aes_ni::unit_size>::clear() noexcept;
 
 /* Camellia */
 template int32_t ecb<camellia, camellia::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<camellia, camellia::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<camellia, camellia::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<camellia, camellia::unit_size>::clear() noexcept;
 
 /* Cast128 */
 template int32_t ecb<cast128, cast128::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<cast128, cast128::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<cast128, cast128::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<cast128, cast128::unit_size>::clear() noexcept;
 
 /* Cast256 */
 template int32_t ecb<cast256, cast256::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<cast256, cast256::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<cast256, cast256::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<cast256, cast256::unit_size>::clear() noexcept;
 
 /* DES */
 template int32_t ecb<des, des::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<des, des::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<des, des::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<des, des::unit_size>::clear() noexcept;
 
 /* RC6 */
 template int32_t ecb<rc6, rc6::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<rc6, rc6::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<rc6, rc6::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<rc6, rc6::unit_size>::clear() noexcept;
 
 /* Seed */
 template int32_t ecb<seed, seed::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<seed, seed::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<seed, seed::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<seed, seed::unit_size>::clear() noexcept;
 
 /* twofish */
 template int32_t ecb<twofish, twofish::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ecb<twofish, twofish::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
 template int32_t ecb<twofish, twofish::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ecb<twofish, twofish::unit_size>::clear() noexcept;
 
 };

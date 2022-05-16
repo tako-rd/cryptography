@@ -24,6 +24,8 @@
     <ClInclude Include="src\include\common\bit_utill.h" />
     <ClInclude Include="src\include\common\defs.h" />
     <ClInclude Include="src\include\common\endian.h" />
+    <ClInclude Include="src\include\common\mathematics.h" />
+    <ClInclude Include="src\include\common\allocator.h" />
     <ClInclude Include="src\include\common\random.h" />
     <ClInclude Include="src\include\common\simd.h" />
     <ClInclude Include="src\include\cryptography.h" />
@@ -48,6 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc" />
+    <ClCompile Include="src\common\bignumber.cc" />
+    <ClCompile Include="src\common\operation.cc" />
     <ClCompile Include="src\common\random.cc" />
     <ClCompile Include="src\crypto\mode\cbc.cc" />
     <ClCompile Include="src\crypto\mode\cfb.cc" />

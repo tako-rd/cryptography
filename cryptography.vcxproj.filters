@@ -123,6 +123,12 @@
     <ClInclude Include="src\include\common\bignumber.h">
       <Filter>include\common</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\common\mathematics.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\common\allocator.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc">
@@ -174,6 +180,12 @@
       <Filter>src\crypto\mode</Filter>
     </ClCompile>
     <ClCompile Include="src\common\random.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\bignumber.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\operation.cc">
       <Filter>src\common</Filter>
     </ClCompile>
   </ItemGroup>
