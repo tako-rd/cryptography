@@ -35,8 +35,6 @@ class ecb : private mode<Cryptosystem, UnitSize> {
   int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
 
   void clear() noexcept;
-
-  pkcs7 pkcs7_;
 };
 
 }

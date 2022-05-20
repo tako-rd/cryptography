@@ -40,8 +40,6 @@ class ofb : private mode<Cryptosystem, UnitSize> {
 
  private:
   uint8_t iv_[UnitSize];
-
-  pkcs7 pkcs7_;
 };
 
 }

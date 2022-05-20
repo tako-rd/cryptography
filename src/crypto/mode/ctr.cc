@@ -58,7 +58,7 @@ inline int32_t ctr<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
   for (int32_t i = 0, j = byte; j < psize; ++i, ++j) {
     buf[i] = ptext[j];
   }
-  pkcs7_.add(buf, psize, UnitSize);
+  (*this).add_padding(buf, psize, UnitSize);
 
   inc_counter(counter);
   (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
@@ -93,7 +93,7 @@ inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
       ptext[byte + i] = ctext[byte + i] ^ mask[i];
     }
   }
-  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+  if (0 != (*this).remove_padding(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
 
   return SUCCESS;
 }

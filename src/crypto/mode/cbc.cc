@@ -48,20 +48,13 @@ inline int32_t cbc<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
     (*this).secret_key_cryptosystem_.encrypt(buf, UnitSize, &ctext[byte], UnitSize);
   }
 
-  pkcs7_.add(buf, psize, UnitSize);
-  if (0 < byte) {
-    int32_t j = 0, k = byte;
-    for ( ; k < psize; ++j, ++k) {
-      buf[j] = ptext[k] ^ ctext[k - UnitSize];
-    }
+  for (int32_t i = 0, j = byte; j < psize; ++i, ++j) {
+    buf[i] = ptext[j];
+  }
+  (*this).add_padding(buf, psize, UnitSize);
 
-    for ( ; j < UnitSize; ++j, ++k) {
-      buf[j] = buf[j] ^ ctext[k - UnitSize];
-    }
-  } else {
-    for (int32_t j = 0, k = byte ; j < psize; ++j, ++k) {
-      buf[j] = buf[j] ^ ctext[k - UnitSize];
-    }
+  for (int32_t j = 0, k = byte ; j < psize; ++j, ++k) {
+    buf[j] = buf[j] ^ ctext[k - UnitSize];
   }
   (*this).secret_key_cryptosystem_.encrypt(buf, UnitSize, &ctext[byte], UnitSize);
 
@@ -87,7 +80,7 @@ inline int32_t cbc<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
       ptext[byte + i] = ptext[byte + i] ^ ctext[byte + i - UnitSize];
     }
   }
-  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+  if (0 != (*this).remove_padding(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
 
   return SUCCESS;
 }

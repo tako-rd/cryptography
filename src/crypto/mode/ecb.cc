@@ -37,7 +37,7 @@ inline int32_t ecb<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
   for (int32_t i = 0, j = byte; j < psize; ++i, ++j) {
     buf[i] = ptext[j];
   }
-  pkcs7_.add(buf, psize, UnitSize);
+  (*this).add_padding(buf, psize, UnitSize);
   (*this).secret_key_cryptosystem_.encrypt(buf, UnitSize, &ctext[byte], UnitSize);
 
   return SUCCESS;
@@ -54,7 +54,7 @@ inline int32_t ecb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
   for (byte = 0; byte < csize; byte += UnitSize) {
     (*this).secret_key_cryptosystem_.decrypt(&ctext[byte], UnitSize, &ptext[byte], UnitSize);
   }
-  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+  if (0 != (*this).remove_padding(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
 
   return SUCCESS;
 }

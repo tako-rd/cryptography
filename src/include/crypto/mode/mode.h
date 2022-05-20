@@ -41,6 +41,14 @@ class mode {
   void clear() noexcept {};
 
  protected:
+  inline int32_t add_padding(uint8_t *ptext, const uint32_t psize, const uint32_t usize) noexcept {
+    return pkcs7_.add(ptext, psize, usize);
+  };
+
+  inline int32_t remove_padding(uint8_t *ptext, const uint32_t usize) noexcept {
+    return pkcs7_.remove(ptext, usize);
+  };
+
   Cryptosystem secret_key_cryptosystem_;
 
   pkcs7 pkcs7_;

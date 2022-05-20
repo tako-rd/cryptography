@@ -52,7 +52,7 @@ inline int32_t ofb<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
   for (int32_t i = 0, j = byte; j < psize; ++i, ++j) {
     buf[i] = ptext[j];
   }
-  pkcs7_.add(buf, psize, UnitSize);
+  (*this).add_padding(buf, psize, UnitSize);
 
   (*this).secret_key_cryptosystem_.encrypt(mask, UnitSize, mask, UnitSize);
   for (uint32_t i = 0; i < UnitSize; ++i) {
@@ -80,7 +80,7 @@ inline int32_t ofb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
       ptext[byte + i] = ctext[byte + i] ^ mask[i];
     }
   }
-  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+  if (0 != (*this).remove_padding(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
 
   return SUCCESS;
 }

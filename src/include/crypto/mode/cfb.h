@@ -40,8 +40,6 @@ class cfb : private mode<Cryptosystem, UnitSize> {
 
  private:
   uint8_t iv_[UnitSize];
-
-  pkcs7 pkcs7_;
 };
 
 }
