@@ -8,7 +8,7 @@
  */
 
 #include "crypto/mode/ecb.h"
-
+#include <stdio.h>
 namespace cryptography {
 
 #define SUCCESS           0
@@ -21,19 +21,41 @@ inline int32_t ecb<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ecb<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
-  for (uint32_t byte = 0; byte < psize; byte += UnitSize) {
+  int32_t byte = 0;
+  int32_t end = (int32_t)(psize / UnitSize) * UnitSize;
+  uint8_t buf[UnitSize] = {0};
+
+  /* The input ciphertext buffer must be a multiple of UnitSize and UnitSize bytes larger than plaintext. */
+  if (0 != csize % UnitSize || ((uint32_t)(psize / UnitSize) >= (uint32_t)(csize / UnitSize))) { return FAILURE; }
+
+  /* Encrypts for the number of bytes equal to the unit byte. */
+  for (byte = 0; byte < end; byte += UnitSize) {
     (*this).secret_key_cryptosystem_.encrypt(&ptext[byte], UnitSize, &ctext[byte], UnitSize);
   }
+
+  /* Encrypts less than the remaining unit bytes. */
+  for (int32_t i = 0, j = byte; j < psize; ++i, ++j) {
+    buf[i] = ptext[j];
+  }
+  pkcs7_.add(buf, psize, UnitSize);
+  (*this).secret_key_cryptosystem_.encrypt(buf, UnitSize, &ctext[byte], UnitSize);
+
   return SUCCESS;
 }
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ecb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  if (0 != csize % UnitSize && 0 != psize % UnitSize) { return FAILURE; }
-  for (uint32_t byte = 0; byte < csize; byte += UnitSize) {
+  int32_t byte = 0;
+  uint8_t buf[UnitSize] = {0};
+
+  /* The ciphertext should always be a multiple of UnitSize and requires a buffer of equivalent size. */
+  if (0 != csize % UnitSize || 0 != psize % UnitSize || csize > psize) { return FAILURE; }
+
+  for (byte = 0; byte < csize; byte += UnitSize) {
     (*this).secret_key_cryptosystem_.decrypt(&ctext[byte], UnitSize, &ptext[byte], UnitSize);
   }
+  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+
   return SUCCESS;
 }
 

@@ -42,6 +42,8 @@ class ctr : private mode<Cryptosystem, UnitSize> {
   void inc_counter(uint8_t *counter) const noexcept;
 
   uint8_t iv_[UnitSize];
+
+  pkcs7 pkcs7_;
 };
 
 }

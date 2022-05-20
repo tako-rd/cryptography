@@ -43,6 +43,12 @@
     <Filter Include="include\crypto\mode">
       <UniqueIdentifier>{46c0865c-d25b-4970-9d3b-dbd6f8206705}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\crypto\padding">
+      <UniqueIdentifier>{c3b4bcb8-252c-4816-b949-de6d31bd2668}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\crypto\padding">
+      <UniqueIdentifier>{ef8dbde0-b07d-4a87-8074-26fbb59a000a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\include\cryptography.h">
@@ -129,6 +135,9 @@
     <ClInclude Include="src\include\common\allocator.h">
       <Filter>include\common</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\crypto\padding\pkcs7.h">
+      <Filter>include\crypto\padding</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc">
@@ -185,8 +194,8 @@
     <ClCompile Include="src\common\bignumber.cc">
       <Filter>src\common</Filter>
     </ClCompile>
-    <ClCompile Include="src\common\operation.cc">
-      <Filter>src\common</Filter>
+    <ClCompile Include="src\crypto\padding\pkcs7.cc">
+      <Filter>src\crypto\padding</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

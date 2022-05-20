@@ -11,7 +11,9 @@
 #define MODE_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
+#include "crypto/padding/pkcs7.h"
 #include "crypto/secret_key/aes.h"
 #include "crypto/secret_key/des.h"
 #include "crypto/secret_key/camellia.h"
@@ -26,7 +28,7 @@ namespace cryptography {
 template <typename Cryptosystem, uint32_t UnitSize>
 class mode {
  public:
-  mode() {};
+  mode() noexcept {};
 
   ~mode() {};
 
@@ -39,7 +41,9 @@ class mode {
   void clear() noexcept {};
 
  protected:
-   Cryptosystem secret_key_cryptosystem_;
+  Cryptosystem secret_key_cryptosystem_;
+
+  pkcs7 pkcs7_;
 };
 
 }

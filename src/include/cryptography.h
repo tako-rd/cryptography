@@ -11,27 +11,32 @@
 #define CRYPTOGRAPHY_H
 
 #include "common/defs.h"
-#include "common/bignumber.h"
+
 #include "crypto/secret_key/secret_key.h"
-#include "crypto/secret_key/aes.h"
-#include "crypto/secret_key/des.h"
-#include "crypto/secret_key/camellia.h"
-#include "crypto/secret_key/seed.h"
-#include "crypto/secret_key/rc6.h"
-#include "crypto/secret_key/cast128.h"
-#include "crypto/secret_key/cast256.h"
-#include "crypto/secret_key/twofish.h"
+
+#include "crypto/mode/mode.h"
+#include "crypto/mode/cbc.h"
+#include "crypto/mode/cfb.h"
+#include "crypto/mode/ctr.h"
+#include "crypto/mode/ecb.h"
+#include "crypto/mode/ofb.h"
+
 #include "crypto/public_key/rsa.h"
+#include "common/bignumber.h"
 
 namespace cryptography {
 
-class cryptography {
- public:
+/*****************************************/
+/* A list of classes available to users. */
+/*****************************************/
 
-
- private:
-
-};
+/*!
+ * Use as follows.
+ *  secret_key<DES, CBC> des_cbc;
+ *  secret_key<AES, ECB> aes_ecb;
+ *  .. etc
+ */
+template <typename SecretKeyCryptosystem, template <typename T, uint32_t U> class Mode> class secret_key;
 
 }
 

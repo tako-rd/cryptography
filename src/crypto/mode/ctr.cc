@@ -31,10 +31,13 @@ inline int32_t ctr<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ctr<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+  int32_t byte = 0;
+  int32_t end = (int32_t)(psize / UnitSize) * UnitSize;
   uint8_t counter[UnitSize] = {0};
   uint8_t mask[UnitSize] = {0};
+  uint8_t buf[UnitSize] = {0};
 
-  if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
+  if (0 != csize % UnitSize || ((uint32_t)(psize / UnitSize) >= (uint32_t)(csize / UnitSize))) { return FAILURE; }
 
   memcpy(counter, iv_, UnitSize);
 
@@ -43,7 +46,7 @@ inline int32_t ctr<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
     ctext[i] = ptext[i] ^ mask[i];
   }
 
-  for (uint32_t byte = UnitSize; byte < psize; byte += UnitSize) {
+  for (byte = UnitSize; byte < end; byte += UnitSize) {
     inc_counter(counter);
     (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
 
@@ -52,15 +55,28 @@ inline int32_t ctr<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
     }
   }
 
+  for (int32_t i = 0, j = byte; j < psize; ++i, ++j) {
+    buf[i] = ptext[j];
+  }
+  pkcs7_.add(buf, psize, UnitSize);
+
+  inc_counter(counter);
+  (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
+
+  for (uint32_t i = 0; i < UnitSize; ++i) {
+    ctext[byte + i] = buf[i] ^ mask[i];
+  }
+
   return SUCCESS;
 }
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+  int32_t byte = 0;
   uint8_t counter[UnitSize] = {0};
   uint8_t mask[UnitSize] = {0};
 
-  if (0 != csize % UnitSize && 0 != psize % UnitSize) { return FAILURE; }
+  if (0 != csize % UnitSize || 0 != psize % UnitSize || csize > psize) { return FAILURE; }
 
   memcpy(counter, iv_, UnitSize);
 
@@ -69,7 +85,7 @@ inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
     ptext[i] = ctext[i] ^ mask[i];
   }
 
-  for (uint32_t byte = UnitSize; byte < psize; byte += UnitSize) {
+  for (byte = UnitSize; byte < psize; byte += UnitSize) {
     inc_counter(counter);
     (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
 
@@ -77,6 +93,7 @@ inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
       ptext[byte + i] = ctext[byte + i] ^ mask[i];
     }
   }
+  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
 
   return SUCCESS;
 }
@@ -85,6 +102,7 @@ inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
 template <typename Cryptosystem, uint32_t UnitSize>
 inline void ctr<Cryptosystem, UnitSize>::clear() noexcept {
   (*this).secret_key_cryptosystem_.clear();
+  memset(iv_, 0x00, UnitSize);
 }
 
 

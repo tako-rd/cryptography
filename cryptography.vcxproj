@@ -35,6 +35,7 @@
     <ClInclude Include="src\include\crypto\mode\ecb.h" />
     <ClInclude Include="src\include\crypto\mode\mode.h" />
     <ClInclude Include="src\include\crypto\mode\ofb.h" />
+    <ClInclude Include="src\include\crypto\padding\pkcs7.h" />
     <ClInclude Include="src\include\crypto\public_key\public_key_base.h" />
     <ClInclude Include="src\include\crypto\public_key\rsa.h" />
     <ClInclude Include="src\include\crypto\secret_key\aes.h" />
@@ -51,13 +52,13 @@
   <ItemGroup>
     <ClCompile Include="src\common\base64.cc" />
     <ClCompile Include="src\common\bignumber.cc" />
-    <ClCompile Include="src\common\operation.cc" />
     <ClCompile Include="src\common\random.cc" />
     <ClCompile Include="src\crypto\mode\cbc.cc" />
     <ClCompile Include="src\crypto\mode\cfb.cc" />
     <ClCompile Include="src\crypto\mode\ctr.cc" />
     <ClCompile Include="src\crypto\mode\ecb.cc" />
     <ClCompile Include="src\crypto\mode\ofb.cc" />
+    <ClCompile Include="src\crypto\padding\pkcs7.cc" />
     <ClCompile Include="src\crypto\public_key\rsa.cc" />
     <ClCompile Include="src\crypto\secret_key\aes.cc" />
     <ClCompile Include="src\crypto\secret_key\aes_ni.cc" />

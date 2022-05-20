@@ -30,46 +30,72 @@ inline int32_t cbc<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t cbc<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  uint8_t pbuf[UnitSize] = {0};
+  int32_t byte = 0;
+  int32_t end = (int32_t)(psize / UnitSize) * UnitSize;
+  uint8_t buf[UnitSize] = {0};
 
-  if (0 != psize % UnitSize && 0 != csize % UnitSize) { return FAILURE; }
+  if (0 != csize % UnitSize || ((uint32_t)(psize / UnitSize) >= (uint32_t)(csize / UnitSize))) { return FAILURE; }
 
-  for (uint32_t i = 0; i < UnitSize; ++i) {
-    pbuf[i] = ptext[i] ^ iv_[i];
+  for (int32_t i = 0; i < UnitSize; ++i) {
+    buf[i] = ptext[i] ^ iv_[i];
   }
-  (*this).secret_key_cryptosystem_.encrypt(pbuf, UnitSize, ctext, UnitSize);
+  (*this).secret_key_cryptosystem_.encrypt(buf, UnitSize, ctext, UnitSize);
 
-  for (uint32_t byte = UnitSize; byte < psize; byte += UnitSize) {
+  for (byte = UnitSize; byte < end; byte += UnitSize) {
     for (uint32_t i = 0; i < UnitSize; ++i) {
-      pbuf[i] = ptext[byte + i] ^ ctext[byte + i - UnitSize];
+      buf[i] = ptext[byte + i] ^ ctext[byte + i - UnitSize];
     }
-    (*this).secret_key_cryptosystem_.encrypt(pbuf, UnitSize, &ctext[byte], UnitSize);
+    (*this).secret_key_cryptosystem_.encrypt(buf, UnitSize, &ctext[byte], UnitSize);
   }
+
+  pkcs7_.add(buf, psize, UnitSize);
+  if (0 < byte) {
+    int32_t j = 0, k = byte;
+    for ( ; k < psize; ++j, ++k) {
+      buf[j] = ptext[k] ^ ctext[k - UnitSize];
+    }
+
+    for ( ; j < UnitSize; ++j, ++k) {
+      buf[j] = buf[j] ^ ctext[k - UnitSize];
+    }
+  } else {
+    for (int32_t j = 0, k = byte ; j < psize; ++j, ++k) {
+      buf[j] = buf[j] ^ ctext[k - UnitSize];
+    }
+  }
+  (*this).secret_key_cryptosystem_.encrypt(buf, UnitSize, &ctext[byte], UnitSize);
+
   return SUCCESS;
 }
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t cbc<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  if (0 != csize % UnitSize && 0 != psize % UnitSize) { return FAILURE; }
+  int32_t byte = 0;
+  uint8_t buf[UnitSize] = {0};
+
+  if (0 != csize % UnitSize || 0 != psize % UnitSize || csize > psize) { return FAILURE; }
 
   (*this).secret_key_cryptosystem_.decrypt(ctext, UnitSize, ptext, UnitSize);
   for (uint32_t i = 0; i < UnitSize; ++i) {
     ptext[i] = ptext[i] ^ iv_[i];
   }
 
-  for (uint32_t byte = UnitSize; byte < csize; byte += UnitSize) {
+  for (byte = UnitSize; byte < csize; byte += UnitSize) {
     (*this).secret_key_cryptosystem_.decrypt(&ctext[byte], UnitSize, &ptext[byte], UnitSize);
 
     for (uint32_t i = 0; i < UnitSize; ++i) {
       ptext[byte + i] = ptext[byte + i] ^ ctext[byte + i - UnitSize];
     }
   }
+  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+
   return SUCCESS;
 }
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline void cbc<Cryptosystem, UnitSize>::clear() noexcept {
   (*this).secret_key_cryptosystem_.clear();
+  memset(iv_, 0x00, UnitSize);
 }
 
 /********************************************************************************/

@@ -73,7 +73,7 @@ class wrapswap {
 
   ~wrapswap() {};
 
-  static uint16_t byteswap(const uint16_t t) noexcept {
+  static inline uint16_t byteswap(const uint16_t t) noexcept {
 #if defined(_MSC_VER)
     return _byteswap_ushort(t);
 #elif defined(__GNUC__)
@@ -81,7 +81,7 @@ class wrapswap {
 #endif
   }
 
-  static uint32_t byteswap(const uint32_t t) noexcept {
+  static inline uint32_t byteswap(const uint32_t t) noexcept {
 #if defined(_MSC_VER)
     return _byteswap_ulong(t);
 #elif defined(__GNUC__)
@@ -89,7 +89,7 @@ class wrapswap {
 #endif
   }
 
-  static uint64_t byteswap(const uint64_t t) noexcept {
+  static inline uint64_t byteswap(const uint64_t t) noexcept {
 #if defined(_MSC_VER)
     return _byteswap_uint64(t);
 #elif defined(__GNUC__)
@@ -105,7 +105,7 @@ class little_endian {
 
   ~little_endian() {};
 
-  static UnitType* convert(const uint8_t * const in, UnitType *out) noexcept {
+  static inline UnitType* convert(const uint8_t * const in, UnitType *out) noexcept {
 #if defined(__BIG_ENDIAN__)
     constexpr uint32_t units = ByteSize / sizeof(UnitType);
     static_assert(0 != units, "*** ERROR : ByteSize is smaller than UnitType size and cannot be converted.");
@@ -120,7 +120,7 @@ class little_endian {
     return out;
   };
 
-  static uint8_t* convert(const UnitType * const in, uint8_t *out) noexcept {
+  static inline uint8_t* convert(const UnitType * const in, uint8_t *out) noexcept {
 #if defined(__BIG_ENDIAN__)
     constexpr uint32_t units = ByteSize / sizeof(UnitType);
     UnitType buf[units] = {0};
@@ -146,7 +146,7 @@ class big_endian {
 
   ~big_endian() {};
 
-  static UnitType* convert(const uint8_t * const in, UnitType *out) noexcept {
+  static inline UnitType* convert(const uint8_t * const in, UnitType *out) noexcept {
 #if defined(__LITTLE_ENDIAN__)
     constexpr uint32_t units = ByteSize / sizeof(UnitType);
     static_assert(0 != units, "*** ERROR : ByteSize is smaller than UnitType size and cannot be converted.");
@@ -161,7 +161,7 @@ class big_endian {
     return out;
   };
 
-  static uint8_t* convert(const UnitType * const in, uint8_t *out) noexcept {
+  static inline uint8_t* convert(const UnitType * const in, uint8_t *out) noexcept {
 #if defined(__LITTLE_ENDIAN__)
     constexpr uint32_t units = ByteSize / sizeof(UnitType);
     UnitType buf[units] = {0};

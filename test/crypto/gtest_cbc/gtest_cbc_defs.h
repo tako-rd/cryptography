@@ -51,4 +51,20 @@ static const uint8_t NIST_AES_CBC_EXAM_CIPHERTEXT[64] = {
   0x3f, 0xf1, 0xca, 0xa1, 0x68, 0x1f, 0xac, 0x09, 0x12, 0x0e, 0xca, 0x30, 0x75, 0x86, 0xe1, 0xa7,
 };
 
+/******************************************************/
+/* Character string assuming the use of this library. */
+/******************************************************/
+
+static const uint8_t CBC_PLAINTEXT_001[117] = "きのうは子供を"  \
+                                              "ころばせて"  \
+                                              "きょうはお馬を"  \
+                                              "つまずかす。"  \
+                                              "あしたは誰が"  \
+                                              "とおるやら。"  \
+                                              "田舎のみちの"  \
+                                              "石ころは"  \
+                                              "赤い夕日に"  \
+                                              "けろりかん。";
+
+
 #endif
