@@ -15,13 +15,12 @@ TEST_F(GTestCast128, Normal_CAST128_128_001) {
   uint8_t plaintext[8] = {0};
 
   cast128.initialize(CAST128_EXAM_128BIT_KEY, sizeof(CAST128_EXAM_128BIT_KEY));
-
-  cast128.encrypt(CAST128_EXAM_128BIT_PLAINTEXT, sizeof(CAST128_EXAM_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  cast128.encrypt(CAST128_EXAM_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(CAST128_EXAM_128BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  cast128.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  cast128.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(CAST128_EXAM_128BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -34,13 +33,12 @@ TEST_F(GTestCast128, Normal_CAST128_80_001) {
   uint8_t plaintext[8] = {0};
 
   cast128.initialize(CAST128_EXAM_80BIT_KEY, sizeof(CAST128_EXAM_80BIT_KEY));
-
-  cast128.encrypt(CAST128_EXAM_80BIT_PLAINTEXT, sizeof(CAST128_EXAM_80BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  cast128.encrypt(CAST128_EXAM_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(CAST128_EXAM_80BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  cast128.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  cast128.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(CAST128_EXAM_80BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -53,15 +51,13 @@ TEST_F(GTestCast128, Normal_CAST128_40_001) {
   uint8_t plaintext[8] = {0};
 
   cast128.initialize(CAST128_EXAM_40BIT_KEY, sizeof(CAST128_EXAM_40BIT_KEY));
-
-  cast128.encrypt(CAST128_EXAM_40BIT_PLAINTEXT, sizeof(CAST128_EXAM_40BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  cast128.encrypt(CAST128_EXAM_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(CAST128_EXAM_40BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  cast128.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  cast128.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(CAST128_EXAM_40BIT_PLAINTEXT[i], plaintext[i]);
   }
-
 }

@@ -39,6 +39,10 @@ class cfb : private mode<Cryptosystem, UnitSize> {
   void clear() noexcept;
 
  private:
+  Cryptosystem secret_key_cryptosystem_;
+
+  pkcs7 pkcs7_;
+
   uint8_t iv_[UnitSize];
 };
 

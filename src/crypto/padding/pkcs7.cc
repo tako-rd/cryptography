@@ -17,20 +17,23 @@ namespace cryptography {
 int32_t pkcs7::add(uint8_t *ptext, const uint32_t psize, const uint32_t usize) const noexcept {
   uint32_t pdsize = usize - (psize % usize);
   
+  if (pdsize < 0x01 || usize < pdsize) {
+    return FAILURE;
+  }
+
   for (uint32_t byte = 0; byte < pdsize; ++byte) {
-    ptext[(usize - 1) - byte] = pdsize;
+    ptext[(usize - 1) - byte] = (uint8_t)pdsize;
   }
   return SUCCESS;
 }
 
 int32_t pkcs7::remove(uint8_t *ptext, const uint32_t usize) const noexcept {
-  uint32_t pdsize = 0;
+  uint32_t pdsize = ptext[usize - 1];
 
   if (pdsize < 0x01 || usize < pdsize) {
     return FAILURE;
   }
 
-  pdsize = ptext[usize - 1];
   for (uint32_t byte = 0; byte < pdsize; ++byte) {
     ptext[(usize - 1) - byte] = 0x00;
   }

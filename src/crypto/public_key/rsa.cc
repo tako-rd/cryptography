@@ -8,7 +8,7 @@
  */
 
 #include "crypto/public_key/rsa.h"
-#include "common/bit_utill.h"
+#include "common/bit.h"
 #include "common/endian.h"
 
 namespace cryptography {

@@ -16,12 +16,12 @@ TEST_F(GTestTwofish, Normal_Twofish_128_001) {
 
   twofish.initialize(TWOFISH_EXAM1_128BIT_KEY, sizeof(TWOFISH_EXAM1_128BIT_KEY));
 
-  twofish.encrypt(TWOFISH_EXAM1_128BIT_PLAINTEXT, sizeof(TWOFISH_EXAM1_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  twofish.encrypt(TWOFISH_EXAM1_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(TWOFISH_EXAM1_128BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  twofish.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  twofish.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(TWOFISH_EXAM1_128BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -34,12 +34,12 @@ TEST_F(GTestTwofish, Normal_Twofish_192_001) {
 
   twofish.initialize(TWOFISH_EXAM1_192BIT_KEY, sizeof(TWOFISH_EXAM1_192BIT_KEY));
 
-  twofish.encrypt(TWOFISH_EXAM1_192BIT_PLAINTEXT, sizeof(TWOFISH_EXAM1_192BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  twofish.encrypt(TWOFISH_EXAM1_192BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(TWOFISH_EXAM1_192BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  twofish.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  twofish.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(TWOFISH_EXAM1_192BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -52,12 +52,12 @@ TEST_F(GTestTwofish, Normal_Twofish_256_001) {
 
   twofish.initialize(TWOFISH_EXAM1_256BIT_KEY, sizeof(TWOFISH_EXAM1_256BIT_KEY));
 
-  twofish.encrypt(TWOFISH_EXAM1_256BIT_PLAINTEXT, sizeof(TWOFISH_EXAM1_256BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  twofish.encrypt(TWOFISH_EXAM1_256BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(TWOFISH_EXAM1_256BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  twofish.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  twofish.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(TWOFISH_EXAM1_256BIT_PLAINTEXT[i], plaintext[i]);
   }

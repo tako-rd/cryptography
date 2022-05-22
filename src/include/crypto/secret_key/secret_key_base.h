@@ -38,12 +38,12 @@ class secret_key_cryptosystem<SecretKeyCryptosystem, true> {
     return skc_.initialize(key, ksize);
   };
 
-  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-    return skc_.encrypt(ptext, psize, ctext, csize);
+  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
+    return skc_.encrypt(ptext, ctext);
   };
 
-  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-    return skc_.decrypt(ctext, csize, ptext, psize);
+  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
+    return skc_.decrypt(ctext, ptext);
   };
 
   void clear() const noexcept {
@@ -69,12 +69,12 @@ public:
     return (SecretKeyCryptosystem &)(*this).initialize(key, ksize);
   };
 
-  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-    return (SecretKeyCryptosystem &)(*this).encrypt(ptext, psize, ctext, csize);
+  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
+    return (SecretKeyCryptosystem &)(*this).encrypt(ptext, ctext);
   };
 
-  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-    return (SecretKeyCryptosystem &)(*this).decrypt(ctext, csize, ptext, psize);
+  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
+    return (SecretKeyCryptosystem &)(*this).decrypt(ctext, ptext);
   };
 
   void clear() {

@@ -17,8 +17,8 @@ TEST_F(GTestDes, Normal_DES_001) {
 
   des.initialize(DES_TEST_KEY_01, sizeof(DES_TEST_KEY_01));
 
-  des.encrypt(DES_TEST_STRING_SINGLE_BYTE_STRING, sizeof(DES_TEST_STRING_SINGLE_BYTE_STRING), ciphertext, sizeof(ciphertext));
-  des.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  des.encrypt(DES_TEST_STRING_SINGLE_BYTE_STRING, ciphertext);
+  des.decrypt(ciphertext, plaintext);
 
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(DES_TEST_STRING_SINGLE_BYTE_STRING[i], plaintext[i]);
@@ -32,8 +32,8 @@ TEST_F(GTestDes, Normal_DES_002) {
 
   des.initialize(DES_TEST_KEY_01, sizeof(DES_TEST_KEY_01));
 
-  des.encrypt(DES_TEST_STRING_MULTI_BYTE_STRING, sizeof(DES_TEST_STRING_MULTI_BYTE_STRING), ciphertext, sizeof(ciphertext));
-  des.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  des.encrypt(DES_TEST_STRING_MULTI_BYTE_STRING, ciphertext);
+  des.decrypt(ciphertext, plaintext);
 
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(DES_TEST_STRING_MULTI_BYTE_STRING[i], plaintext[i]);
@@ -47,8 +47,8 @@ TEST_F(GTestDes, Normal_DES_003) {
 
   des.initialize(DES_TEST_KEY_01, sizeof(DES_TEST_KEY_01));
 
-  des.encrypt(DES_TEST_STRING_U8_MULTI_BYTE_STRING, sizeof(DES_TEST_STRING_U8_MULTI_BYTE_STRING), ciphertext, sizeof(ciphertext));
-  des.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  des.encrypt(DES_TEST_STRING_U8_MULTI_BYTE_STRING, ciphertext);
+  des.decrypt(ciphertext, plaintext);
 
   for (uint64_t i = 0; i < 8; ++i) {
     EXPECT_EQ(DES_TEST_STRING_U8_MULTI_BYTE_STRING[i], plaintext[i]);

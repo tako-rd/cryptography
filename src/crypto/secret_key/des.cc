@@ -8,7 +8,7 @@
  */
 
 #include "crypto/secret_key/des.h"
-#include "common/bit_utill.h"
+#include "common/bit.h"
 #include "common/endian.h"
 
 namespace cryptography {
@@ -205,11 +205,10 @@ int32_t des::initialize(const uint8_t *key, const uint32_t ksize) {
   return SUCCESS;
 }
 
-int32_t des::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) {
+int32_t des::encrypt(const uint8_t * const ptext, uint8_t *ctext) {
   uint32_t tmppln32bit[2] = {0};
   uint32_t out[2] = {0};
 
-  if (8 != psize || 8 != csize) { return FAILURE; }
   if (true != has_subkeys_) { return FAILURE; };
 
   endian<BIG, uint32_t, 8>::convert(ptext, tmppln32bit);
@@ -233,11 +232,10 @@ int32_t des::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
   return SUCCESS;
 }
 
-int32_t des::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) {
+int32_t des::decrypt(const uint8_t * const ctext, uint8_t *ptext) {
   uint32_t tmpcphr32bit[2] = {0};
   uint32_t out[2] = {0};
 
-  if (8 != psize || 8 != csize) { return FAILURE; }
   if (true != has_subkeys_) { return FAILURE; };
 
   endian<BIG, uint32_t, 8>::convert(ctext, tmpcphr32bit);

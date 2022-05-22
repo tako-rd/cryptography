@@ -52,12 +52,12 @@ class secret_key {
   };
 
  private:
-  Mode<SecretKeyCryptosystem, SecretKeyCryptosystem::unit_size> cryptosystem_;
+  Mode<SecretKeyCryptosystem, SecretKeyCryptosystem::UNIT_SIZE> cryptosystem_;
 
   static_assert(std::is_base_of<secret_key_base<SecretKeyCryptosystem>, SecretKeyCryptosystem>::value,
                 "An invalid value is specified for the secret key cryptographic algorithm.");
-  static_assert(std::is_base_of<mode<SecretKeyCryptosystem, SecretKeyCryptosystem::unit_size>, 
-                                Mode<SecretKeyCryptosystem, SecretKeyCryptosystem::unit_size>>::value,
+  static_assert(std::is_base_of<mode<SecretKeyCryptosystem, SecretKeyCryptosystem::UNIT_SIZE>, 
+                                Mode<SecretKeyCryptosystem, SecretKeyCryptosystem::UNIT_SIZE>>::value,
                 "An invalid value is specified for the encryption mode.");
 };
 

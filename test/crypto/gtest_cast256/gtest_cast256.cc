@@ -15,13 +15,12 @@ TEST_F(GTestCast256, Normal_CAST256_128_001) {
   uint8_t plaintext[16] = {0};
 
   cast256.initialize(CAST256_EXAM_128BIT_KEY, sizeof(CAST256_EXAM_128BIT_KEY));
-
-  cast256.encrypt(CAST256_EXAM_128BIT_PLAINTEXT, sizeof(CAST256_EXAM_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  cast256.encrypt(CAST256_EXAM_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(CAST256_EXAM_128BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  cast256.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  cast256.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(CAST256_EXAM_128BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -33,13 +32,12 @@ TEST_F(GTestCast256, Normal_CAST256_192_001) {
   uint8_t plaintext[16] = {0};
 
   cast256.initialize(CAST256_EXAM_192BIT_KEY, sizeof(CAST256_EXAM_192BIT_KEY));
-
-  cast256.encrypt(CAST256_EXAM_192BIT_PLAINTEXT, sizeof(CAST256_EXAM_192BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  cast256.encrypt(CAST256_EXAM_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(CAST256_EXAM_192BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  cast256.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  cast256.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(CAST256_EXAM_192BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -51,13 +49,12 @@ TEST_F(GTestCast256, Normal_CAST256_256_001) {
   uint8_t plaintext[16] = {0};
 
   cast256.initialize(CAST256_EXAM_256BIT_KEY, sizeof(CAST256_EXAM_256BIT_KEY));
-
-  cast256.encrypt(CAST256_EXAM_256BIT_PLAINTEXT, sizeof(CAST256_EXAM_256BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  cast256.encrypt(CAST256_EXAM_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(CAST256_EXAM_256BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  cast256.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  cast256.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(CAST256_EXAM_256BIT_PLAINTEXT[i], plaintext[i]);
   }

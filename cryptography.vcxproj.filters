@@ -57,9 +57,6 @@
     <ClInclude Include="src\include\common\base64.h">
       <Filter>include\common</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\common\bit_utill.h">
-      <Filter>include\common</Filter>
-    </ClInclude>
     <ClInclude Include="src\include\common\defs.h">
       <Filter>include\common</Filter>
     </ClInclude>
@@ -137,6 +134,9 @@
     </ClInclude>
     <ClInclude Include="src\include\crypto\padding\pkcs7.h">
       <Filter>include\crypto\padding</Filter>
+    </ClInclude>
+    <ClInclude Include="src\include\common\bit.h">
+      <Filter>include\common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

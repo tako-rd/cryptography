@@ -16,12 +16,12 @@ TEST_F(GTestSeed, Normal_SEED_001) {
 
   seed.initialize(SEED_EXAM1_128BIT_KEY, sizeof(SEED_EXAM1_128BIT_KEY));
 
-  seed.encrypt(SEED_EXAM1_128BIT_PLAINTEXT, sizeof(SEED_EXAM1_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  seed.encrypt(SEED_EXAM1_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(SEED_EXAM1_128BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  seed.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  seed.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(SEED_EXAM1_128BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -34,12 +34,12 @@ TEST_F(GTestSeed, Normal_SEED_002) {
 
   seed.initialize(SEED_EXAM2_128BIT_KEY, sizeof(SEED_EXAM2_128BIT_KEY));
 
-  seed.encrypt(SEED_EXAM2_128BIT_PLAINTEXT, sizeof(SEED_EXAM2_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  seed.encrypt(SEED_EXAM2_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(SEED_EXAM2_128BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  seed.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  seed.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(SEED_EXAM2_128BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -52,12 +52,12 @@ TEST_F(GTestSeed, Normal_SEED_003) {
 
   seed.initialize(SEED_EXAM3_128BIT_KEY, sizeof(SEED_EXAM3_128BIT_KEY));
 
-  seed.encrypt(SEED_EXAM3_128BIT_PLAINTEXT, sizeof(SEED_EXAM3_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  seed.encrypt(SEED_EXAM3_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(SEED_EXAM3_128BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  seed.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  seed.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(SEED_EXAM3_128BIT_PLAINTEXT[i], plaintext[i]);
   }
@@ -70,12 +70,12 @@ TEST_F(GTestSeed, Normal_SEED_004) {
 
   seed.initialize(SEED_EXAM4_128BIT_KEY, sizeof(SEED_EXAM4_128BIT_KEY));
 
-  seed.encrypt(SEED_EXAM4_128BIT_PLAINTEXT, sizeof(SEED_EXAM4_128BIT_PLAINTEXT), ciphertext, sizeof(ciphertext));
+  seed.encrypt(SEED_EXAM4_128BIT_PLAINTEXT, ciphertext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(SEED_EXAM4_128BIT_CIPHERTEXT[i], ciphertext[i]);
   }
 
-  seed.decrypt(ciphertext, sizeof(ciphertext), plaintext, sizeof(plaintext));
+  seed.decrypt(ciphertext, plaintext);
   for (uint64_t i = 0; i < 16; ++i) {
     EXPECT_EQ(SEED_EXAM4_128BIT_PLAINTEXT[i], plaintext[i]);
   }

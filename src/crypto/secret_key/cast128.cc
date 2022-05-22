@@ -8,7 +8,7 @@
  */
 
 #include "crypto/secret_key/cast128.h"
-#include "common/bit_utill.h"
+#include "common/bit.h"
 #include "common/endian.h"
 
 namespace cryptography {
@@ -384,11 +384,10 @@ int32_t cast128::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   return SUCCESS;
 }
 
-int32_t cast128::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+int32_t cast128::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint32_t tmppln1[2] = {0};
   uint32_t tmppln2[2] = {0};
 
-  if (8 != psize || 8 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
   endian<BIG, uint32_t, 8>::convert(ptext, tmppln1);
@@ -453,11 +452,10 @@ int32_t cast128::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
   return SUCCESS;
 }
 
-int32_t cast128::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+int32_t cast128::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint32_t tmpchpr1[2] = {0}; 
   uint32_t tmpchpr2[2] = {0}; 
 
-  if (8 != psize || 8 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
   endian<BIG, uint32_t, 8>::convert(ctext, tmpchpr1);

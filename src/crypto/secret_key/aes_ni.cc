@@ -8,7 +8,7 @@
  */
 
 #include "crypto/secret_key/aes.h"
-#include "common/bit_utill.h"
+#include "common/bit.h"
 
 namespace cryptography {
 
@@ -172,11 +172,10 @@ int32_t aes_ni::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   return SUCCESS;
 }
 
-int32_t aes_ni::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   const uint32_t nr = nr_;
   __m128i st = _mm_loadu_si128((__m128i*)ptext);
 
-  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
   st = _mm_xor_si128(st, encskeys_[0]);
@@ -205,11 +204,10 @@ int32_t aes_ni::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8
   return SUCCESS;
 }
 
-int32_t aes_ni::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+int32_t aes_ni::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   const uint32_t nr = nr_;
   __m128i st = _mm_loadu_si128((__m128i*)ctext);
 
-  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
   st = _mm_xor_si128(st, decskeys_[nr]);

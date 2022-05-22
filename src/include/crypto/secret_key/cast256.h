@@ -27,7 +27,7 @@ class cast256_base {
 
   ~cast256_base() {};
 
-  static const uint32_t unit_size = 16;
+  static const uint32_t UNIT_SIZE = 16;
 };
 
 class cast256 final : public cast256_base, public secret_key_base<cast256> {
@@ -38,9 +38,9 @@ public:
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 
-  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept;
 
-  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept;
 
   void clear() noexcept;
 

@@ -8,8 +8,7 @@
  */
 
 #include "crypto/secret_key/cast256.h"
-#include "common/bit_utill.h"
-//#include "common/byte_utill.h"
+#include "common/bit.h"
 #include "common/endian.h"
 
 namespace cryptography {
@@ -197,10 +196,9 @@ int32_t cast256::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   return SUCCESS;
 }
 
-int32_t cast256::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+int32_t cast256::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint32_t beta[4] = {0};
 
-  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
   endian<BIG, uint32_t, 16>::convert(ptext, beta);
@@ -226,10 +224,9 @@ int32_t cast256::encrypt(const uint8_t * const ptext, const uint32_t psize, uint
   return SUCCESS;
 }
 
-int32_t cast256::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+int32_t cast256::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint32_t beta[4] = {0};
 
-  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
   endian<BIG, uint32_t, 16>::convert(ctext, beta);

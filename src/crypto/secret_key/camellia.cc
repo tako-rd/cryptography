@@ -8,7 +8,7 @@
  */
 
 #include "crypto/secret_key/camellia.h"
-#include "common/bit_utill.h"
+#include "common/bit.h"
 #include "common/endian.h"
 
 namespace cryptography {
@@ -957,12 +957,11 @@ int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
   return SUCCESS;
 }
 
-int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+int32_t camellia::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint64_t tmptext[2]= {0};
   uint64_t out[2] = {0};
   int32_t kpos = 0, klpos = 0;
 
-  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; };
 
   endian<BIG, uint64_t, 16>::convert(ptext, tmptext);
@@ -1012,12 +1011,11 @@ int32_t camellia::encrypt(const uint8_t * const ptext, const uint32_t psize, uin
   return SUCCESS;
 }
 
-int32_t camellia::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+int32_t camellia::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint64_t tmptext[2]= {0};
   uint64_t out[2] = {0};
   int32_t kpos = nk_, klpos = nkl_;
 
-  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; };
 
   endian<BIG, uint64_t, 16>::convert(ctext, tmptext);

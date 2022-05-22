@@ -8,7 +8,7 @@
  */
 
 #include "crypto/secret_key/aes.h"
-#include "common/bit_utill.h"
+#include "common/bit.h"
 #include "common/endian.h"
 
 namespace cryptography {
@@ -704,12 +704,11 @@ int32_t aes::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   return SUCCESS;
 }
 
-int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
+int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint32_t kpos = 0;
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
 
-  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
 #if defined(SPEED_PRIORITY_AES)
@@ -786,12 +785,11 @@ int32_t aes::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t 
   return SUCCESS;
 }
 
-int32_t aes::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
+int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint32_t kpos = nr_ << 2;
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
 
-  if (16 != psize || 16 != csize) { return FAILURE; }
   if (false == has_subkeys_) { return FAILURE; }
 
 #if defined(SPEED_PRIORITY_AES)

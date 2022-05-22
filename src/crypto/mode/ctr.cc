@@ -12,12 +12,20 @@
 
 namespace cryptography {
 
-#define SUCCESS           0
-#define FAILURE           1
+#define SUCCESS                         0
+#define FAILURE                         1
+
+#if defined(ENABLE_SSE2) && defined(ENABLE_SSE3)
+# define ENCRYPT_XOR(ptxt, msk, out)    _mm_storeu_si128((__m128i *)(out), _mm_xor_si128(_mm_lddqu_si128((__m128i *)(ptxt)), _mm_lddqu_si128((__m128i *)(msk))));
+# define DECRYPT_XOR(ctxt, msk, out)    _mm_storeu_si128((__m128i *)(out), _mm_xor_si128(_mm_lddqu_si128((__m128i *)(ctxt)), _mm_lddqu_si128((__m128i *)(msk))));
+#else
+# define ENCRYPT_XOR(ptxt, msk, out)    for (int64_t i = 0; i < UnitSize; ++i) { *(out + i) = *(ptxt + i) ^ *(msk + i); }
+# define DECRYPT_XOR(ctxt, msk, out)    for (int64_t i = 0; i < UnitSize; ++i) { *(out + i) = *(ctxt + i) ^ *(msk + i); }
+#endif
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ctr<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept {
-  if (FAILURE == (*this).secret_key_cryptosystem_.initialize(key, ksize)) {
+  if (FAILURE == secret_key_cryptosystem_.initialize(key, ksize)) {
     return FAILURE;
   }
 
@@ -31,8 +39,8 @@ inline int32_t ctr<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ctr<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {
-  int32_t byte = 0;
-  int32_t end = (int32_t)(psize / UnitSize) * UnitSize;
+  int64_t byte = 0;
+  int64_t end = (int64_t)(psize / UnitSize) * UnitSize;
   uint8_t counter[UnitSize] = {0};
   uint8_t mask[UnitSize] = {0};
   uint8_t buf[UnitSize] = {0};
@@ -40,60 +48,45 @@ inline int32_t ctr<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
   if (0 != csize % UnitSize || ((uint32_t)(psize / UnitSize) >= (uint32_t)(csize / UnitSize))) { return FAILURE; }
 
   memcpy(counter, iv_, UnitSize);
-
-  (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
-  for (uint32_t i = 0; i < UnitSize; ++i) {
-    ctext[i] = ptext[i] ^ mask[i];
-  }
+  secret_key_cryptosystem_.encrypt(counter, mask);
+  ENCRYPT_XOR(ptext, mask, ctext);
 
   for (byte = UnitSize; byte < end; byte += UnitSize) {
     inc_counter(counter);
-    (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
-
-    for (uint32_t i = 0; i < UnitSize; ++i) {
-      ctext[byte + i] = ptext[byte + i] ^ mask[i];
-    }
+    secret_key_cryptosystem_.encrypt(counter, mask);
+    ENCRYPT_XOR(&ptext[byte], mask, &ctext[byte]);
   }
 
-  for (int32_t i = 0, j = byte; j < psize; ++i, ++j) {
+  for (int64_t i = 0, j = byte; j < psize; ++i, ++j) {
     buf[i] = ptext[j];
   }
-  (*this).add_padding(buf, psize, UnitSize);
+  pkcs7_.add(buf, psize, UnitSize);
 
   inc_counter(counter);
-  (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
-
-  for (uint32_t i = 0; i < UnitSize; ++i) {
-    ctext[byte + i] = buf[i] ^ mask[i];
-  }
+  secret_key_cryptosystem_.encrypt(counter, mask);
+  ENCRYPT_XOR(buf, mask, &ctext[byte]);
 
   return SUCCESS;
 }
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {
-  int32_t byte = 0;
+  int64_t byte = 0;
   uint8_t counter[UnitSize] = {0};
   uint8_t mask[UnitSize] = {0};
 
   if (0 != csize % UnitSize || 0 != psize % UnitSize || csize > psize) { return FAILURE; }
 
   memcpy(counter, iv_, UnitSize);
-
-  (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
-  for (uint32_t i = 0; i < UnitSize; ++i) {
-    ptext[i] = ctext[i] ^ mask[i];
-  }
+  secret_key_cryptosystem_.encrypt(counter, mask);
+  DECRYPT_XOR(ctext, mask, ptext);
 
   for (byte = UnitSize; byte < psize; byte += UnitSize) {
     inc_counter(counter);
-    (*this).secret_key_cryptosystem_.encrypt(counter, UnitSize, mask, UnitSize);
-
-    for (uint32_t i = 0; i < UnitSize; ++i) {
-      ptext[byte + i] = ctext[byte + i] ^ mask[i];
-    }
+    secret_key_cryptosystem_.encrypt(counter, mask);
+    DECRYPT_XOR(&ctext[byte], mask, &ptext[byte]);
   }
-  if (0 != (*this).remove_padding(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
 
   return SUCCESS;
 }
@@ -101,10 +94,9 @@ inline int32_t ctr<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline void ctr<Cryptosystem, UnitSize>::clear() noexcept {
-  (*this).secret_key_cryptosystem_.clear();
+  secret_key_cryptosystem_.clear();
   memset(iv_, 0x00, UnitSize);
 }
-
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline void ctr<Cryptosystem, UnitSize>::inc_counter(uint8_t *counter) const noexcept {
@@ -139,66 +131,66 @@ inline void ctr<Cryptosystem, UnitSize>::inc_counter(uint8_t *counter) const noe
 /********************************************************************************/
 
 /* AES */
-template int32_t ctr<aes, aes::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<aes, aes::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<aes, aes::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<aes, aes::unit_size>::clear() noexcept;
-template void ctr<aes, aes::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<aes, aes::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<aes, aes::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<aes, aes::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<aes, aes::UNIT_SIZE>::clear() noexcept;
+template void ctr<aes, aes::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 /* AES-NI */
-template int32_t ctr<aes_ni, aes_ni::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<aes_ni, aes_ni::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<aes_ni, aes_ni::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<aes_ni, aes_ni::unit_size>::clear() noexcept;
-template void ctr<aes_ni, aes_ni::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<aes_ni, aes_ni::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<aes_ni, aes_ni::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<aes_ni, aes_ni::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<aes_ni, aes_ni::UNIT_SIZE>::clear() noexcept;
+template void ctr<aes_ni, aes_ni::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 /* Camellia */
-template int32_t ctr<camellia, camellia::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<camellia, camellia::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<camellia, camellia::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<camellia, camellia::unit_size>::clear() noexcept;
-template void ctr<camellia, camellia::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<camellia, camellia::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<camellia, camellia::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<camellia, camellia::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<camellia, camellia::UNIT_SIZE>::clear() noexcept;
+template void ctr<camellia, camellia::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 /* Cast128 */
-template int32_t ctr<cast128, cast128::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<cast128, cast128::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<cast128, cast128::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<cast128, cast128::unit_size>::clear() noexcept;
-template void ctr<cast128, cast128::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<cast128, cast128::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<cast128, cast128::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<cast128, cast128::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<cast128, cast128::UNIT_SIZE>::clear() noexcept;
+template void ctr<cast128, cast128::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 /* Cast256 */
-template int32_t ctr<cast256, cast256::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<cast256, cast256::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<cast256, cast256::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<cast256, cast256::unit_size>::clear() noexcept;
-template void ctr<cast256, cast256::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<cast256, cast256::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<cast256, cast256::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<cast256, cast256::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<cast256, cast256::UNIT_SIZE>::clear() noexcept;
+template void ctr<cast256, cast256::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 /* DES */
-template int32_t ctr<des, des::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<des, des::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<des, des::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<des, des::unit_size>::clear() noexcept;
-template void ctr<des, des::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<des, des::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<des, des::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<des, des::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<des, des::UNIT_SIZE>::clear() noexcept;
+template void ctr<des, des::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 /* RC6 */
-template int32_t ctr<rc6, rc6::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<rc6, rc6::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<rc6, rc6::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<rc6, rc6::unit_size>::clear() noexcept;
-template void ctr<rc6, rc6::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<rc6, rc6::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<rc6, rc6::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<rc6, rc6::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<rc6, rc6::UNIT_SIZE>::clear() noexcept;
+template void ctr<rc6, rc6::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 /* Seed */
-template int32_t ctr<seed, seed::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<seed, seed::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<seed, seed::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<seed, seed::unit_size>::clear() noexcept;
-template void ctr<seed, seed::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<seed, seed::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<seed, seed::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<seed, seed::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<seed, seed::UNIT_SIZE>::clear() noexcept;
+template void ctr<seed, seed::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 /* twofish */
-template int32_t ctr<twofish, twofish::unit_size>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
-template int32_t ctr<twofish, twofish::unit_size>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
-template int32_t ctr<twofish, twofish::unit_size>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
-template void ctr<twofish, twofish::unit_size>::clear() noexcept;
-template void ctr<twofish, twofish::unit_size>::inc_counter(uint8_t *counter) const noexcept;
+template int32_t ctr<twofish, twofish::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<twofish, twofish::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<twofish, twofish::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<twofish, twofish::UNIT_SIZE>::clear() noexcept;
+template void ctr<twofish, twofish::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
 }

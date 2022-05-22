@@ -27,7 +27,7 @@ class des_base {
 
   ~des_base() {};
 
-  static const uint32_t unit_size = 8;
+  static const uint32_t UNIT_SIZE = 8;
 };
 
 class des final : public des_base, public secret_key_base<des> {
@@ -39,9 +39,9 @@ class des final : public des_base, public secret_key_base<des> {
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize);
 
-  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize);
+  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext);
 
-  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize);
+  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext);
 
   void clear();
 
