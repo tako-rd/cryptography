@@ -10,7 +10,7 @@
 #include "gtest_rc6.h"
 
 TEST_F(GTestRC6, Normal_RC6_128_001) {
-  cryptography::rc6 rc6;
+  cryptography::secret_key_cryptosystem<cryptography::rc6> rc6;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -28,7 +28,7 @@ TEST_F(GTestRC6, Normal_RC6_128_001) {
 }
 
 TEST_F(GTestRC6, Normal_RC6_128_002) {
-  cryptography::rc6 rc6;
+  cryptography::secret_key_cryptosystem<cryptography::rc6> rc6;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -45,7 +45,7 @@ TEST_F(GTestRC6, Normal_RC6_128_002) {
 }
 
 TEST_F(GTestRC6, Normal_RC6_192_001) {
-  cryptography::rc6 rc6;
+  cryptography::secret_key_cryptosystem<cryptography::rc6> rc6;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -63,7 +63,7 @@ TEST_F(GTestRC6, Normal_RC6_192_001) {
 }
 
 TEST_F(GTestRC6, Normal_RC6_192_002) {
-  cryptography::rc6 rc6;
+  cryptography::secret_key_cryptosystem<cryptography::rc6> rc6;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -81,7 +81,7 @@ TEST_F(GTestRC6, Normal_RC6_192_002) {
 }
 
 TEST_F(GTestRC6, Normal_RC6_256_001) {
-  cryptography::rc6 rc6;
+  cryptography::secret_key_cryptosystem<cryptography::rc6> rc6;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -99,7 +99,7 @@ TEST_F(GTestRC6, Normal_RC6_256_001) {
 }
 
 TEST_F(GTestRC6, Normal_RC6_256_002) {
-  cryptography::rc6 rc6;
+  cryptography::secret_key_cryptosystem<cryptography::rc6> rc6;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -115,4 +115,3 @@ TEST_F(GTestRC6, Normal_RC6_256_002) {
     EXPECT_EQ(RC6_EXAM2_256BIT_PLAINTEXT[i], plaintext[i]);
   }
 }
-

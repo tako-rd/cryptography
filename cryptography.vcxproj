@@ -62,6 +62,7 @@
     <ClCompile Include="src\crypto\public_key\rsa.cc" />
     <ClCompile Include="src\crypto\secret_key\aes.cc" />
     <ClCompile Include="src\crypto\secret_key\aes_ni.cc" />
+    <ClCompile Include="src\crypto\secret_key\aes_simd.cc" />
     <ClCompile Include="src\crypto\secret_key\camellia.cc" />
     <ClCompile Include="src\crypto\secret_key\cast128.cc" />
     <ClCompile Include="src\crypto\secret_key\cast256.cc" />
@@ -196,7 +197,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;__LITTLE_ENDIAN__;ENABLE_SSE;ENABLE_SSE2;ENABLE_SSE3;ENABLE_SSE4_1;ENABLE_SSE4_2;ENABLE_AESNI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;__LITTLE_ENDIAN__;ENABLE_SSE;ENABLE_SSE2;ENABLE_SSE3;ENABLE_SSE4_1;ENABLE_SSE4_2;DENABLE_AESNI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -223,7 +224,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;__LITTLE_ENDIAN__;ENABLE_SSE;ENABLE_SSE2;ENABLE_SSE3;ENABLE_SSE4_1;ENABLE_SSE4_2;ENABLE_AESNI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_LIB;__LITTLE_ENDIAN__;ENABLE_SSE;ENABLE_SSE2;ENABLE_SSE3;ENABLE_SSE4_1;ENABLE_SSE4_2;DENABLE_AESNI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

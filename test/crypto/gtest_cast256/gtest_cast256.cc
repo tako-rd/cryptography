@@ -10,7 +10,7 @@
 #include "gtest_cast256.h"
 
 TEST_F(GTestCast256, Normal_CAST256_128_001) {
-  cryptography::cast256 cast256;
+  cryptography::secret_key_cryptosystem<cryptography::cast256> cast256;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -27,7 +27,7 @@ TEST_F(GTestCast256, Normal_CAST256_128_001) {
 }
 
 TEST_F(GTestCast256, Normal_CAST256_192_001) {
-  cryptography::cast256 cast256;
+  cryptography::secret_key_cryptosystem<cryptography::cast256> cast256;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -44,7 +44,7 @@ TEST_F(GTestCast256, Normal_CAST256_192_001) {
 }
 
 TEST_F(GTestCast256, Normal_CAST256_256_001) {
-  cryptography::cast256 cast256;
+  cryptography::secret_key_cryptosystem<cryptography::cast256> cast256;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 

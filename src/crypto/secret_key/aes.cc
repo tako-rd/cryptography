@@ -8,6 +8,7 @@
  */
 
 #include "crypto/secret_key/aes.h"
+#include "common/simd.h"
 #include "common/bit.h"
 #include "common/endian.h"
 
@@ -27,6 +28,44 @@ namespace cryptography {
 #define AES128_KEY_CONV_SIZE    4
 #define AES192_KEY_CONV_SIZE    6
 #define AES256_KEY_CONV_SIZE    8
+
+#if defined(__LITTLE_ENDIAN__)
+#define BENDIAN_32BIT_TO_8BIT_SIZE128(in, out)  in[0] = _byteswap_ulong(in[0]); \
+                                                in[1] = _byteswap_ulong(in[1]); \
+                                                in[2] = _byteswap_ulong(in[2]); \
+                                                in[3] = _byteswap_ulong(in[3]); \
+                                                memcpy(out, in, 16);
+
+#define BENDIAN_8BIT_TO_32BIT_SIZE128(in, out)  memcpy(out, in, 16);              \
+                                                out[0] = _byteswap_ulong(out[0]); \
+                                                out[1] = _byteswap_ulong(out[1]); \
+                                                out[2] = _byteswap_ulong(out[2]); \
+                                                out[3] = _byteswap_ulong(out[3]);
+
+#define BENDIAN_8BIT_TO_32BIT_SIZE192(in, out)  memcpy(out, in, 24);              \
+                                                out[0] = _byteswap_ulong(out[0]); \
+                                                out[1] = _byteswap_ulong(out[1]); \
+                                                out[2] = _byteswap_ulong(out[2]); \
+                                                out[3] = _byteswap_ulong(out[3]); \
+                                                out[4] = _byteswap_ulong(out[4]); \
+                                                out[5] = _byteswap_ulong(out[5]);
+
+#define BENDIAN_8BIT_TO_32BIT_SIZE256(in, out)  memcpy(out, in, 32);              \
+                                                out[0] = _byteswap_ulong(out[0]); \
+                                                out[1] = _byteswap_ulong(out[1]); \
+                                                out[2] = _byteswap_ulong(out[2]); \
+                                                out[3] = _byteswap_ulong(out[3]); \
+                                                out[4] = _byteswap_ulong(out[4]); \
+                                                out[5] = _byteswap_ulong(out[5]); \
+                                                out[6] = _byteswap_ulong(out[6]); \
+                                                out[7] = _byteswap_ulong(out[7]);
+
+#elif defined(__BIG_ENDIAN__)
+#define BENDIAN_32BIT_TO_8BIT_SIZE128(in, out)  memcpy(out, in, 16);
+#define BENDIAN_8BIT_TO_32BIT_SIZE128(in, out)  memcpy(out, in, 16);
+#define BENDIAN_8BIT_TO_32BIT_SIZE192(in, out)  memcpy(out, in, 24);
+#define BENDIAN_8BIT_TO_32BIT_SIZE256(in, out)  memcpy(out, in, 32);
+#endif
 
 #define GET_BYTE32(in, pos)     (uint8_t)(((in) >> (24 - ((pos) << 3))) & 0xFF)
 
@@ -50,21 +89,7 @@ namespace cryptography {
     out[3] = mixed_invsbox_e9db[GET_BYTE32(in[3], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[2], 1)] ^                \
              mixed_invsbox_dbe9[GET_BYTE32(in[1], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[0], 3)] ^ key[pos + 3];
 
-#if defined(_MSC_VER)
-# if defined(_WIN64)
-#   define BYTE_SWAP32(x)       _byteswap_ulong((x))     
-# else
-#   define BYTE_SWAP32(x)       (x)
-#endif
-#elif defined(__GNUC__)
-# if defined(__x86_64__)
-# define BYTE_SWAP32(x)         __builtin_bswap32((x))
-# else
-#   define BYTE_SWAP32(x)       (x)
-# endif
-#endif
-
-static const uint8_t sbox[256] = {
+static const ALIGNAS(32) uint8_t sbox[256] = {
   0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 
   0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 
   0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15, 
@@ -83,7 +108,7 @@ static const uint8_t sbox[256] = {
   0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
 };
 
-static const uint8_t invsbox[256] = {
+static const ALIGNAS(32) uint8_t invsbox[256] = {
   0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb, 
   0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb, 
   0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e, 
@@ -376,7 +401,7 @@ static const uint8_t gf_mult_table[15][256] = {
   }
 };
 #else
-static const uint32_t mixed_sbox_2113[256] = {
+static const ALIGNAS(32) uint32_t mixed_sbox_2113[256] = {
   0xc66363a5, 0xf87c7c84, 0xee777799, 0xf67b7b8d, 0xfff2f20d, 0xd66b6bbd, 0xde6f6fb1, 0x91c5c554,
   0x60303050, 0x02010103, 0xce6767a9, 0x562b2b7d, 0xe7fefe19, 0xb5d7d762, 0x4dababe6, 0xec76769a,
   0x8fcaca45, 0x1f82829d, 0x89c9c940, 0xfa7d7d87, 0xeffafa15, 0xb25959eb, 0x8e4747c9, 0xfbf0f00b,
@@ -411,7 +436,7 @@ static const uint32_t mixed_sbox_2113[256] = {
   0x824141c3, 0x299999b0, 0x5a2d2d77, 0x1e0f0f11, 0x7bb0b0cb, 0xa85454fc, 0x6dbbbbd6, 0x2c16163a,
 };
 
-static const uint32_t mixed_sbox_3211[256] = {
+static const ALIGNAS(32) uint32_t mixed_sbox_3211[256] = {
   0xa5c66363, 0x84f87c7c, 0x99ee7777, 0x8df67b7b, 0x0dfff2f2, 0xbdd66b6b, 0xb1de6f6f, 0x5491c5c5,
   0x50603030, 0x03020101, 0xa9ce6767, 0x7d562b2b, 0x19e7fefe, 0x62b5d7d7, 0xe64dabab, 0x9aec7676,
   0x458fcaca, 0x9d1f8282, 0x4089c9c9, 0x87fa7d7d, 0x15effafa, 0xebb25959, 0xc98e4747, 0x0bfbf0f0,
@@ -446,7 +471,7 @@ static const uint32_t mixed_sbox_3211[256] = {
   0xc3824141, 0xb0299999, 0x775a2d2d, 0x111e0f0f, 0xcb7bb0b0, 0xfca85454, 0xd66dbbbb, 0x3a2c1616,
 };
 
-static const uint32_t mixed_sbox_1321[256] = {
+static const ALIGNAS(32) uint32_t mixed_sbox_1321[256] = {
   0x63a5c663, 0x7c84f87c, 0x7799ee77, 0x7b8df67b, 0xf20dfff2, 0x6bbdd66b, 0x6fb1de6f, 0xc55491c5,
   0x30506030, 0x01030201, 0x67a9ce67, 0x2b7d562b, 0xfe19e7fe, 0xd762b5d7, 0xabe64dab, 0x769aec76,
   0xca458fca, 0x829d1f82, 0xc94089c9, 0x7d87fa7d, 0xfa15effa, 0x59ebb259, 0x47c98e47, 0xf00bfbf0,
@@ -481,7 +506,7 @@ static const uint32_t mixed_sbox_1321[256] = {
   0x41c38241, 0x99b02999, 0x2d775a2d, 0x0f111e0f, 0xb0cb7bb0, 0x54fca854, 0xbbd66dbb, 0x163a2c16,
 };
 
-static const uint32_t mixed_sbox_1132[256] = {
+static const ALIGNAS(32) uint32_t mixed_sbox_1132[256] = {
   0x6363a5c6, 0x7c7c84f8, 0x777799ee, 0x7b7b8df6, 0xf2f20dff, 0x6b6bbdd6, 0x6f6fb1de, 0xc5c55491,
   0x30305060, 0x01010302, 0x6767a9ce, 0x2b2b7d56, 0xfefe19e7, 0xd7d762b5, 0xababe64d, 0x76769aec,
   0xcaca458f, 0x82829d1f, 0xc9c94089, 0x7d7d87fa, 0xfafa15ef, 0x5959ebb2, 0x4747c98e, 0xf0f00bfb,
@@ -516,7 +541,7 @@ static const uint32_t mixed_sbox_1132[256] = {
   0x4141c382, 0x9999b029, 0x2d2d775a, 0x0f0f111e, 0xb0b0cb7b, 0x5454fca8, 0xbbbbd66d, 0x16163a2c,
 };
 
-static const uint32_t mixed_invsbox_e9db[256] = {
+static const ALIGNAS(32) uint32_t mixed_invsbox_e9db[256] = {
   0x51f4a750, 0x7e416553, 0x1a17a4c3, 0x3a275e96, 0x3bab6bcb, 0x1f9d45f1, 0xacfa58ab, 0x4be30393,
   0x2030fa55, 0xad766df6, 0x88cc7691, 0xf5024c25, 0x4fe5d7fc, 0xc52acbd7, 0x26354480, 0xb562a38f,
   0xdeb15a49, 0x25ba1b67, 0x45ea0e98, 0x5dfec0e1, 0xc32f7502, 0x814cf012, 0x8d4697a3, 0x6bd3f9c6,
@@ -551,7 +576,7 @@ static const uint32_t mixed_invsbox_e9db[256] = {
   0x39a80171, 0x080cb3de, 0xd8b4e49c, 0x6456c190, 0x7bcb8461, 0xd532b670, 0x486c5c74, 0xd0b85742,
 };
 
-static const uint32_t mixed_invsbox_be9d[256] = {
+static const ALIGNAS(32) uint32_t mixed_invsbox_be9d[256] = {
   0x5051f4a7, 0x537e4165, 0xc31a17a4, 0x963a275e, 0xcb3bab6b, 0xf11f9d45, 0xabacfa58, 0x934be303,
   0x552030fa, 0xf6ad766d, 0x9188cc76, 0x25f5024c, 0xfc4fe5d7, 0xd7c52acb, 0x80263544, 0x8fb562a3,
   0x49deb15a, 0x6725ba1b, 0x9845ea0e, 0xe15dfec0, 0x02c32f75, 0x12814cf0, 0xa38d4697, 0xc66bd3f9,
@@ -586,7 +611,7 @@ static const uint32_t mixed_invsbox_be9d[256] = {
   0x7139a801, 0xde080cb3, 0x9cd8b4e4, 0x906456c1, 0x617bcb84, 0x70d532b6, 0x74486c5c, 0x42d0b857,
 };
 
-static const uint32_t mixed_invsbox_dbe9[256] = {
+static const ALIGNAS(32) uint32_t mixed_invsbox_dbe9[256] = {
   0xa75051f4, 0x65537e41, 0xa4c31a17, 0x5e963a27, 0x6bcb3bab, 0x45f11f9d, 0x58abacfa, 0x03934be3,
   0xfa552030, 0x6df6ad76, 0x769188cc, 0x4c25f502, 0xd7fc4fe5, 0xcbd7c52a, 0x44802635, 0xa38fb562,
   0x5a49deb1, 0x1b6725ba, 0x0e9845ea, 0xc0e15dfe, 0x7502c32f, 0xf012814c, 0x97a38d46, 0xf9c66bd3,
@@ -621,7 +646,7 @@ static const uint32_t mixed_invsbox_dbe9[256] = {
   0x017139a8, 0xb3de080c, 0xe49cd8b4, 0xc1906456, 0x84617bcb, 0xb670d532, 0x5c74486c, 0x5742d0b8,
 };
 
-static const uint32_t mixed_invsbox_9dbe[256] = {
+static const ALIGNAS(32) uint32_t mixed_invsbox_9dbe[256] = {
   0xf4a75051, 0x4165537e, 0x17a4c31a, 0x275e963a, 0xab6bcb3b, 0x9d45f11f, 0xfa58abac, 0xe303934b,
   0x30fa5520, 0x766df6ad, 0xcc769188, 0x024c25f5, 0xe5d7fc4f, 0x2acbd7c5, 0x35448026, 0x62a38fb5,
   0xb15a49de, 0xba1b6725, 0xea0e9845, 0xfec0e15d, 0x2f7502c3, 0x4cf01281, 0x4697a38d, 0xd3f9c66b,
@@ -657,14 +682,12 @@ static const uint32_t mixed_invsbox_9dbe[256] = {
 };
 #endif
 
-static const uint32_t rcon[11] = {
+static const ALIGNAS(32) uint32_t rcon[11] = {
   0x0000'0000, 0x0100'0000, 0x0200'0000, 0x0400'0000, 0x0800'0000, 0x1000'0000, 
   0x2000'0000, 0x4000'0000, 0x8000'0000, 0x1b00'0000, 0x3600'0000,
 };
 
 aes::~aes() {
-  memset(&encskeys_, 0xCC, sizeof(encskeys_));
-  memset(&decskeys_, 0xCC, sizeof(decskeys_));
   memset(&encskeys_, 0xCC, sizeof(encskeys_));
   memset(&decskeys_, 0xCC, sizeof(decskeys_));
 }
@@ -676,47 +699,45 @@ int32_t aes::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
     case AES128_KEY_BYTE_SIZE:
       nr_ = AES128_ROUNDS;
       nk_ = AES128_KEY_CONV_SIZE;
-      endian<BIG, uint32_t, AES128_KEY_BYTE_SIZE>::convert(key, k);
+      BENDIAN_8BIT_TO_32BIT_SIZE128(key, k);
       expand_key(k, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
     case AES192_KEY_BYTE_SIZE:
       nr_ = AES192_ROUNDS;
       nk_ = AES192_KEY_CONV_SIZE;
-      endian<BIG, uint32_t, AES192_KEY_BYTE_SIZE>::convert(key, k);
+      BENDIAN_8BIT_TO_32BIT_SIZE192(key, k);
       expand_key(k, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
     case AES256_KEY_BYTE_SIZE:
       nr_ = AES256_ROUNDS;
       nk_ = AES256_KEY_CONV_SIZE;
-      endian<BIG, uint32_t, AES256_KEY_BYTE_SIZE>::convert(key, k);
+      BENDIAN_8BIT_TO_32BIT_SIZE256(key, k);
       expand_key(k, encskeys_, decskeys_);
       has_subkeys_ = true;
       break;
     default:
       return FAILURE;
   }
-
-  /* Clear stack data. */
   memset(&k, 0xCC, sizeof(k));
 
   return SUCCESS;
 }
 
-int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
-  uint32_t kpos = 0;
+int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+  uint32_t kpos = nr_ << 2;
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
 
   if (false == has_subkeys_) { return FAILURE; }
 
 #if defined(SPEED_PRIORITY_AES)
-  endian<BIG, uint32_t, 16>::convert(ptext, tmp1);
-  tmp1[0] = tmp1[0] ^ encskeys_[kpos    ];
-  tmp1[1] = tmp1[1] ^ encskeys_[kpos + 1];
-  tmp1[2] = tmp1[2] ^ encskeys_[kpos + 2];
-  tmp1[3] = tmp1[3] ^ encskeys_[kpos + 3];
+  BENDIAN_8BIT_TO_32BIT_SIZE128(ptext, tmp1);
+  tmp1[0] = tmp1[0] ^ encskeys_[0];
+  tmp1[1] = tmp1[1] ^ encskeys_[1];
+  tmp1[2] = tmp1[2] ^ encskeys_[2];
+  tmp1[3] = tmp1[3] ^ encskeys_[3];
 #else
   memcpy(tmppln, ptext, 16);
   add_round_key(0, encskeys_, tmppln);
@@ -753,27 +774,25 @@ int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
 #endif
 
 #if defined(SPEED_PRIORITY_AES)
-  kpos = nr_ << 2;
-
-  ctext[0]  = sbox[GET_BYTE32(tmp2[0], 0)] ^ (uint8_t)((encskeys_[kpos]     >> 24) & 0x0000'00FF);
-  ctext[1]  = sbox[GET_BYTE32(tmp2[1], 1)] ^ (uint8_t)((encskeys_[kpos]     >> 16) & 0x0000'00FF);
-  ctext[2]  = sbox[GET_BYTE32(tmp2[2], 2)] ^ (uint8_t)((encskeys_[kpos]     >>  8) & 0x0000'00FF);
-  ctext[3]  = sbox[GET_BYTE32(tmp2[3], 3)] ^ (uint8_t)( encskeys_[kpos]            & 0x0000'00FF);
-
-  ctext[4]  = sbox[GET_BYTE32(tmp2[1], 0)] ^ (uint8_t)((encskeys_[kpos + 1] >> 24) & 0x0000'00FF);
-  ctext[5]  = sbox[GET_BYTE32(tmp2[2], 1)] ^ (uint8_t)((encskeys_[kpos + 1] >> 16) & 0x0000'00FF);
-  ctext[6]  = sbox[GET_BYTE32(tmp2[3], 2)] ^ (uint8_t)((encskeys_[kpos + 1] >>  8) & 0x0000'00FF);
-  ctext[7]  = sbox[GET_BYTE32(tmp2[0], 3)] ^ (uint8_t)( encskeys_[kpos + 1]        & 0x0000'00FF);
-
-  ctext[8]  = sbox[GET_BYTE32(tmp2[2], 0)] ^ (uint8_t)((encskeys_[kpos + 2] >> 24) & 0x0000'00FF);
-  ctext[9]  = sbox[GET_BYTE32(tmp2[3], 1)] ^ (uint8_t)((encskeys_[kpos + 2] >> 16) & 0x0000'00FF);
-  ctext[10] = sbox[GET_BYTE32(tmp2[0], 2)] ^ (uint8_t)((encskeys_[kpos + 2] >>  8) & 0x0000'00FF);
-  ctext[11] = sbox[GET_BYTE32(tmp2[1], 3)] ^ (uint8_t)( encskeys_[kpos + 2]        & 0x0000'00FF);
-
-  ctext[12] = sbox[GET_BYTE32(tmp2[3], 0)] ^ (uint8_t)((encskeys_[kpos + 3] >> 24) & 0x0000'00FF);
-  ctext[13] = sbox[GET_BYTE32(tmp2[0], 1)] ^ (uint8_t)((encskeys_[kpos + 3] >> 16) & 0x0000'00FF);
-  ctext[14] = sbox[GET_BYTE32(tmp2[1], 2)] ^ (uint8_t)((encskeys_[kpos + 3] >>  8) & 0x0000'00FF);
-  ctext[15] = sbox[GET_BYTE32(tmp2[2], 3)] ^ (uint8_t)( encskeys_[kpos + 3]        & 0x0000'00FF);
+  ctext[0]  = sbox[GET_BYTE32(tmp2[0], 0)] ^ (uint8_t)((encskeys_[kpos] >> 24) & 0x0000'00FF);
+  ctext[1]  = sbox[GET_BYTE32(tmp2[1], 1)] ^ (uint8_t)((encskeys_[kpos] >> 16) & 0x0000'00FF);
+  ctext[2]  = sbox[GET_BYTE32(tmp2[2], 2)] ^ (uint8_t)((encskeys_[kpos] >>  8) & 0x0000'00FF);
+  ctext[3]  = sbox[GET_BYTE32(tmp2[3], 3)] ^ (uint8_t)( encskeys_[kpos]        & 0x0000'00FF);
+  ++kpos;
+  ctext[4]  = sbox[GET_BYTE32(tmp2[1], 0)] ^ (uint8_t)((encskeys_[kpos] >> 24) & 0x0000'00FF);
+  ctext[5]  = sbox[GET_BYTE32(tmp2[2], 1)] ^ (uint8_t)((encskeys_[kpos] >> 16) & 0x0000'00FF);
+  ctext[6]  = sbox[GET_BYTE32(tmp2[3], 2)] ^ (uint8_t)((encskeys_[kpos] >>  8) & 0x0000'00FF);
+  ctext[7]  = sbox[GET_BYTE32(tmp2[0], 3)] ^ (uint8_t)( encskeys_[kpos]        & 0x0000'00FF);
+  ++kpos;
+  ctext[8]  = sbox[GET_BYTE32(tmp2[2], 0)] ^ (uint8_t)((encskeys_[kpos] >> 24) & 0x0000'00FF);
+  ctext[9]  = sbox[GET_BYTE32(tmp2[3], 1)] ^ (uint8_t)((encskeys_[kpos] >> 16) & 0x0000'00FF);
+  ctext[10] = sbox[GET_BYTE32(tmp2[0], 2)] ^ (uint8_t)((encskeys_[kpos] >>  8) & 0x0000'00FF);
+  ctext[11] = sbox[GET_BYTE32(tmp2[1], 3)] ^ (uint8_t)( encskeys_[kpos]        & 0x0000'00FF);
+  ++kpos;
+  ctext[12] = sbox[GET_BYTE32(tmp2[3], 0)] ^ (uint8_t)((encskeys_[kpos] >> 24) & 0x0000'00FF);
+  ctext[13] = sbox[GET_BYTE32(tmp2[0], 1)] ^ (uint8_t)((encskeys_[kpos] >> 16) & 0x0000'00FF);
+  ctext[14] = sbox[GET_BYTE32(tmp2[1], 2)] ^ (uint8_t)((encskeys_[kpos] >>  8) & 0x0000'00FF);
+  ctext[15] = sbox[GET_BYTE32(tmp2[2], 3)] ^ (uint8_t)( encskeys_[kpos]        & 0x0000'00FF);
 
 #else
   sub_bytes(tmppln);
@@ -785,7 +804,7 @@ int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   return SUCCESS;
 }
 
-int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
+int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   uint32_t kpos = nr_ << 2;
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
@@ -793,7 +812,7 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   if (false == has_subkeys_) { return FAILURE; }
 
 #if defined(SPEED_PRIORITY_AES)
-  endian<BIG, uint32_t, 16>::convert(ctext, tmp1);
+  BENDIAN_8BIT_TO_32BIT_SIZE128(ctext, tmp1);
   tmp1[0] = tmp1[0] ^ decskeys_[kpos    ];
   tmp1[1] = tmp1[1] ^ decskeys_[kpos + 1];
   tmp1[2] = tmp1[2] ^ decskeys_[kpos + 2];
@@ -834,27 +853,25 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
 #endif
 
 #if defined(SPEED_PRIORITY_AES)
-  kpos = 0;
+  ptext[0]  = invsbox[GET_BYTE32(tmp2[0], 0)] ^ (uint8_t)((decskeys_[0]     >> 24) & 0x0000'00FF);
+  ptext[1]  = invsbox[GET_BYTE32(tmp2[3], 1)] ^ (uint8_t)((decskeys_[0]     >> 16) & 0x0000'00FF);
+  ptext[2]  = invsbox[GET_BYTE32(tmp2[2], 2)] ^ (uint8_t)((decskeys_[0]     >>  8) & 0x0000'00FF);
+  ptext[3]  = invsbox[GET_BYTE32(tmp2[1], 3)] ^ (uint8_t)( decskeys_[0]            & 0x0000'00FF);
 
-  ptext[0]  = invsbox[GET_BYTE32(tmp2[0], 0)] ^ (uint8_t)((decskeys_[kpos]     >> 24) & 0x0000'00FF);
-  ptext[1]  = invsbox[GET_BYTE32(tmp2[3], 1)] ^ (uint8_t)((decskeys_[kpos]     >> 16) & 0x0000'00FF);
-  ptext[2]  = invsbox[GET_BYTE32(tmp2[2], 2)] ^ (uint8_t)((decskeys_[kpos]     >>  8) & 0x0000'00FF);
-  ptext[3]  = invsbox[GET_BYTE32(tmp2[1], 3)] ^ (uint8_t)( decskeys_[kpos]            & 0x0000'00FF);
+  ptext[4]  = invsbox[GET_BYTE32(tmp2[1], 0)] ^ (uint8_t)((decskeys_[1] >> 24) & 0x0000'00FF);
+  ptext[5]  = invsbox[GET_BYTE32(tmp2[0], 1)] ^ (uint8_t)((decskeys_[1] >> 16) & 0x0000'00FF);
+  ptext[6]  = invsbox[GET_BYTE32(tmp2[3], 2)] ^ (uint8_t)((decskeys_[1] >>  8) & 0x0000'00FF);
+  ptext[7]  = invsbox[GET_BYTE32(tmp2[2], 3)] ^ (uint8_t)( decskeys_[1]        & 0x0000'00FF);
 
-  ptext[4]  = invsbox[GET_BYTE32(tmp2[1], 0)] ^ (uint8_t)((decskeys_[kpos + 1] >> 24) & 0x0000'00FF);
-  ptext[5]  = invsbox[GET_BYTE32(tmp2[0], 1)] ^ (uint8_t)((decskeys_[kpos + 1] >> 16) & 0x0000'00FF);
-  ptext[6]  = invsbox[GET_BYTE32(tmp2[3], 2)] ^ (uint8_t)((decskeys_[kpos + 1] >>  8) & 0x0000'00FF);
-  ptext[7]  = invsbox[GET_BYTE32(tmp2[2], 3)] ^ (uint8_t)( decskeys_[kpos + 1]        & 0x0000'00FF);
+  ptext[8]  = invsbox[GET_BYTE32(tmp2[2], 0)] ^ (uint8_t)((decskeys_[2] >> 24) & 0x0000'00FF);
+  ptext[9]  = invsbox[GET_BYTE32(tmp2[1], 1)] ^ (uint8_t)((decskeys_[2] >> 16) & 0x0000'00FF);
+  ptext[10] = invsbox[GET_BYTE32(tmp2[0], 2)] ^ (uint8_t)((decskeys_[2] >>  8) & 0x0000'00FF);
+  ptext[11] = invsbox[GET_BYTE32(tmp2[3], 3)] ^ (uint8_t)( decskeys_[2]        & 0x0000'00FF);
 
-  ptext[8]  = invsbox[GET_BYTE32(tmp2[2], 0)] ^ (uint8_t)((decskeys_[kpos + 2] >> 24) & 0x0000'00FF);
-  ptext[9]  = invsbox[GET_BYTE32(tmp2[1], 1)] ^ (uint8_t)((decskeys_[kpos + 2] >> 16) & 0x0000'00FF);
-  ptext[10] = invsbox[GET_BYTE32(tmp2[0], 2)] ^ (uint8_t)((decskeys_[kpos + 2] >>  8) & 0x0000'00FF);
-  ptext[11] = invsbox[GET_BYTE32(tmp2[3], 3)] ^ (uint8_t)( decskeys_[kpos + 2]        & 0x0000'00FF);
-
-  ptext[12] = invsbox[GET_BYTE32(tmp2[3], 0)] ^ (uint8_t)((decskeys_[kpos + 3] >> 24) & 0x0000'00FF);
-  ptext[13] = invsbox[GET_BYTE32(tmp2[2], 1)] ^ (uint8_t)((decskeys_[kpos + 3] >> 16) & 0x0000'00FF);
-  ptext[14] = invsbox[GET_BYTE32(tmp2[1], 2)] ^ (uint8_t)((decskeys_[kpos + 3] >>  8) & 0x0000'00FF);
-  ptext[15] = invsbox[GET_BYTE32(tmp2[0], 3)] ^ (uint8_t)( decskeys_[kpos + 3]        & 0x0000'00FF);
+  ptext[12] = invsbox[GET_BYTE32(tmp2[3], 0)] ^ (uint8_t)((decskeys_[3] >> 24) & 0x0000'00FF);
+  ptext[13] = invsbox[GET_BYTE32(tmp2[2], 1)] ^ (uint8_t)((decskeys_[3] >> 16) & 0x0000'00FF);
+  ptext[14] = invsbox[GET_BYTE32(tmp2[1], 2)] ^ (uint8_t)((decskeys_[3] >>  8) & 0x0000'00FF);
+  ptext[15] = invsbox[GET_BYTE32(tmp2[0], 3)] ^ (uint8_t)( decskeys_[3]        & 0x0000'00FF);
 #else
   inv_shift_rows(tmpcphr);
   inv_sub_bytes(tmpcphr);

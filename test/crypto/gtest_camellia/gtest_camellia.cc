@@ -10,7 +10,7 @@
 #include "gtest_camellia.h"
 
 TEST_F(GTestCamellia, Normal_Camellia_128_001) {
-  cryptography::camellia camellia;
+  cryptography::secret_key_cryptosystem<cryptography::camellia> camellia;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -29,7 +29,7 @@ TEST_F(GTestCamellia, Normal_Camellia_128_001) {
 }
 
 TEST_F(GTestCamellia, Normal_Camellia_192_001) {
-  cryptography::camellia camellia;
+  cryptography::secret_key_cryptosystem<cryptography::camellia> camellia;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -47,7 +47,7 @@ TEST_F(GTestCamellia, Normal_Camellia_192_001) {
 }
 
 TEST_F(GTestCamellia, Normal_Camellia_256_001) {
-  cryptography::camellia camellia;
+  cryptography::secret_key_cryptosystem<cryptography::camellia> camellia;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 

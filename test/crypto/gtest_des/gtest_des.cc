@@ -11,7 +11,7 @@
 
 
 TEST_F(GTestDes, Normal_DES_001) {
-  cryptography::des des;
+  cryptography::secret_key_cryptosystem<cryptography::des> des;
   uint8_t ciphertext[8] = {0};
   uint8_t plaintext[8] = {0};
 
@@ -26,7 +26,7 @@ TEST_F(GTestDes, Normal_DES_001) {
 }
 
 TEST_F(GTestDes, Normal_DES_002) {
-  cryptography::des des;
+  cryptography::secret_key_cryptosystem<cryptography::des> des;
   uint8_t ciphertext[8] = {0};
   uint8_t plaintext[8] = {0};
 
@@ -41,7 +41,7 @@ TEST_F(GTestDes, Normal_DES_002) {
 }
 
 TEST_F(GTestDes, Normal_DES_003) {
-  cryptography::des des;
+  cryptography::secret_key_cryptosystem<cryptography::des> des;
   uint8_t ciphertext[8] = {0};
   uint8_t plaintext[8] = {0};
 

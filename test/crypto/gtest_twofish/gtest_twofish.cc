@@ -10,7 +10,7 @@
 #include "gtest_twofish.h"
 
 TEST_F(GTestTwofish, Normal_Twofish_128_001) {
-  cryptography::twofish twofish;
+  cryptography::secret_key_cryptosystem<cryptography::twofish> twofish;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {1};
 
@@ -28,7 +28,7 @@ TEST_F(GTestTwofish, Normal_Twofish_128_001) {
 }
 
 TEST_F(GTestTwofish, Normal_Twofish_192_001) {
-  cryptography::twofish twofish;
+  cryptography::secret_key_cryptosystem<cryptography::twofish> twofish;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {1};
 
@@ -46,7 +46,7 @@ TEST_F(GTestTwofish, Normal_Twofish_192_001) {
 }
 
 TEST_F(GTestTwofish, Normal_Twofish_256_001) {
-  cryptography::twofish twofish;
+  cryptography::secret_key_cryptosystem<cryptography::twofish> twofish;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {1};
 

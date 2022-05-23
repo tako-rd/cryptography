@@ -10,7 +10,7 @@
 #include "gtest_cast128.h"
 
 TEST_F(GTestCast128, Normal_CAST128_128_001) {
-  cryptography::cast128 cast128;
+  cryptography::secret_key_cryptosystem<cryptography::cast128> cast128;
   uint8_t ciphertext[8] = {0};
   uint8_t plaintext[8] = {0};
 
@@ -28,7 +28,7 @@ TEST_F(GTestCast128, Normal_CAST128_128_001) {
 }
 
 TEST_F(GTestCast128, Normal_CAST128_80_001) {
-  cryptography::cast128 cast128;
+  cryptography::secret_key_cryptosystem<cryptography::cast128> cast128;
   uint8_t ciphertext[8] = {0};
   uint8_t plaintext[8] = {0};
 
@@ -46,7 +46,7 @@ TEST_F(GTestCast128, Normal_CAST128_80_001) {
 }
 
 TEST_F(GTestCast128, Normal_CAST128_40_001) {
-  cryptography::cast128 cast128;
+  cryptography::secret_key_cryptosystem<cryptography::cast128> cast128;
   uint8_t ciphertext[8] = {0};
   uint8_t plaintext[8] = {0};
 

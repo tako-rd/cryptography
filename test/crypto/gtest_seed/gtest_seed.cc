@@ -10,7 +10,7 @@
 #include "gtest_seed.h"
 
 TEST_F(GTestSeed, Normal_SEED_001) {
-  cryptography::seed seed;
+  cryptography::secret_key_cryptosystem<cryptography::seed> seed;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -28,7 +28,7 @@ TEST_F(GTestSeed, Normal_SEED_001) {
 }
 
 TEST_F(GTestSeed, Normal_SEED_002) {
-  cryptography::seed seed;
+  cryptography::secret_key_cryptosystem<cryptography::seed> seed;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -46,7 +46,7 @@ TEST_F(GTestSeed, Normal_SEED_002) {
 }
 
 TEST_F(GTestSeed, Normal_SEED_003) {
-  cryptography::seed seed;
+  cryptography::secret_key_cryptosystem<cryptography::seed> seed;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 
@@ -64,7 +64,7 @@ TEST_F(GTestSeed, Normal_SEED_003) {
 }
 
 TEST_F(GTestSeed, Normal_SEED_004) {
-  cryptography::seed seed;
+  cryptography::secret_key_cryptosystem<cryptography::seed> seed;
   uint8_t ciphertext[16] = {0};
   uint8_t plaintext[16] = {0};
 

@@ -27,6 +27,10 @@
 
 namespace cryptography {
 
+/***************************************************************/
+/* Do not use in situations where execution speed is required. */
+/***************************************************************/
+
 /* Prototype declaration of class. */
 template <template <typename T, uint32_t F> class Endian, typename UnitType, uint32_t ByteSize> class endian;
 template <typename UnitType, uint32_t Size> class little_endian;
@@ -45,6 +49,10 @@ template <template <typename T, uint32_t F> class Endian, typename UnitType, uin
 class endian {
  public:
   endian() noexcept {};
+
+  endian(endian &other) = delete;
+
+  endian(endian &&other) = delete;
 
   ~endian() {};
 
@@ -70,6 +78,10 @@ class endian {
 class wrapswap {
  public:
   wrapswap() noexcept {};
+
+  wrapswap(wrapswap &other)= delete;
+
+  wrapswap(wrapswap &&other) = delete;
 
   ~wrapswap() {};
 
@@ -102,6 +114,10 @@ template <typename UnitType, uint32_t ByteSize>
 class little_endian {
  public:
   little_endian() noexcept {};
+
+  little_endian(little_endian &other) = delete;
+
+  little_endian(little_endian &&other) = delete;
 
   ~little_endian() {};
 
@@ -143,6 +159,10 @@ template <typename UnitType, uint32_t ByteSize>
 class big_endian {
  public:
   big_endian() noexcept {};
+
+  big_endian(big_endian &other) = delete;
+
+  big_endian(big_endian &&other) = delete;
 
   ~big_endian() {};
 

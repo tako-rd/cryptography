@@ -172,8 +172,7 @@ int32_t aes_ni::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   return SUCCESS;
 }
 
-int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
-  const uint32_t nr = nr_;
+int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
   __m128i st = _mm_loadu_si128((__m128i*)ptext);
 
   if (false == has_subkeys_) { return FAILURE; }
@@ -199,18 +198,17 @@ int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
     st = _mm_aesenc_si128(st, encskeys_[10]);
     st = _mm_aesenc_si128(st, encskeys_[11]);
   }
-  _mm_storeu_si128((__m128i*)ctext, _mm_aesenclast_si128(st, encskeys_[nr]));
+  _mm_storeu_si128((__m128i*)ctext, _mm_aesenclast_si128(st, encskeys_[nr_]));
 
   return SUCCESS;
 }
 
-int32_t aes_ni::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
-  const uint32_t nr = nr_;
+int32_t aes_ni::decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
   __m128i st = _mm_loadu_si128((__m128i*)ctext);
 
   if (false == has_subkeys_) { return FAILURE; }
 
-  st = _mm_xor_si128(st, decskeys_[nr]);
+  st = _mm_xor_si128(st, decskeys_[nr_]);
 
   if (AES256_ROUNDS == nr_) {
     st = _mm_aesdec_si128(st, decskeys_[13]);
@@ -244,7 +242,7 @@ void aes_ni::clear() noexcept {
   memset(decskeys_, 0xCC, sizeof(decskeys_));
 }
 
-void aes_ni::expand_128bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept {
+inline void aes_ni::expand_128bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept {
   __m128i t1 = _mm_loadu_si128((const __m128i *)key);
   __m128i t2 = {0};
   __m128i t3 = {0};
@@ -276,7 +274,7 @@ void aes_ni::expand_128bit_key(const uint8_t * const key, __m128i *encskeys, __m
   decskeys[10] = encskeys[10];
 }
 
-void aes_ni::expand_192bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept {
+inline void aes_ni::expand_192bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept {
   __m128i k1 = _mm_loadu_si128((const __m128i *)key);
   __m128i k2 = _mm_loadl_epi64((const __m128i *)(key + 16));
   __m128i t1 = {0};
@@ -313,7 +311,7 @@ void aes_ni::expand_192bit_key(const uint8_t * const key, __m128i *encskeys, __m
   decskeys[12] = encskeys[12];
 }
 
-void aes_ni::expand_256bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept {
+inline void aes_ni::expand_256bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept {
   __m128i k1 = _mm_loadu_si128((const __m128i *)key);
   __m128i k2 = _mm_loadu_si128((const __m128i *)(key + 16));
   __m128i t1 = {0};
