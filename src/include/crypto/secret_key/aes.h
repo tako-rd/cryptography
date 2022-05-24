@@ -23,13 +23,10 @@ class aes_simd;
 class aes_ni;
 
 /* Alias declaration */
-#if defined(ENABLE_AESNI)
-using AES = aes_ni;
-#else
 using AES = aes;
-#endif
+using AESNI = aes_ni;
 
-class aes_base {
+class ALIGNAS(32) aes_base {
  public:
   aes_base() noexcept : padding_{0} {};
 
@@ -49,9 +46,9 @@ class aes final : public aes_base, public secret_key_base<aes> {
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 
-  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
+  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept;
 
-  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
+  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept;
 
   void clear() noexcept;
 
@@ -80,9 +77,9 @@ class aes final : public aes_base, public secret_key_base<aes> {
   uint8_t gf_mult(uint8_t x, uint8_t y) const noexcept;
 #endif
 
-  uint32_t encskeys_[60];
+  ALIGNAS(32) uint32_t encskeys_[60];
 
-  uint32_t decskeys_[60];
+  ALIGNAS(32) uint32_t decskeys_[60];
 
   int32_t nr_;
 
@@ -100,18 +97,18 @@ public:
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 
-  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
+  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept;
 
-  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
+  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept;
 
   void clear() noexcept;
 
 private:
   void expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) noexcept;
 
-  uint32_t encskeys_[60];
+  ALIGNAS(32) uint32_t encskeys_[60];
 
-  uint32_t decskeys_[60];
+  ALIGNAS(32) uint32_t decskeys_[60];
 
   int32_t nr_;
 
@@ -128,9 +125,9 @@ public:
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 
-  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept;
+  int32_t encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept;
 
-  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept;
+  int32_t decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept;
 
   void clear() noexcept;
 

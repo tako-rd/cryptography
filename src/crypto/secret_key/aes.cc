@@ -8,10 +8,9 @@
  */
 
 #include "crypto/secret_key/aes.h"
-#include "common/simd.h"
 #include "common/bit.h"
 #include "common/endian.h"
-
+#include <stdio.h>
 namespace cryptography {
 
 #define SUCCESS                 0
@@ -30,64 +29,68 @@ namespace cryptography {
 #define AES256_KEY_CONV_SIZE    8
 
 #if defined(__LITTLE_ENDIAN__)
-#define BENDIAN_32BIT_TO_8BIT_SIZE128(in, out)  in[0] = _byteswap_ulong(in[0]); \
-                                                in[1] = _byteswap_ulong(in[1]); \
-                                                in[2] = _byteswap_ulong(in[2]); \
-                                                in[3] = _byteswap_ulong(in[3]); \
-                                                memcpy(out, in, 16);
-
-#define BENDIAN_8BIT_TO_32BIT_SIZE128(in, out)  memcpy(out, in, 16);              \
-                                                out[0] = _byteswap_ulong(out[0]); \
-                                                out[1] = _byteswap_ulong(out[1]); \
-                                                out[2] = _byteswap_ulong(out[2]); \
-                                                out[3] = _byteswap_ulong(out[3]);
-
-#define BENDIAN_8BIT_TO_32BIT_SIZE192(in, out)  memcpy(out, in, 24);              \
-                                                out[0] = _byteswap_ulong(out[0]); \
-                                                out[1] = _byteswap_ulong(out[1]); \
-                                                out[2] = _byteswap_ulong(out[2]); \
-                                                out[3] = _byteswap_ulong(out[3]); \
-                                                out[4] = _byteswap_ulong(out[4]); \
-                                                out[5] = _byteswap_ulong(out[5]);
-
-#define BENDIAN_8BIT_TO_32BIT_SIZE256(in, out)  memcpy(out, in, 32);              \
-                                                out[0] = _byteswap_ulong(out[0]); \
-                                                out[1] = _byteswap_ulong(out[1]); \
-                                                out[2] = _byteswap_ulong(out[2]); \
-                                                out[3] = _byteswap_ulong(out[3]); \
-                                                out[4] = _byteswap_ulong(out[4]); \
-                                                out[5] = _byteswap_ulong(out[5]); \
-                                                out[6] = _byteswap_ulong(out[6]); \
-                                                out[7] = _byteswap_ulong(out[7]);
-
+# define BENDIAN_32BIT_TO_8BIT_SIZE128(in, out)  in[0] = _byteswap_ulong(in[0]); \
+                                                 in[1] = _byteswap_ulong(in[1]); \
+                                                 in[2] = _byteswap_ulong(in[2]); \
+                                                 in[3] = _byteswap_ulong(in[3]); \
+                                                 memcpy(out, in, 16);
+  
+# define BENDIAN_8BIT_TO_32BIT_SIZE128(in, out)  memcpy(out, in, 16);              \
+                                                 out[0] = _byteswap_ulong(out[0]); \
+                                                 out[1] = _byteswap_ulong(out[1]); \
+                                                 out[2] = _byteswap_ulong(out[2]); \
+                                                 out[3] = _byteswap_ulong(out[3]);
+  
+# define BENDIAN_8BIT_TO_32BIT_SIZE192(in, out)  memcpy(out, in, 24);              \
+                                                 out[0] = _byteswap_ulong(out[0]); \
+                                                 out[1] = _byteswap_ulong(out[1]); \
+                                                 out[2] = _byteswap_ulong(out[2]); \
+                                                 out[3] = _byteswap_ulong(out[3]); \
+                                                 out[4] = _byteswap_ulong(out[4]); \
+                                                 out[5] = _byteswap_ulong(out[5]);
+  
+# define BENDIAN_8BIT_TO_32BIT_SIZE256(in, out)  memcpy(out, in, 32);              \
+                                                 out[0] = _byteswap_ulong(out[0]); \
+                                                 out[1] = _byteswap_ulong(out[1]); \
+                                                 out[2] = _byteswap_ulong(out[2]); \
+                                                 out[3] = _byteswap_ulong(out[3]); \
+                                                 out[4] = _byteswap_ulong(out[4]); \
+                                                 out[5] = _byteswap_ulong(out[5]); \
+                                                 out[6] = _byteswap_ulong(out[6]); \
+                                                 out[7] = _byteswap_ulong(out[7]);
+  
 #elif defined(__BIG_ENDIAN__)
-#define BENDIAN_32BIT_TO_8BIT_SIZE128(in, out)  memcpy(out, in, 16);
-#define BENDIAN_8BIT_TO_32BIT_SIZE128(in, out)  memcpy(out, in, 16);
-#define BENDIAN_8BIT_TO_32BIT_SIZE192(in, out)  memcpy(out, in, 24);
-#define BENDIAN_8BIT_TO_32BIT_SIZE256(in, out)  memcpy(out, in, 32);
+# define BENDIAN_32BIT_TO_8BIT_SIZE128(in, out)  memcpy(out, in, 16);
+# define BENDIAN_8BIT_TO_32BIT_SIZE128(in, out)  memcpy(out, in, 16);
+# define BENDIAN_8BIT_TO_32BIT_SIZE192(in, out)  memcpy(out, in, 24);
+# define BENDIAN_8BIT_TO_32BIT_SIZE256(in, out)  memcpy(out, in, 32);
 #endif
 
-#define GET_BYTE32(in, pos)     (uint8_t)(((in) >> (24 - ((pos) << 3))) & 0xFF)
+#define BYTE00                  24
+#define BYTE01                  16
+#define BYTE02                  8
+#define BYTE03                  0
+#define GET_BYTE32(in, pos)     (uint8_t)((in) >> (pos))
 
-#define ENCRYPT_ROUND(in, pos, key, out)  \
-    out[0] = mixed_sbox_2113[GET_BYTE32(in[0], 0)] ^ mixed_sbox_3211[GET_BYTE32(in[1], 1)] ^                \
-             mixed_sbox_1321[GET_BYTE32(in[2], 2)] ^ mixed_sbox_1132[GET_BYTE32(in[3], 3)] ^ key[pos    ];  \
-    out[1] = mixed_sbox_2113[GET_BYTE32(in[1], 0)] ^ mixed_sbox_3211[GET_BYTE32(in[2], 1)] ^                \
-             mixed_sbox_1321[GET_BYTE32(in[3], 2)] ^ mixed_sbox_1132[GET_BYTE32(in[0], 3)] ^ key[pos + 1];  \
-    out[2] = mixed_sbox_2113[GET_BYTE32(in[2], 0)] ^ mixed_sbox_3211[GET_BYTE32(in[3], 1)] ^                \
-             mixed_sbox_1321[GET_BYTE32(in[0], 2)] ^ mixed_sbox_1132[GET_BYTE32(in[1], 3)] ^ key[pos + 2];  \
-    out[3] = mixed_sbox_2113[GET_BYTE32(in[3], 0)] ^ mixed_sbox_3211[GET_BYTE32(in[0], 1)] ^                \
-             mixed_sbox_1321[GET_BYTE32(in[1], 2)] ^ mixed_sbox_1132[GET_BYTE32(in[2], 3)] ^ key[pos + 3];
+#define ENCRYPT_ROUND(in, key, out)  \
+    out[0] = mixed_sbox_2113[GET_BYTE32(in[0], BYTE00)] ^ mixed_sbox_3211[GET_BYTE32(in[1], BYTE01)] ^            \
+             mixed_sbox_1321[GET_BYTE32(in[2], BYTE02)] ^ mixed_sbox_1132[GET_BYTE32(in[3], BYTE03)] ^ *(++key);  \
+    out[1] = mixed_sbox_2113[GET_BYTE32(in[1], BYTE00)] ^ mixed_sbox_3211[GET_BYTE32(in[2], BYTE01)] ^            \
+             mixed_sbox_1321[GET_BYTE32(in[3], BYTE02)] ^ mixed_sbox_1132[GET_BYTE32(in[0], BYTE03)] ^ *(++key);  \
+    out[2] = mixed_sbox_2113[GET_BYTE32(in[2], BYTE00)] ^ mixed_sbox_3211[GET_BYTE32(in[3], BYTE01)] ^            \
+             mixed_sbox_1321[GET_BYTE32(in[0], BYTE02)] ^ mixed_sbox_1132[GET_BYTE32(in[1], BYTE03)] ^ *(++key);  \
+    out[3] = mixed_sbox_2113[GET_BYTE32(in[3], BYTE00)] ^ mixed_sbox_3211[GET_BYTE32(in[0], BYTE01)] ^            \
+             mixed_sbox_1321[GET_BYTE32(in[1], BYTE02)] ^ mixed_sbox_1132[GET_BYTE32(in[2], BYTE03)] ^ *(++key);
 
 #define DECRYPT_ROUND(in, pos, key, out)  \
-    out[0] = mixed_invsbox_e9db[GET_BYTE32(in[0], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[3], 1)] ^                \
-             mixed_invsbox_dbe9[GET_BYTE32(in[2], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[1], 3)] ^ key[pos    ];  \
-    out[1] = mixed_invsbox_e9db[GET_BYTE32(in[1], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[0], 1)] ^                \
-             mixed_invsbox_dbe9[GET_BYTE32(in[3], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[2], 3)] ^ key[pos + 1];  \
-    out[2] = mixed_invsbox_e9db[GET_BYTE32(in[2], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[1], 1)] ^                \
-             mixed_invsbox_dbe9[GET_BYTE32(in[0], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[3], 3)] ^ key[pos + 2];  \
-    out[3] = mixed_invsbox_e9db[GET_BYTE32(in[3], 0)] ^ mixed_invsbox_be9d[GET_BYTE32(in[2], 1)] ^                \
-             mixed_invsbox_dbe9[GET_BYTE32(in[1], 2)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[0], 3)] ^ key[pos + 3];
+    out[0] = mixed_invsbox_e9db[GET_BYTE32(in[0], BYTE00)] ^ mixed_invsbox_be9d[GET_BYTE32(in[3], BYTE01)] ^                \
+             mixed_invsbox_dbe9[GET_BYTE32(in[2], BYTE02)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[1], BYTE03)] ^ key[pos    ];  \
+    out[1] = mixed_invsbox_e9db[GET_BYTE32(in[1], BYTE00)] ^ mixed_invsbox_be9d[GET_BYTE32(in[0], BYTE01)] ^                \
+             mixed_invsbox_dbe9[GET_BYTE32(in[3], BYTE02)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[2], BYTE03)] ^ key[pos + 1];  \
+    out[2] = mixed_invsbox_e9db[GET_BYTE32(in[2], BYTE00)] ^ mixed_invsbox_be9d[GET_BYTE32(in[1], BYTE01)] ^                \
+             mixed_invsbox_dbe9[GET_BYTE32(in[0], BYTE02)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[3], BYTE03)] ^ key[pos + 2];  \
+    out[3] = mixed_invsbox_e9db[GET_BYTE32(in[3], BYTE00)] ^ mixed_invsbox_be9d[GET_BYTE32(in[2], BYTE01)] ^                \
+             mixed_invsbox_dbe9[GET_BYTE32(in[1], BYTE02)] ^ mixed_invsbox_9dbe[GET_BYTE32(in[0], BYTE03)] ^ key[pos + 3];
 
 static const ALIGNAS(32) uint8_t sbox[256] = {
   0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 
@@ -725,45 +728,45 @@ int32_t aes::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   return SUCCESS;
 }
 
-int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
-  uint32_t kpos = nr_ << 2;
+int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
+  uint32_t *encskeys = encskeys_;
 
   if (false == has_subkeys_) { return FAILURE; }
 
 #if defined(SPEED_PRIORITY_AES)
   BENDIAN_8BIT_TO_32BIT_SIZE128(ptext, tmp1);
-  tmp1[0] = tmp1[0] ^ encskeys_[0];
-  tmp1[1] = tmp1[1] ^ encskeys_[1];
-  tmp1[2] = tmp1[2] ^ encskeys_[2];
-  tmp1[3] = tmp1[3] ^ encskeys_[3];
+  tmp1[0] = tmp1[0] ^ *(  encskeys);
+  tmp1[1] = tmp1[1] ^ *(++encskeys);
+  tmp1[2] = tmp1[2] ^ *(++encskeys);
+  tmp1[3] = tmp1[3] ^ *(++encskeys);
 #else
   memcpy(tmppln, ptext, 16);
   add_round_key(0, encskeys_, tmppln);
 #endif
 
 #if defined(SPEED_PRIORITY_AES)
-  ENCRYPT_ROUND(tmp1,  4, encskeys_, tmp2); /* round  1 */
-  ENCRYPT_ROUND(tmp2,  8, encskeys_, tmp1); /* round  2 */
-  ENCRYPT_ROUND(tmp1, 12, encskeys_, tmp2); /* round  3 */
-  ENCRYPT_ROUND(tmp2, 16, encskeys_, tmp1); /* round  4 */
-  ENCRYPT_ROUND(tmp1, 20, encskeys_, tmp2); /* round  5 */
-  ENCRYPT_ROUND(tmp2, 24, encskeys_, tmp1); /* round  6 */
-  ENCRYPT_ROUND(tmp1, 28, encskeys_, tmp2); /* round  7 */
-  ENCRYPT_ROUND(tmp2, 32, encskeys_, tmp1); /* round  8 */
-  ENCRYPT_ROUND(tmp1, 36, encskeys_, tmp2); /* round  9 */
+  ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round  1 */
+  ENCRYPT_ROUND(tmp2, encskeys, tmp1); /* round  2 */
+  ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round  3 */
+  ENCRYPT_ROUND(tmp2, encskeys, tmp1); /* round  4 */
+  ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round  5 */
+  ENCRYPT_ROUND(tmp2, encskeys, tmp1); /* round  6 */
+  ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round  7 */
+  ENCRYPT_ROUND(tmp2, encskeys, tmp1); /* round  8 */
+  ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round  9 */
 
   if (AES192_ROUNDS == nr_) {
-    ENCRYPT_ROUND(tmp2, 40, encskeys_, tmp1); /* round 10 */
-    ENCRYPT_ROUND(tmp1, 44, encskeys_, tmp2); /* round 11 */
+    ENCRYPT_ROUND(tmp2, encskeys, tmp1); /* round 10 */
+    ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round 11 */
 
   } else if (AES256_ROUNDS == nr_) {
-    ENCRYPT_ROUND(tmp2, 40, encskeys_, tmp1); /* round 10 */
-    ENCRYPT_ROUND(tmp1, 44, encskeys_, tmp2); /* round 11 */
-    ENCRYPT_ROUND(tmp2, 48, encskeys_, tmp1); /* round 12 */
-    ENCRYPT_ROUND(tmp1, 52, encskeys_, tmp2); /* round 13 */
-  }  
+    ENCRYPT_ROUND(tmp2, encskeys, tmp1); /* round 10 */
+    ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round 11 */
+    ENCRYPT_ROUND(tmp2, encskeys, tmp1); /* round 12 */
+    ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round 13 */
+  } 
 #else 
   for (int32_t round = 1; round < nr_; round += 2) {
     sub_bytes(tmppln);
@@ -774,26 +777,25 @@ int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept
 #endif
 
 #if defined(SPEED_PRIORITY_AES)
-  ctext[0]  = sbox[GET_BYTE32(tmp2[0], 0)] ^ (uint8_t)((encskeys_[kpos] >> 24) & 0x0000'00FF);
-  ctext[1]  = sbox[GET_BYTE32(tmp2[1], 1)] ^ (uint8_t)((encskeys_[kpos] >> 16) & 0x0000'00FF);
-  ctext[2]  = sbox[GET_BYTE32(tmp2[2], 2)] ^ (uint8_t)((encskeys_[kpos] >>  8) & 0x0000'00FF);
-  ctext[3]  = sbox[GET_BYTE32(tmp2[3], 3)] ^ (uint8_t)( encskeys_[kpos]        & 0x0000'00FF);
-  ++kpos;
-  ctext[4]  = sbox[GET_BYTE32(tmp2[1], 0)] ^ (uint8_t)((encskeys_[kpos] >> 24) & 0x0000'00FF);
-  ctext[5]  = sbox[GET_BYTE32(tmp2[2], 1)] ^ (uint8_t)((encskeys_[kpos] >> 16) & 0x0000'00FF);
-  ctext[6]  = sbox[GET_BYTE32(tmp2[3], 2)] ^ (uint8_t)((encskeys_[kpos] >>  8) & 0x0000'00FF);
-  ctext[7]  = sbox[GET_BYTE32(tmp2[0], 3)] ^ (uint8_t)( encskeys_[kpos]        & 0x0000'00FF);
-  ++kpos;
-  ctext[8]  = sbox[GET_BYTE32(tmp2[2], 0)] ^ (uint8_t)((encskeys_[kpos] >> 24) & 0x0000'00FF);
-  ctext[9]  = sbox[GET_BYTE32(tmp2[3], 1)] ^ (uint8_t)((encskeys_[kpos] >> 16) & 0x0000'00FF);
-  ctext[10] = sbox[GET_BYTE32(tmp2[0], 2)] ^ (uint8_t)((encskeys_[kpos] >>  8) & 0x0000'00FF);
-  ctext[11] = sbox[GET_BYTE32(tmp2[1], 3)] ^ (uint8_t)( encskeys_[kpos]        & 0x0000'00FF);
-  ++kpos;
-  ctext[12] = sbox[GET_BYTE32(tmp2[3], 0)] ^ (uint8_t)((encskeys_[kpos] >> 24) & 0x0000'00FF);
-  ctext[13] = sbox[GET_BYTE32(tmp2[0], 1)] ^ (uint8_t)((encskeys_[kpos] >> 16) & 0x0000'00FF);
-  ctext[14] = sbox[GET_BYTE32(tmp2[1], 2)] ^ (uint8_t)((encskeys_[kpos] >>  8) & 0x0000'00FF);
-  ctext[15] = sbox[GET_BYTE32(tmp2[2], 3)] ^ (uint8_t)( encskeys_[kpos]        & 0x0000'00FF);
+  ctext[0]  = sbox[GET_BYTE32(tmp2[0], BYTE00)] ^ (uint8_t)((*(++encskeys) >> 24) & 0x0000'00FF);
+  ctext[1]  = sbox[GET_BYTE32(tmp2[1], BYTE01)] ^ (uint8_t)((*(  encskeys) >> 16) & 0x0000'00FF);
+  ctext[2]  = sbox[GET_BYTE32(tmp2[2], BYTE02)] ^ (uint8_t)((*(  encskeys) >>  8) & 0x0000'00FF);
+  ctext[3]  = sbox[GET_BYTE32(tmp2[3], BYTE03)] ^ (uint8_t)( *(  encskeys)        & 0x0000'00FF);
 
+  ctext[4]  = sbox[GET_BYTE32(tmp2[1], BYTE00)] ^ (uint8_t)((*(++encskeys) >> 24) & 0x0000'00FF);
+  ctext[5]  = sbox[GET_BYTE32(tmp2[2], BYTE01)] ^ (uint8_t)((*(  encskeys) >> 16) & 0x0000'00FF);
+  ctext[6]  = sbox[GET_BYTE32(tmp2[3], BYTE02)] ^ (uint8_t)((*(  encskeys) >>  8) & 0x0000'00FF);
+  ctext[7]  = sbox[GET_BYTE32(tmp2[0], BYTE03)] ^ (uint8_t)( *(  encskeys)        & 0x0000'00FF);
+
+  ctext[8]  = sbox[GET_BYTE32(tmp2[2], BYTE00)] ^ (uint8_t)((*(++encskeys) >> 24) & 0x0000'00FF);
+  ctext[9]  = sbox[GET_BYTE32(tmp2[3], BYTE01)] ^ (uint8_t)((*(  encskeys) >> 16) & 0x0000'00FF);
+  ctext[10] = sbox[GET_BYTE32(tmp2[0], BYTE02)] ^ (uint8_t)((*(  encskeys) >>  8) & 0x0000'00FF);
+  ctext[11] = sbox[GET_BYTE32(tmp2[1], BYTE03)] ^ (uint8_t)( *(  encskeys)        & 0x0000'00FF);
+
+  ctext[12] = sbox[GET_BYTE32(tmp2[3], BYTE00)] ^ (uint8_t)((*(++encskeys) >> 24) & 0x0000'00FF);
+  ctext[13] = sbox[GET_BYTE32(tmp2[0], BYTE01)] ^ (uint8_t)((*(  encskeys) >> 16) & 0x0000'00FF);
+  ctext[14] = sbox[GET_BYTE32(tmp2[1], BYTE02)] ^ (uint8_t)((*(  encskeys) >>  8) & 0x0000'00FF);
+  ctext[15] = sbox[GET_BYTE32(tmp2[2], BYTE03)] ^ (uint8_t)( *(  encskeys)        & 0x0000'00FF);
 #else
   sub_bytes(tmppln);
   shift_rows(tmppln);
@@ -804,19 +806,20 @@ int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept
   return SUCCESS;
 }
 
-int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint32_t kpos = nr_ << 2;
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
+  uint32_t *decskeys = decskeys_;
 
   if (false == has_subkeys_) { return FAILURE; }
 
 #if defined(SPEED_PRIORITY_AES)
   BENDIAN_8BIT_TO_32BIT_SIZE128(ctext, tmp1);
-  tmp1[0] = tmp1[0] ^ decskeys_[kpos    ];
-  tmp1[1] = tmp1[1] ^ decskeys_[kpos + 1];
-  tmp1[2] = tmp1[2] ^ decskeys_[kpos + 2];
-  tmp1[3] = tmp1[3] ^ decskeys_[kpos + 3];
+  tmp1[0] = tmp1[0] ^ decskeys[kpos    ];
+  tmp1[1] = tmp1[1] ^ decskeys[kpos + 1];
+  tmp1[2] = tmp1[2] ^ decskeys[kpos + 2];
+  tmp1[3] = tmp1[3] ^ decskeys[kpos + 3];
 #else
   memcpy(tmpcphr, ctext, 16);
   add_round_key(nr_, encskeys_, tmpcphr);
@@ -824,25 +827,25 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept
 
 #if defined(SPEED_PRIORITY_AES)
   if (AES192_ROUNDS == nr_) {
-    DECRYPT_ROUND(tmp1, 44, decskeys_, tmp2); /* round 11 */
-    DECRYPT_ROUND(tmp2, 40, decskeys_, tmp1); /* round 10 */
+    DECRYPT_ROUND(tmp1, 44, decskeys, tmp2); /* round 11 */
+    DECRYPT_ROUND(tmp2, 40, decskeys, tmp1); /* round 10 */
 
   } else if (AES256_ROUNDS == nr_) {
-    DECRYPT_ROUND(tmp1, 52, decskeys_, tmp2); /* round 13 */
-    DECRYPT_ROUND(tmp2, 48, decskeys_, tmp1); /* round 12 */
-    DECRYPT_ROUND(tmp1, 44, decskeys_, tmp2); /* round 11 */
-    DECRYPT_ROUND(tmp2, 40, decskeys_, tmp1); /* round 10 */
+    DECRYPT_ROUND(tmp1, 52, decskeys, tmp2); /* round 13 */
+    DECRYPT_ROUND(tmp2, 48, decskeys, tmp1); /* round 12 */
+    DECRYPT_ROUND(tmp1, 44, decskeys, tmp2); /* round 11 */
+    DECRYPT_ROUND(tmp2, 40, decskeys, tmp1); /* round 10 */
   }
 
-  DECRYPT_ROUND(tmp1, 36, decskeys_, tmp2); /* round  9 */
-  DECRYPT_ROUND(tmp2, 32, decskeys_, tmp1); /* round  8 */
-  DECRYPT_ROUND(tmp1, 28, decskeys_, tmp2); /* round  7 */
-  DECRYPT_ROUND(tmp2, 24, decskeys_, tmp1); /* round  6 */
-  DECRYPT_ROUND(tmp1, 20, decskeys_, tmp2); /* round  5 */
-  DECRYPT_ROUND(tmp2, 16, decskeys_, tmp1); /* round  4 */
-  DECRYPT_ROUND(tmp1, 12, decskeys_, tmp2); /* round  3 */
-  DECRYPT_ROUND(tmp2,  8, decskeys_, tmp1); /* round  2 */
-  DECRYPT_ROUND(tmp1,  4, decskeys_, tmp2); /* round  1 */
+  DECRYPT_ROUND(tmp1, 36, decskeys, tmp2); /* round  9 */
+  DECRYPT_ROUND(tmp2, 32, decskeys, tmp1); /* round  8 */
+  DECRYPT_ROUND(tmp1, 28, decskeys, tmp2); /* round  7 */
+  DECRYPT_ROUND(tmp2, 24, decskeys, tmp1); /* round  6 */
+  DECRYPT_ROUND(tmp1, 20, decskeys, tmp2); /* round  5 */
+  DECRYPT_ROUND(tmp2, 16, decskeys, tmp1); /* round  4 */
+  DECRYPT_ROUND(tmp1, 12, decskeys, tmp2); /* round  3 */
+  DECRYPT_ROUND(tmp2,  8, decskeys, tmp1); /* round  2 */
+  DECRYPT_ROUND(tmp1,  4, decskeys, tmp2); /* round  1 */
 #else
   for (int32_t round = nr_ - 1; round > 0; round -= 2) {
     inv_shift_rows(tmpcphr);
@@ -853,25 +856,25 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept
 #endif
 
 #if defined(SPEED_PRIORITY_AES)
-  ptext[0]  = invsbox[GET_BYTE32(tmp2[0], 0)] ^ (uint8_t)((decskeys_[0]     >> 24) & 0x0000'00FF);
-  ptext[1]  = invsbox[GET_BYTE32(tmp2[3], 1)] ^ (uint8_t)((decskeys_[0]     >> 16) & 0x0000'00FF);
-  ptext[2]  = invsbox[GET_BYTE32(tmp2[2], 2)] ^ (uint8_t)((decskeys_[0]     >>  8) & 0x0000'00FF);
-  ptext[3]  = invsbox[GET_BYTE32(tmp2[1], 3)] ^ (uint8_t)( decskeys_[0]            & 0x0000'00FF);
+  ptext[0]  = invsbox[GET_BYTE32(tmp2[0], BYTE00)] ^ (uint8_t)((decskeys[0] >> 24) & 0x0000'00FF);
+  ptext[1]  = invsbox[GET_BYTE32(tmp2[3], BYTE01)] ^ (uint8_t)((decskeys[0] >> 16) & 0x0000'00FF);
+  ptext[2]  = invsbox[GET_BYTE32(tmp2[2], BYTE02)] ^ (uint8_t)((decskeys[0] >>  8) & 0x0000'00FF);
+  ptext[3]  = invsbox[GET_BYTE32(tmp2[1], BYTE03)] ^ (uint8_t)( decskeys[0]        & 0x0000'00FF);
 
-  ptext[4]  = invsbox[GET_BYTE32(tmp2[1], 0)] ^ (uint8_t)((decskeys_[1] >> 24) & 0x0000'00FF);
-  ptext[5]  = invsbox[GET_BYTE32(tmp2[0], 1)] ^ (uint8_t)((decskeys_[1] >> 16) & 0x0000'00FF);
-  ptext[6]  = invsbox[GET_BYTE32(tmp2[3], 2)] ^ (uint8_t)((decskeys_[1] >>  8) & 0x0000'00FF);
-  ptext[7]  = invsbox[GET_BYTE32(tmp2[2], 3)] ^ (uint8_t)( decskeys_[1]        & 0x0000'00FF);
+  ptext[4]  = invsbox[GET_BYTE32(tmp2[1], BYTE00)] ^ (uint8_t)((decskeys[1] >> 24) & 0x0000'00FF);
+  ptext[5]  = invsbox[GET_BYTE32(tmp2[0], BYTE01)] ^ (uint8_t)((decskeys[1] >> 16) & 0x0000'00FF);
+  ptext[6]  = invsbox[GET_BYTE32(tmp2[3], BYTE02)] ^ (uint8_t)((decskeys[1] >>  8) & 0x0000'00FF);
+  ptext[7]  = invsbox[GET_BYTE32(tmp2[2], BYTE03)] ^ (uint8_t)( decskeys[1]        & 0x0000'00FF);
 
-  ptext[8]  = invsbox[GET_BYTE32(tmp2[2], 0)] ^ (uint8_t)((decskeys_[2] >> 24) & 0x0000'00FF);
-  ptext[9]  = invsbox[GET_BYTE32(tmp2[1], 1)] ^ (uint8_t)((decskeys_[2] >> 16) & 0x0000'00FF);
-  ptext[10] = invsbox[GET_BYTE32(tmp2[0], 2)] ^ (uint8_t)((decskeys_[2] >>  8) & 0x0000'00FF);
-  ptext[11] = invsbox[GET_BYTE32(tmp2[3], 3)] ^ (uint8_t)( decskeys_[2]        & 0x0000'00FF);
+  ptext[8]  = invsbox[GET_BYTE32(tmp2[2], BYTE00)] ^ (uint8_t)((decskeys[2] >> 24) & 0x0000'00FF);
+  ptext[9]  = invsbox[GET_BYTE32(tmp2[1], BYTE01)] ^ (uint8_t)((decskeys[2] >> 16) & 0x0000'00FF);
+  ptext[10] = invsbox[GET_BYTE32(tmp2[0], BYTE02)] ^ (uint8_t)((decskeys[2] >>  8) & 0x0000'00FF);
+  ptext[11] = invsbox[GET_BYTE32(tmp2[3], BYTE03)] ^ (uint8_t)( decskeys[2]        & 0x0000'00FF);
 
-  ptext[12] = invsbox[GET_BYTE32(tmp2[3], 0)] ^ (uint8_t)((decskeys_[3] >> 24) & 0x0000'00FF);
-  ptext[13] = invsbox[GET_BYTE32(tmp2[2], 1)] ^ (uint8_t)((decskeys_[3] >> 16) & 0x0000'00FF);
-  ptext[14] = invsbox[GET_BYTE32(tmp2[1], 2)] ^ (uint8_t)((decskeys_[3] >>  8) & 0x0000'00FF);
-  ptext[15] = invsbox[GET_BYTE32(tmp2[0], 3)] ^ (uint8_t)( decskeys_[3]        & 0x0000'00FF);
+  ptext[12] = invsbox[GET_BYTE32(tmp2[3], BYTE00)] ^ (uint8_t)((decskeys[3] >> 24) & 0x0000'00FF);
+  ptext[13] = invsbox[GET_BYTE32(tmp2[2], BYTE01)] ^ (uint8_t)((decskeys[3] >> 16) & 0x0000'00FF);
+  ptext[14] = invsbox[GET_BYTE32(tmp2[1], BYTE02)] ^ (uint8_t)((decskeys[3] >>  8) & 0x0000'00FF);
+  ptext[15] = invsbox[GET_BYTE32(tmp2[0], BYTE03)] ^ (uint8_t)( decskeys[3]        & 0x0000'00FF);
 #else
   inv_shift_rows(tmpcphr);
   inv_sub_bytes(tmpcphr);

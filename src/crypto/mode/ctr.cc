@@ -137,6 +137,13 @@ template int32_t ctr<AES, AES::UNIT_SIZE>::decrypt(const uint8_t * const ctext, 
 template void ctr<AES, AES::UNIT_SIZE>::clear() noexcept;
 template void ctr<AES, AES::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
 
+/* AES-NI */
+template int32_t ctr<AESNI, AESNI::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
+template int32_t ctr<AESNI, AESNI::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;
+template int32_t ctr<AESNI, AESNI::UNIT_SIZE>::decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept;
+template void ctr<AESNI, AESNI::UNIT_SIZE>::clear() noexcept;
+template void ctr<AESNI, AESNI::UNIT_SIZE>::inc_counter(uint8_t *counter) const noexcept;
+
 /* Camellia */
 template int32_t ctr<Camellia, Camellia::UNIT_SIZE>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept;
 template int32_t ctr<Camellia, Camellia::UNIT_SIZE>::encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept;

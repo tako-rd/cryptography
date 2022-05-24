@@ -172,7 +172,7 @@ int32_t aes_ni::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   return SUCCESS;
 }
 
-int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexcept {
+int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   __m128i st = _mm_loadu_si128((__m128i*)ptext);
 
   if (false == has_subkeys_) { return FAILURE; }
@@ -203,7 +203,7 @@ int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) const noexc
   return SUCCESS;
 }
 
-int32_t aes_ni::decrypt(const uint8_t * const ctext, uint8_t *ptext) const noexcept {
+int32_t aes_ni::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   __m128i st = _mm_loadu_si128((__m128i*)ctext);
 
   if (false == has_subkeys_) { return FAILURE; }
