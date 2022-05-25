@@ -255,6 +255,10 @@ static const uint32_t key_round_schd[16] = {
   1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
 };
 
+seed::~seed() {
+  memset(subkey_, 0xCC, sizeof(subkey_));
+}
+
 int32_t seed::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint64_t k[2] = {0};
 
@@ -307,8 +311,8 @@ int32_t seed::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
 }
 
 void seed::clear() noexcept {
-  has_subkeys_ = false;
   memset(subkey_, 0xCC, sizeof(subkey_));
+  has_subkeys_ = false;
 }
 
 inline void seed::expand_key(uint64_t *key, uint64_t *skeys) const noexcept {
@@ -357,12 +361,12 @@ inline uint32_t seed::g_function(uint32_t r) const noexcept {
 #if !defined(SPEED_PRIORITY_SEED)
   uint32_t z = 0;
   uint8_t z8bit[4] = {0};
-#else
-
-#endif
   uint8_t r8bit[4] = {0};
+#else
+  uint8_t r8bit[4] = {0};
+#endif
 
-  endian<BIG, uint32_t, 16>::convert(&r, r8bit);
+  endian<BIG, uint32_t, 4>::convert(&r, r8bit);
 #if !defined(SPEED_PRIORITY_SEED)
   z8bit[3]  = (sbox0[r8bit[3]] & M0)  ^ (sbox1[r8bit[2]] & M1)  ^ (sbox0[r8bit[1]] & M2)  ^ (sbox1[r8bit[0]] & M3);
   z8bit[2]  = (sbox0[r8bit[3]] & M1)  ^ (sbox1[r8bit[2]] & M2)  ^ (sbox0[r8bit[1]] & M3)  ^ (sbox1[r8bit[0]] & M0);

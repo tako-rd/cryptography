@@ -166,6 +166,11 @@ static const uint32_t sbox4[256] = {
   0x7ae5290c, 0x3cb9536b, 0x851e20fe, 0x9833557e, 0x13ecf0b0, 0xd3ffb372, 0x3f85c5c1, 0x0aef7ed2,
 };
 
+cast256::~cast256() {
+  memset(km_, 0xCC, sizeof(km_));
+  memset(kr_, 0xCC, sizeof(kr_));
+}
+
 int32_t cast256::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint32_t k[8] = {0};
 

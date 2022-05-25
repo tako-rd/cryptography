@@ -23,7 +23,7 @@ using CAST128 = cast128;
 
 class cast128_base {
  public:
-  cast128_base() {};
+  cast128_base() noexcept {};
 
   ~cast128_base() {};
 
@@ -34,7 +34,7 @@ class cast128 final : public cast128_base, public secret_key_base<cast128> {
  public:
   cast128() noexcept : km_{0}, kr_{0}, has_subkeys_(false), is_12round_(false) {};
 
-  ~cast128() {};
+  ~cast128();
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 

@@ -917,6 +917,12 @@ static const uint8_t left_rschd[6]  = {0, 1, 0, 1, 0, 1};
 static const uint8_t right_rschd[6] = {1, 0, 1, 0, 1, 0};
 #endif
 
+camellia::~camellia() {
+  memset(kw_, 0xCC, sizeof(kw_));
+  memset(k_, 0xCC, sizeof(k_));
+  memset(kl_, 0xCC, sizeof(kl_));
+}
+
 int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint64_t k[4] = {0};
 
@@ -1067,9 +1073,9 @@ int32_t camellia::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept 
 }
 
 void camellia::clear() noexcept {
-  nk_ = {0};
-  nkl_ = {0};
-  n6r_ = {0};
+  nk_ = 0;
+  nkl_ = 0;
+  n6r_ = 0;
   memset(kw_, 0xCC, sizeof(kw_));
   memset(k_, 0xCC, sizeof(k_));
   memset(kl_, 0xCC, sizeof(kl_));

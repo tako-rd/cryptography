@@ -455,9 +455,6 @@ static const ALIGNAS(32) uint32_t rcon[11] = {
 };
 
 aes_simd::~aes_simd() {
-  nr_ = 0;
-  nk_ = 0;
-  has_subkeys_ = false;
   memset(&encskeys_, 0xCC, sizeof(encskeys_));
   memset(&decskeys_, 0xCC, sizeof(decskeys_));
 }
@@ -580,9 +577,9 @@ int32_t aes_simd::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept 
 void aes_simd::clear() noexcept {
   nr_ = 0;
   nk_ = 0;
-  has_subkeys_ = false;
   memset(&encskeys_, 0xCC, sizeof(encskeys_));
   memset(&decskeys_, 0xCC, sizeof(decskeys_));
+  has_subkeys_ = false;
 }
 
 void aes_simd::expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) noexcept {

@@ -21,12 +21,4 @@ uint32_t random::generate_u32() const noexcept {
   return randval;
 }
 
-uint64_t random::generate_u64() const noexcept {
-  int32_t retval = 0;
-  uint64_t randval = 0;
-
-  while (0 == _rdrand64_step(&randval));
-  return randval;
-}
-
 }

@@ -25,7 +25,7 @@ using Camellia = camellia;
 
 class camellia_base {
  public:
-  camellia_base() {};
+  camellia_base() noexcept {};
 
   ~camellia_base() {};
 
@@ -36,7 +36,7 @@ class camellia final : public camellia_base, public secret_key_base<camellia> {
  public:
   camellia() noexcept : ksize_(0), nk_(0), nkl_(0), n6r_(4), kw_{0}, k_{0}, kl_{0}, has_subkeys_(false) {};
 
-  ~camellia() {};
+  ~camellia();
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 

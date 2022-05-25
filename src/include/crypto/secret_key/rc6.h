@@ -23,7 +23,7 @@ using RC6 = rc6;
 
 class rc6_base {
  public:
-  rc6_base() {};
+  rc6_base() noexcept {};
 
   ~rc6_base() {};
 
@@ -34,7 +34,7 @@ class rc6 final : public rc6_base, public secret_key_base<rc6> {
  public:
   rc6() noexcept : subkeys_{0}, ksize_(0), has_subkeys_(false) {};
 
-  ~rc6() {};
+  ~rc6();
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 

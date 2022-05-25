@@ -23,8 +23,6 @@ class random {
   ~random() {};
 
   uint32_t generate_u32() const noexcept;
-
-  uint64_t generate_u64() const noexcept;
 };
 
 }

@@ -174,70 +174,72 @@ int32_t aes_ni::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
 
 int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   __m128i st = _mm_loadu_si128((__m128i*)ptext);
+  __m128i *encskey = encskeys_;
 
   if (false == has_subkeys_) { return FAILURE; }
 
-  st = _mm_xor_si128(st, encskeys_[0]);
+  st = _mm_xor_si128(st, *encskey);
 
-  st = _mm_aesenc_si128(st, encskeys_[1]);
-  st = _mm_aesenc_si128(st, encskeys_[2]);
-  st = _mm_aesenc_si128(st, encskeys_[3]);
-  st = _mm_aesenc_si128(st, encskeys_[4]);
-  st = _mm_aesenc_si128(st, encskeys_[5]);
-  st = _mm_aesenc_si128(st, encskeys_[6]);
-  st = _mm_aesenc_si128(st, encskeys_[7]);
-  st = _mm_aesenc_si128(st, encskeys_[8]);
-  st = _mm_aesenc_si128(st, encskeys_[9]);
+  st = _mm_aesenc_si128(st, *(++encskey));
+  st = _mm_aesenc_si128(st, *(++encskey));
+  st = _mm_aesenc_si128(st, *(++encskey));
+  st = _mm_aesenc_si128(st, *(++encskey));
+  st = _mm_aesenc_si128(st, *(++encskey));
+  st = _mm_aesenc_si128(st, *(++encskey));
+  st = _mm_aesenc_si128(st, *(++encskey));
+  st = _mm_aesenc_si128(st, *(++encskey));
+  st = _mm_aesenc_si128(st, *(++encskey));
 
   if (AES256_ROUNDS == nr_) {
-    st = _mm_aesenc_si128(st, encskeys_[10]);
-    st = _mm_aesenc_si128(st, encskeys_[11]);
-    st = _mm_aesenc_si128(st, encskeys_[12]);
-    st = _mm_aesenc_si128(st, encskeys_[13]);
+    st = _mm_aesenc_si128(st, *(++encskey));
+    st = _mm_aesenc_si128(st, *(++encskey));
+    st = _mm_aesenc_si128(st, *(++encskey));
+    st = _mm_aesenc_si128(st, *(++encskey));
   } else if (AES192_ROUNDS == nr_) {
-    st = _mm_aesenc_si128(st, encskeys_[10]);
-    st = _mm_aesenc_si128(st, encskeys_[11]);
+    st = _mm_aesenc_si128(st, *(++encskey));
+    st = _mm_aesenc_si128(st, *(++encskey));
   }
-  _mm_storeu_si128((__m128i*)ctext, _mm_aesenclast_si128(st, encskeys_[nr_]));
+  _mm_storeu_si128((__m128i*)ctext, _mm_aesenclast_si128(st, *(++encskey)));
 
   return SUCCESS;
 }
 
 int32_t aes_ni::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   __m128i st = _mm_loadu_si128((__m128i*)ctext);
+  __m128i *decskey = &decskeys_[nr_];
 
   if (false == has_subkeys_) { return FAILURE; }
 
-  st = _mm_xor_si128(st, decskeys_[nr_]);
+  st = _mm_xor_si128(st, *decskey);
 
   if (AES256_ROUNDS == nr_) {
-    st = _mm_aesdec_si128(st, decskeys_[13]);
-    st = _mm_aesdec_si128(st, decskeys_[12]);
-    st = _mm_aesdec_si128(st, decskeys_[11]);
-    st = _mm_aesdec_si128(st, decskeys_[10]);
+    st = _mm_aesdec_si128(st, *(--decskey));
+    st = _mm_aesdec_si128(st, *(--decskey));
+    st = _mm_aesdec_si128(st, *(--decskey));
+    st = _mm_aesdec_si128(st, *(--decskey));
   } else if (AES192_ROUNDS == nr_) {
-    st = _mm_aesdec_si128(st, decskeys_[11]);
-    st = _mm_aesdec_si128(st, decskeys_[10]);
+    st = _mm_aesdec_si128(st, *(--decskey));
+    st = _mm_aesdec_si128(st, *(--decskey));
   }
 
-  st = _mm_aesdec_si128(st, decskeys_[9]);
-  st = _mm_aesdec_si128(st, decskeys_[8]);
-  st = _mm_aesdec_si128(st, decskeys_[7]);
-  st = _mm_aesdec_si128(st, decskeys_[6]);
-  st = _mm_aesdec_si128(st, decskeys_[5]);
-  st = _mm_aesdec_si128(st, decskeys_[4]);
-  st = _mm_aesdec_si128(st, decskeys_[3]);
-  st = _mm_aesdec_si128(st, decskeys_[2]);
-  st = _mm_aesdec_si128(st, decskeys_[1]);
+  st = _mm_aesdec_si128(st, *(--decskey));
+  st = _mm_aesdec_si128(st, *(--decskey));
+  st = _mm_aesdec_si128(st, *(--decskey));
+  st = _mm_aesdec_si128(st, *(--decskey));
+  st = _mm_aesdec_si128(st, *(--decskey));
+  st = _mm_aesdec_si128(st, *(--decskey));
+  st = _mm_aesdec_si128(st, *(--decskey));
+  st = _mm_aesdec_si128(st, *(--decskey));
+  st = _mm_aesdec_si128(st, *(--decskey));
 
-  _mm_storeu_si128((__m128i*)ptext, _mm_aesdeclast_si128(st, decskeys_[0]));
+  _mm_storeu_si128((__m128i*)ptext, _mm_aesdeclast_si128(st, *(--decskey)));
 
   return SUCCESS;
 }
 
 void aes_ni::clear() noexcept {
   nr_ = 0;
-  has_subkeys_ = true;
+  has_subkeys_ = false;
   memset(encskeys_, 0xCC, sizeof(encskeys_));
   memset(decskeys_, 0xCC, sizeof(decskeys_));
 }

@@ -23,7 +23,7 @@ using DES = des;
 
 class des_base {
  public:
-  des_base() {};
+  des_base() noexcept {};
 
   ~des_base() {};
 

@@ -25,6 +25,10 @@ namespace cryptography {
 #define RC6_192_KEY_BYTE_SIZE    24
 #define RC6_256_KEY_BYTE_SIZE    32
 
+rc6::~rc6() {
+  memset(subkeys_, 0xCC, sizeof(SUCCESS));
+}
+
 int32_t rc6::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint32_t k[8] = {0};
 
@@ -120,7 +124,7 @@ int32_t rc6::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
 }
 
 void rc6::clear() noexcept {
-  memset(subkeys_, 0xCC, sizeof(SUCCESS));
+  memset(subkeys_, 0xCC, sizeof(subkeys_));
   has_subkeys_ = false;  
 }
 

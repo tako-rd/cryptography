@@ -26,16 +26,16 @@ class aes_ni;
 using AES = aes;
 using AESNI = aes_ni;
 
-class ALIGNAS(32) aes_base {
+class aes_base {
  public:
-  aes_base() noexcept : padding_{0} {};
+  aes_base() noexcept : padding{0} {};
 
   ~aes_base() {};
 
   static const uint32_t UNIT_SIZE = 16;
 
  private:
-  uint32_t padding_[4];
+  uint32_t padding[4];
 };
 
 class aes final : public aes_base, public secret_key_base<aes> { 
@@ -76,7 +76,6 @@ class aes final : public aes_base, public secret_key_base<aes> {
 
   uint8_t gf_mult(uint8_t x, uint8_t y) const noexcept;
 #endif
-
   ALIGNAS(32) uint32_t encskeys_[60];
 
   ALIGNAS(32) uint32_t decskeys_[60];

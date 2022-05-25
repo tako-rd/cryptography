@@ -747,11 +747,7 @@ bignumber bignumber::operator>>(const int32_t &shift) noexcept {
 /* Other functions. */
 /********************/
 uint32_t& bignumber::operator[](const uint32_t pos) noexcept { 
-  if (nullptr != value_ && 0 != bitsize_) {
-    return this->value_[pos];
-  }
-  uint32_t out = 0;
-  return out;
+  return this->value_[pos];
 }
 
 inline void bignumber::copy(const uint32_t *other, const int32_t othersize) noexcept {

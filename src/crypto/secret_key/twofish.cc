@@ -279,6 +279,14 @@ static const uint8_t q1[256] = {
   0x16, 0x25, 0x86, 0x56, 0x55, 0x09, 0xbe, 0x91,
 };
 
+twofish::~twofish() {
+  memset(mds_sbox0_, 0xCC, sizeof(mds_sbox0_));
+  memset(mds_sbox1_, 0xCC, sizeof(mds_sbox1_));
+  memset(mds_sbox2_, 0xCC, sizeof(mds_sbox2_));
+  memset(mds_sbox3_, 0xCC, sizeof(mds_sbox3_));
+  memset(subkey_, 0xCC, sizeof(subkey_));
+}
+
 int32_t twofish::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint32_t k[8] = {0};
 

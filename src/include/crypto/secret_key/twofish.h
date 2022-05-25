@@ -23,7 +23,7 @@ using Twofish = twofish;
 
 class twofish_base {
  public:
-  twofish_base() {};
+  twofish_base() noexcept {};
 
   ~twofish_base() {};
 
@@ -34,7 +34,7 @@ class twofish final : public twofish_base, public secret_key_base<twofish> {
  public:
   twofish() noexcept : subkey_{0}, has_subkeys_(false) {};
 
-  ~twofish() {};
+  ~twofish();
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 

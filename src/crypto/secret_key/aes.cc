@@ -131,7 +131,7 @@ static const ALIGNAS(32) uint8_t invsbox[256] = {
 };
 
 #if !defined(SPEED_PRIORITY_AES)
-static const uint8_t gf_mult_table[15][256] = {
+static const ALIGNAS(32) uint8_t gf_mult_table[15][256] = {
   {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
@@ -729,9 +729,13 @@ int32_t aes::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
 }
 
 int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
+#if defined(SPEED_PRIORITY_AES)
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
   uint32_t *encskeys = encskeys_;
+#else
+  uint8_t tmp[16] = {0};
+#endif
 
   if (false == has_subkeys_) { return FAILURE; }
 
@@ -742,8 +746,8 @@ int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   tmp1[2] = tmp1[2] ^ *(++encskeys);
   tmp1[3] = tmp1[3] ^ *(++encskeys);
 #else
-  memcpy(tmppln, ptext, 16);
-  add_round_key(0, encskeys_, tmppln);
+  memcpy(tmp, ptext, 16);
+  add_round_key(0, encskeys_, tmp);
 #endif
 
 #if defined(SPEED_PRIORITY_AES)
@@ -768,11 +772,11 @@ int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
     ENCRYPT_ROUND(tmp1, encskeys, tmp2); /* round 13 */
   } 
 #else 
-  for (int32_t round = 1; round < nr_; round += 2) {
-    sub_bytes(tmppln);
-    shift_rows(tmppln);
-    mix_columns(tmppln);
-    add_round_key(round, encskeys_, tmppln);
+  for (int32_t round = 1; round < nr_; ++round) {
+    sub_bytes(tmp);
+    shift_rows(tmp);
+    mix_columns(tmp);
+    add_round_key(round, encskeys_, tmp);
   }
 #endif
 
@@ -797,20 +801,24 @@ int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   ctext[14] = sbox[GET_BYTE32(tmp2[1], BYTE02)] ^ (uint8_t)((*(  encskeys) >>  8) & 0x0000'00FF);
   ctext[15] = sbox[GET_BYTE32(tmp2[2], BYTE03)] ^ (uint8_t)( *(  encskeys)        & 0x0000'00FF);
 #else
-  sub_bytes(tmppln);
-  shift_rows(tmppln);
-  add_round_key(nr_, encskeys_, tmppln);
+  sub_bytes(tmp);
+  shift_rows(tmp);
+  add_round_key(nr_, encskeys_, tmp);
 
-  memcpy(ctext, tmppln, 16);
+  memcpy(ctext, tmp, 16);
 #endif
   return SUCCESS;
 }
 
 int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
+#if defined(SPEED_PRIORITY_AES)
   uint32_t kpos = nr_ << 2;
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
   uint32_t *decskeys = decskeys_;
+#else
+  uint8_t tmp[16] = {0};
+#endif
 
   if (false == has_subkeys_) { return FAILURE; }
 
@@ -821,8 +829,8 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   tmp1[2] = tmp1[2] ^ decskeys[kpos + 2];
   tmp1[3] = tmp1[3] ^ decskeys[kpos + 3];
 #else
-  memcpy(tmpcphr, ctext, 16);
-  add_round_key(nr_, encskeys_, tmpcphr);
+  memcpy(tmp, ctext, 16);
+  add_round_key(nr_, encskeys_, tmp);
 #endif
 
 #if defined(SPEED_PRIORITY_AES)
@@ -847,11 +855,11 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   DECRYPT_ROUND(tmp2,  8, decskeys, tmp1); /* round  2 */
   DECRYPT_ROUND(tmp1,  4, decskeys, tmp2); /* round  1 */
 #else
-  for (int32_t round = nr_ - 1; round > 0; round -= 2) {
-    inv_shift_rows(tmpcphr);
-    inv_sub_bytes(tmpcphr);
-    add_round_key(round, encskeys_, tmpcphr);
-    inv_mix_columns(tmpcphr);
+  for (int32_t round = nr_ - 1; round > 0; --round) {
+    inv_shift_rows(tmp);
+    inv_sub_bytes(tmp);
+    add_round_key(round, encskeys_, tmp);
+    inv_mix_columns(tmp);
   }
 #endif
 
@@ -876,11 +884,11 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   ptext[14] = invsbox[GET_BYTE32(tmp2[1], BYTE02)] ^ (uint8_t)((decskeys[3] >>  8) & 0x0000'00FF);
   ptext[15] = invsbox[GET_BYTE32(tmp2[0], BYTE03)] ^ (uint8_t)( decskeys[3]        & 0x0000'00FF);
 #else
-  inv_shift_rows(tmpcphr);
-  inv_sub_bytes(tmpcphr);
-  add_round_key(0, encskeys_, tmpcphr);
+  inv_shift_rows(tmp);
+  inv_sub_bytes(tmp);
+  add_round_key(0, encskeys_, tmp);
 
-  memcpy(ptext, tmpcphr, 16);
+  memcpy(ptext, tmp, 16);
 #endif
   return SUCCESS;
 }
@@ -888,9 +896,9 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
 void aes::clear() noexcept {
   nr_ = 0;
   nk_ = 0;
-  has_subkeys_ = false;
   memset(&encskeys_, 0xCC, sizeof(encskeys_));
   memset(&decskeys_, 0xCC, sizeof(decskeys_));
+  has_subkeys_ = false;
 }
 
 inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint32_t *decskeys) noexcept {
@@ -914,7 +922,7 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
              (uint32_t)sbox[(tmp)       & 0xFF]) ^
              rcon[j / nk_];
 #else
-      tmp2 = sub_word(rot_word(tmp2)) ^ rcon[j / nk_];
+      tmp = sub_word(rot_word(tmp)) ^ rcon[j / nk_];
 #endif
     } else if (nk_ > 6 && 4 == (j % nk_)) {
 #if defined(SPEED_PRIORITY_AES)
@@ -923,7 +931,7 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
              (uint32_t)sbox[(tmp >>  8) & 0xFF] <<  8 | 
              (uint32_t)sbox[(tmp)       & 0xFF]);
 #else
-      tmp2 = sub_word(tmp2);
+      tmp = sub_word(tmp);
 #endif
     }
     encskeys[j] = encskeys[j - nk_] ^ tmp;

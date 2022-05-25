@@ -350,6 +350,11 @@ static const uint32_t sbox8[256] = {
   0x04f19130, 0xba6e4ec0, 0x99265164, 0x1ee7230d, 0x50b2ad80, 0xeaee6801, 0x8db2a283, 0xea8bf59e,
 };
 
+cast128::~cast128() {
+  memset(km_, 0xCC, sizeof(km_));
+  memset(kr_, 0xCC, sizeof(kr_));
+}
+
 int32_t cast128::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint32_t k[4] = {0};
 

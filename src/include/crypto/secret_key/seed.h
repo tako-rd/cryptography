@@ -25,7 +25,7 @@ using SEED = seed;
 
 class seed_base {
  public:
-  seed_base() {};
+  seed_base() noexcept {};
 
   ~seed_base() {};
 
@@ -36,7 +36,7 @@ class seed final : public seed_base, public secret_key_base<seed> {
  public:
   seed() noexcept : subkey_{0}, has_subkeys_(false) {};
 
-  ~seed() {};
+  ~seed();
 
   int32_t initialize(const uint8_t *key, const uint32_t ksize) noexcept;
 
