@@ -15,15 +15,8 @@
 
 #include <type_traits>
 
+#include "defs.h"
 #include "simd.h"
-
-#if !defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
-# if (__BYTE_ORDER == __LITTLE_ENDIAN) || (__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
-#   define __LITTLE_ENDIAN__
-# elif (__BYTE_ORDER == __BIG_ENDIAN) || (__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
-#   define __BIG_ENDIAN__
-# endif
-#endif
 
 namespace cryptography {
 

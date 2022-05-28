@@ -26,7 +26,7 @@ using CTR = ctr<Cryptosystem, UnitSize>;
 template <typename Cryptosystem, uint32_t UnitSize>
 class ctr : private mode<Cryptosystem, UnitSize> {
  public:
-  ctr() noexcept : iv_{0} {};
+  ctr() noexcept : iv_{0}, has_iv_(false) {};
 
   ~ctr() {};
 
@@ -46,6 +46,8 @@ class ctr : private mode<Cryptosystem, UnitSize> {
   pkcs7 pkcs7_;
 
   uint8_t iv_[UnitSize];
+
+  bool has_iv_;
 };
 
 }

@@ -12,13 +12,13 @@
 namespace cryptography {
 
 #define SUCCESS   0
-#define FAILURE   1
+#define UNSET_KEY_ERROR   1
 
 int32_t pkcs7::add(uint8_t *ptext, const uint32_t psize, const uint32_t usize) const noexcept {
   uint32_t pdsize = usize - (psize % usize);
   
   if (pdsize < 0x01 || usize < pdsize) {
-    return FAILURE;
+    return UNSET_KEY_ERROR;
   }
 
   for (uint32_t byte = 0; byte < pdsize; ++byte) {
@@ -31,7 +31,7 @@ int32_t pkcs7::remove(uint8_t *ptext, const uint32_t usize) const noexcept {
   uint32_t pdsize = ptext[usize - 1];
 
   if (pdsize < 0x01 || usize < pdsize) {
-    return FAILURE;
+    return UNSET_KEY_ERROR;
   }
 
   for (uint32_t byte = 0; byte < pdsize; ++byte) {

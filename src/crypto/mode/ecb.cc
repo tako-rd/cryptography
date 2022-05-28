@@ -8,11 +8,12 @@
  */
 
 #include "crypto/mode/ecb.h"
-#include <stdio.h>
+
 namespace cryptography {
 
-#define SUCCESS           0
-#define FAILURE           1
+#define SUCCESS                         0x0000'0000
+#define STRING_SIZE_ERROR               ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_STRING_SIZE)
+#define PADDING_ERROR                   ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_PADDING)
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ecb<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept {
@@ -26,7 +27,7 @@ inline int32_t ecb<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
   uint8_t buf[UnitSize] = {0};
 
   /* The input ciphertext buffer must be a multiple of UnitSize and UnitSize bytes larger than plaintext. */
-  if (0 != csize % UnitSize || ((uint32_t)(psize / UnitSize) >= (uint32_t)(csize / UnitSize))) { return FAILURE; }
+  if (0 != csize % UnitSize || ((uint32_t)(psize / UnitSize) >= (uint32_t)(csize / UnitSize))) { return STRING_SIZE_ERROR; }
 
   /* Encrypts for the number of bytes equal to the unit byte. */
   for (byte = 0; byte < end; byte += UnitSize) {
@@ -48,12 +49,12 @@ inline int32_t ecb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
   int64_t byte = 0;
 
   /* The ciphertext should always be a multiple of UnitSize and requires a buffer of equivalent size. */
-  if (0 != csize % UnitSize || 0 != psize % UnitSize || csize > psize) { return FAILURE; }
+  if (0 != csize % UnitSize || 0 != psize % UnitSize || csize > psize) { return STRING_SIZE_ERROR; }
 
   for (byte = 0; byte < csize; byte += UnitSize) {
     secret_key_cryptosystem_.decrypt(&ctext[byte], &ptext[byte]);
   }
-  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return PADDING_ERROR; };
 
   return SUCCESS;
 }

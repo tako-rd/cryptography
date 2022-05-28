@@ -13,8 +13,9 @@
 
 namespace cryptography {
 
-#define SUCCESS                 0
-#define FAILURE                 1
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
 
 #define AES128_ROUNDS           10
 #define AES192_ROUNDS           12
@@ -485,7 +486,7 @@ int32_t aes_simd::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
       has_subkeys_ = true;
       break;
     default:
-      return FAILURE;
+      return KEY_SIZE_ERROR;
   }
   memset(&k, 0xCC, sizeof(k));
 
@@ -501,7 +502,7 @@ int32_t aes_simd::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept 
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   BENDIAN_8BIT_TO_32BIT_SIZE128(ptext, tmp1);
   AES_SIMD_XOR(tmp1, encskeys_, tmp1);
@@ -542,7 +543,7 @@ int32_t aes_simd::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept 
   uint32_t tmp1[4] = {0};
   uint32_t tmp2[4] = {0};
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   BENDIAN_8BIT_TO_32BIT_SIZE128(ctext, tmp1);
   AES_SIMD_XOR(tmp1, &decskeys_[kpos], tmp1);

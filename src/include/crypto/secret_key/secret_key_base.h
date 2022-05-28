@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <type_traits>
 
+#include "common/defs.h"
 #include "common/simd.h"
 
 namespace cryptography {

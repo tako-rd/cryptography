@@ -26,7 +26,7 @@ using OFB = ofb<Cryptosystem, UnitSize>;
 template <typename Cryptosystem, uint32_t UnitSize>
 class ofb : private mode<Cryptosystem, UnitSize> {
  public:
-  ofb() noexcept : iv_{0} {};
+  ofb() noexcept : iv_{0}, has_iv_(false) {};
 
   ~ofb() {};
 
@@ -44,6 +44,8 @@ class ofb : private mode<Cryptosystem, UnitSize> {
   pkcs7 pkcs7_;
 
   uint8_t iv_[UnitSize];
+
+  bool has_iv_;
 };
 
 }

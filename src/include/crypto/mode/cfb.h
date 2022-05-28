@@ -26,7 +26,7 @@ using CFB = cfb<Cryptosystem, UnitSize>;
 template <typename Cryptosystem, uint32_t UnitSize>
 class cfb : private mode<Cryptosystem, UnitSize> {
  public:
-  cfb() noexcept : iv_{0} {};
+  cfb() noexcept : iv_{0}, has_iv_(false) {};
 
   ~cfb() {};
 
@@ -44,6 +44,8 @@ class cfb : private mode<Cryptosystem, UnitSize> {
   pkcs7 pkcs7_;
 
   uint8_t iv_[UnitSize];
+
+  bool has_iv_;
 };
 
 }

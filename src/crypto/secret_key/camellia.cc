@@ -13,8 +13,9 @@
 
 namespace cryptography {
 
-#define SUCCESS                                    0
-#define FAILURE                                    1
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
 
 #define CAMELLIA_128_KEY_BYTE_SIZE                 16
 #define CAMELLIA_192_KEY_BYTE_SIZE                 24
@@ -958,7 +959,7 @@ int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
       memset(k, 0xCC, 32);
       break;
     default:
-      return FAILURE;
+      return KEY_SIZE_ERROR;
   }
   return SUCCESS;
 }
@@ -968,7 +969,7 @@ int32_t camellia::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept 
   uint64_t out[2] = {0};
   int32_t kpos = 0, klpos = 0;
 
-  if (false == has_subkeys_) { return FAILURE; };
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; };
 
   endian<BIG, uint64_t, 16>::convert(ptext, tmptext);
 
@@ -1022,7 +1023,7 @@ int32_t camellia::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept 
   uint64_t out[2] = {0};
   int32_t kpos = nk_, klpos = nkl_;
 
-  if (false == has_subkeys_) { return FAILURE; };
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; };
 
   endian<BIG, uint64_t, 16>::convert(ctext, tmptext);
 

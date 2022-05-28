@@ -11,8 +11,11 @@
 
 namespace cryptography {
 
-#define SUCCESS           0
-#define FAILURE           1
+#define SUCCESS                         0x0000'0000
+#define UNSET_IV_ERROR                  ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::UNSET_IV)
+#define STRING_SIZE_ERROR               ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_STRING_SIZE)
+#define IV_SIZE_ERROR                   ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_IV_SIZE)
+#define PADDING_ERROR                   ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_PADDING)
 
 #if defined(ENABLE_SSE2) && defined(ENABLE_SSE3)
 # define ENCRYPT_XOR(ptxt, msk, out)    _mm_storeu_si128((__m128i *)(out), _mm_xor_si128(_mm_lddqu_si128((__m128i *)(ptxt)), _mm_lddqu_si128((__m128i *)(msk))));
@@ -24,14 +27,18 @@ namespace cryptography {
 
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ofb<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept {
-  if (FAILURE == secret_key_cryptosystem_.initialize(key, ksize)) {
-    return FAILURE;
+  int32_t retcode = 0;
+
+  retcode = secret_key_cryptosystem_.initialize(key, ksize);
+  if (SUCCESS != retcode) {
+    return retcode;
   }
 
   if (UnitSize != ivsize) {
-    return FAILURE;
+    return IV_SIZE_ERROR;
   }
   memcpy(iv_, iv, UnitSize);
+  has_iv_ = true;
 
   return SUCCESS;
 }
@@ -43,7 +50,8 @@ inline int32_t ofb<Cryptosystem, UnitSize>::encrypt(const uint8_t * const ptext,
   uint8_t mask[UnitSize] = {0};
   uint8_t buf[UnitSize] = {0};
 
-  if (0 != csize % UnitSize || ((uint32_t)(psize / UnitSize) >= (uint32_t)(csize / UnitSize))) { return FAILURE; }
+  if (0 != csize % UnitSize || ((uint32_t)(psize / UnitSize) >= (uint32_t)(csize / UnitSize))) { return STRING_SIZE_ERROR; }
+  if (false == has_iv_) { return UNSET_IV_ERROR; }
 
   secret_key_cryptosystem_.encrypt(iv_, mask);
   ENCRYPT_XOR(ptext, mask, ctext);
@@ -69,7 +77,8 @@ inline int32_t ofb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
   int64_t byte = 0;
   uint8_t mask[UnitSize] = {0};
 
-  if (0 != csize % UnitSize || 0 != psize % UnitSize || csize > psize) { return FAILURE; }
+  if (0 != csize % UnitSize || 0 != psize % UnitSize || csize > psize) { return STRING_SIZE_ERROR; }
+  if (false == has_iv_) { return UNSET_IV_ERROR; }
 
   secret_key_cryptosystem_.encrypt(iv_, mask);
   DECRYPT_XOR(ctext, mask, ptext);
@@ -78,7 +87,7 @@ inline int32_t ofb<Cryptosystem, UnitSize>::decrypt(const uint8_t * const ctext,
     secret_key_cryptosystem_.encrypt(mask, mask);
     DECRYPT_XOR(&ctext[byte], mask, &ptext[byte]);
   }
-  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return FAILURE; };
+  if (0 != pkcs7_.remove(&ptext[byte - UnitSize], UnitSize)) { return PADDING_ERROR; };
 
   return SUCCESS;
 }
@@ -87,6 +96,7 @@ template <typename Cryptosystem, uint32_t UnitSize>
 inline void ofb<Cryptosystem, UnitSize>::clear() noexcept {
   secret_key_cryptosystem_.clear();
   memset(iv_, 0x00, UnitSize);
+  has_iv_ = false;
 }
 
 /********************************************************************************/

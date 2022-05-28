@@ -13,8 +13,9 @@
 
 namespace cryptography {
 
-#define SUCCESS                  0
-#define FAILURE                  1
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
                                  
 #define P32                      0xB7E15163
 #define Q32                      0x9E3779B9
@@ -52,7 +53,7 @@ int32_t rc6::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
       has_subkeys_ = true;
       break;
     default:
-      return FAILURE;
+      return KEY_SIZE_ERROR;
   }
   return SUCCESS;
 }
@@ -61,7 +62,7 @@ int32_t rc6::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint32_t reg[4] = {0};  /* A, B, C, D */
   uint32_t t = 0, u = 0, tmp = 0;
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   endian<LITTLE, uint32_t, 16>::convert(ptext, reg);
 
@@ -94,7 +95,7 @@ int32_t rc6::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint32_t reg[4] = {0};  /* A, B, C, D */
   uint32_t t = 0, u = 0, tmp = 0;
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   endian<LITTLE, uint32_t, 16>::convert(ctext, reg);
 

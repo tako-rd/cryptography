@@ -10,11 +10,12 @@
 #include "crypto/secret_key/aes.h"
 #include "common/bit.h"
 #include "common/endian.h"
-#include <stdio.h>
+
 namespace cryptography {
 
-#define SUCCESS                 0
-#define FAILURE                 1
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
 
 #define AES128_ROUNDS           10
 #define AES192_ROUNDS           12
@@ -721,7 +722,7 @@ int32_t aes::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
       has_subkeys_ = true;
       break;
     default:
-      return FAILURE;
+      return KEY_SIZE_ERROR;
   }
   memset(&k, 0xCC, sizeof(k));
 
@@ -737,7 +738,7 @@ int32_t aes::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint8_t tmp[16] = {0};
 #endif
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
 #if defined(SPEED_PRIORITY_AES)
   BENDIAN_8BIT_TO_32BIT_SIZE128(ptext, tmp1);
@@ -820,7 +821,7 @@ int32_t aes::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint8_t tmp[16] = {0};
 #endif
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
 #if defined(SPEED_PRIORITY_AES)
   BENDIAN_8BIT_TO_32BIT_SIZE128(ctext, tmp1);

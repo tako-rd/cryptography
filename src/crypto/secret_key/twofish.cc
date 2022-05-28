@@ -13,8 +13,9 @@
 
 namespace cryptography {
 
-#define SUCCESS                       0
-#define FAILURE                       1
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
 
 #define TWOFISH_128BIT_KVALUE         2
 #define TWOFISH_192BIT_KVALUE         3
@@ -313,7 +314,7 @@ int32_t twofish::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
       memset(k, 0xCC, sizeof(k));
       break;
     default:
-      return FAILURE;
+      return KEY_SIZE_ERROR;
   }
   return SUCCESS;
 }
@@ -323,7 +324,7 @@ int32_t twofish::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint32_t out[4] = {0};
   uint32_t f[2] = {0};
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   endian<LITTLE, uint32_t, 16>::convert(ptext, tmpp);
 
@@ -357,7 +358,7 @@ int32_t twofish::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint32_t out[4] = {0};
   uint32_t f[2] = {0};
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   endian<LITTLE, uint32_t, 16>::convert(ctext, tmpc);
 

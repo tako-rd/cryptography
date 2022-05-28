@@ -13,8 +13,9 @@
 
 namespace cryptography {
 
-#define SUCCESS                                 0
-#define FAILURE                                 1
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
 
 #define CAST128_40_KEY_BYTE_SIZE                5
 #define CAST128_48_KEY_BYTE_SIZE                6
@@ -384,7 +385,7 @@ int32_t cast128::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
       is_12round_ = NROUND_FOR_KEY_128BIT;
       break;
     default:
-      return FAILURE;
+      return KEY_SIZE_ERROR;
   }
   return SUCCESS;
 }
@@ -393,7 +394,7 @@ int32_t cast128::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint32_t tmppln1[2] = {0};
   uint32_t tmppln2[2] = {0};
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   endian<BIG, uint32_t, 8>::convert(ptext, tmppln1);
 
@@ -461,7 +462,7 @@ int32_t cast128::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint32_t tmpchpr1[2] = {0}; 
   uint32_t tmpchpr2[2] = {0}; 
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   endian<BIG, uint32_t, 8>::convert(ctext, tmpchpr1);
 

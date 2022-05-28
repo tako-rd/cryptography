@@ -13,6 +13,10 @@
 
 namespace cryptography {
 
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
+
 #define EXTRACT_6BIT_1                                    0x0000'0000'0000'003F
 #define EXTRACT_6BIT_2                                    0x0000'0000'0000'0FC0
 #define EXTRACT_6BIT_3                                    0x0000'0000'0003'F000
@@ -53,9 +57,6 @@ namespace cryptography {
 
 #define EXTRACT_AND_SET_BIT_LEFT32(target, pos, setpos)   POPCOUNT32(target & (0x8000'0000 >> (pos - 1))) << (31 - setpos)
 #define EXTRACT_BIT_LEFT32(target, position)              POPCOUNT32(target & (0x8000'0000 >> (position - 1)))
-
-#define SUCCESS                                           0
-#define FAILURE                                           1
 
 static const uint8_t ip[64] = {
   0x3A, 0x32, 0x2A, 0x22, 0x1A, 0x12, 0x0A, 0x02,
@@ -186,14 +187,14 @@ static const uint8_t right_rschd[16] = {
 };
 
 des::~des() {
-  memset(encrypto_subkeys_, 0xcc, sizeof(encrypto_subkeys_));
-  memset(decrypto_subkeys_, 0xcc, sizeof(decrypto_subkeys_));
+  memset(encrypto_subkeys_, 0xCC, sizeof(encrypto_subkeys_));
+  memset(decrypto_subkeys_, 0xCC, sizeof(decrypto_subkeys_));
 }
 
 int32_t des::initialize(const uint8_t *key, const uint32_t ksize) {
   uint64_t tmpkey = {0};
 
-  if (8 != ksize) { return FAILURE; }
+  if (8 != ksize) { return KEY_SIZE_ERROR; }
 
   endian<BIG, uint64_t, 8>::convert(key, &tmpkey);
 
@@ -209,7 +210,7 @@ int32_t des::encrypt(const uint8_t * const ptext, uint8_t *ctext) {
   uint32_t tmppln32bit[2] = {0};
   uint32_t out[2] = {0};
 
-  if (true != has_subkeys_) { return FAILURE; };
+  if (true != has_subkeys_) { return UNSET_KEY_ERROR; };
 
   endian<BIG, uint32_t, 8>::convert(ptext, tmppln32bit);
  
@@ -236,7 +237,7 @@ int32_t des::decrypt(const uint8_t * const ctext, uint8_t *ptext) {
   uint32_t tmpcphr32bit[2] = {0};
   uint32_t out[2] = {0};
 
-  if (true != has_subkeys_) { return FAILURE; };
+  if (true != has_subkeys_) { return UNSET_KEY_ERROR; };
 
   endian<BIG, uint32_t, 8>::convert(ctext, tmpcphr32bit);
 

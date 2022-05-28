@@ -13,8 +13,9 @@
 
 namespace cryptography {
 
-#define SUCCESS                                         0
-#define FAILURE                                         1
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
 
 #define SEED_ROUNDS                                     16
 
@@ -262,7 +263,7 @@ seed::~seed() {
 int32_t seed::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint64_t k[2] = {0};
 
-  if (SEED_KEY_BYTE_SIZE != ksize) { return FAILURE; }
+  if (SEED_KEY_BYTE_SIZE != ksize) { return KEY_SIZE_ERROR; }
   endian<BIG, uint64_t, SEED_KEY_BYTE_SIZE>::convert(key, k);
   expand_key(k, subkey_);
   has_subkeys_ = true;
@@ -274,7 +275,7 @@ int32_t seed::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   uint64_t tmppln[2] = {0};
   uint64_t t = 0;
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   endian<BIG, uint64_t, 16>::convert(ptext, tmppln);
 
@@ -294,7 +295,7 @@ int32_t seed::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   uint64_t tmpcphr[2] = {0};
   uint64_t t = 0;
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   endian<BIG, uint64_t, 16>::convert(ctext, tmpcphr);
 

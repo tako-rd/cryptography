@@ -81,9 +81,9 @@ TEST_F(GTestAes, SemiNormal_AES128_001) {
   uint8_t plaintext[16];
   uint8_t invalid_key[4] = "AAA";
 
-  EXPECT_EQ(1, aes.initialize(invalid_key, sizeof(invalid_key)));
-  EXPECT_EQ(1, aes.encrypt(FIPS197_C1_128BIT_TEST_PLAINTEXT, ciphertext));
-  EXPECT_EQ(1, aes.decrypt(ciphertext, plaintext));
+  EXPECT_EQ(0x0001'0003, aes.initialize(invalid_key, sizeof(invalid_key)));
+  EXPECT_EQ(0x0001'0002, aes.encrypt(FIPS197_C1_128BIT_TEST_PLAINTEXT, ciphertext));
+  EXPECT_EQ(0x0001'0002, aes.decrypt(ciphertext, plaintext));
 }
 
 /****************************************/

@@ -12,8 +12,9 @@
 
 namespace cryptography {
 
-#define SUCCESS                 0
-#define FAILURE                 1
+#define SUCCESS                 0x0000'0000
+#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
+#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
 
 #define AES128_ROUNDS           10
 #define AES192_ROUNDS           12
@@ -167,7 +168,7 @@ int32_t aes_ni::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
       has_subkeys_ = true;
       break;
     default:
-      return FAILURE;
+      return KEY_SIZE_ERROR;
   }
   return SUCCESS;
 }
@@ -176,7 +177,7 @@ int32_t aes_ni::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   __m128i st = _mm_loadu_si128((__m128i*)ptext);
   __m128i *encskey = encskeys_;
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   st = _mm_xor_si128(st, *encskey);
 
@@ -208,7 +209,7 @@ int32_t aes_ni::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   __m128i st = _mm_loadu_si128((__m128i*)ctext);
   __m128i *decskey = &decskeys_[nr_];
 
-  if (false == has_subkeys_) { return FAILURE; }
+  if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
   st = _mm_xor_si128(st, *decskey);
 
