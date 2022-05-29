@@ -12,10 +12,6 @@
 #include "common/endian.h"
 
 namespace cryptography {
-
-#define SUCCESS                 0x0000'0000
-#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
-#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
                                  
 #define P32                      0xB7E15163
 #define Q32                      0x9E3779B9

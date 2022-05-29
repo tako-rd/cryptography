@@ -10,8 +10,8 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-
 #include <stdlib.h>
+#include <stdint.h>
 
 #include <cstring>
 #include <type_traits>
@@ -57,6 +57,19 @@ typedef enum class return_code {
   INVALID_IV_SIZE,
   INVALID_PADDING,
 } retcode_t;
+
+/* The return code common to all modules. */
+constexpr int32_t SUCCESS           = ((int32_t)module_code_t::SUCCESS | (int32_t)retcode_t::SUCCESS);
+
+/* The return code of secret_key modules. */
+constexpr int32_t UNSET_KEY_ERROR   = ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY);
+constexpr int32_t KEY_SIZE_ERROR    = ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE);
+
+/* The return code of mode modules. */
+constexpr int32_t UNSET_IV_ERROR    = ((int32_t)module_code_t::MODE | (int32_t)retcode_t::UNSET_IV);
+constexpr int32_t STRING_SIZE_ERROR = ((int32_t)module_code_t::MODE | (int32_t)retcode_t::INVALID_STRING_SIZE);
+constexpr int32_t IV_SIZE_ERROR     = ((int32_t)module_code_t::MODE | (int32_t)retcode_t::INVALID_IV_SIZE);
+constexpr int32_t PADDING_ERROR     = ((int32_t)module_code_t::MODE | (int32_t)retcode_t::INVALID_PADDING);
 
 }
 #endif

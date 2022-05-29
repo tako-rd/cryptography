@@ -13,10 +13,6 @@
 
 namespace cryptography {
 
-#define SUCCESS                 0x0000'0000
-#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
-#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
-
 #define TWOFISH_128BIT_KVALUE         2
 #define TWOFISH_192BIT_KVALUE         3
 #define TWOFISH_256BIT_KVALUE         4

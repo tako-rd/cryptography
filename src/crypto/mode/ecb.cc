@@ -11,10 +11,6 @@
 
 namespace cryptography {
 
-#define SUCCESS                         0x0000'0000
-#define STRING_SIZE_ERROR               ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_STRING_SIZE)
-#define PADDING_ERROR                   ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_PADDING)
-
 template <typename Cryptosystem, uint32_t UnitSize>
 inline int32_t ecb<Cryptosystem, UnitSize>::initialize(const uint8_t *key, const uint32_t ksize, const uint8_t *, const uint32_t) noexcept {
   return secret_key_cryptosystem_.initialize(key, ksize);

@@ -11,12 +11,6 @@
 
 namespace cryptography {
 
-#define SUCCESS                         0x0000'0000
-#define UNSET_IV_ERROR                  ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::UNSET_IV)
-#define STRING_SIZE_ERROR               ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_STRING_SIZE)
-#define IV_SIZE_ERROR                   ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_IV_SIZE)
-#define PADDING_ERROR                   ((int32_t)module_code_t::MODE       | (int32_t)retcode_t::INVALID_PADDING)
-
 #if defined(ENABLE_SSE2) && defined(ENABLE_SSE3)
 # define ENCRYPT_XOR(ptxt, msk, out)    _mm_storeu_si128((__m128i *)(out), _mm_xor_si128(_mm_lddqu_si128((__m128i *)(ptxt)), _mm_lddqu_si128((__m128i *)(msk))));
 # define DECRYPT_XOR(ctxt, msk, out)    _mm_storeu_si128((__m128i *)(out), _mm_xor_si128(_mm_lddqu_si128((__m128i *)(ctxt)), _mm_lddqu_si128((__m128i *)(msk))));

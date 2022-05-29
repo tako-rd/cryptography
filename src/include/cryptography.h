@@ -10,6 +10,8 @@
 #ifndef CRYPTOGRAPHY_H
 #define CRYPTOGRAPHY_H
 
+#include <stdint.h>
+
 #include "common/defs.h"
 
 #include "crypto/secret_key/secret_key.h"

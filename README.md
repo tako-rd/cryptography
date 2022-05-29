@@ -4,7 +4,7 @@ Cryptography, as the name implies, is a library that provides encryption and dec
 When using the library, include ```cryptography.h```.<br>
 Currently, it includes the following secret key cryptographic functions and encryption modes.
 
-### Secret key encryption
+## Secret key encryption
 
 When encrypting plaintext with secret key cryptography, specify the algorithm and mode as follows, and create an instance.<br>
 
@@ -45,19 +45,19 @@ int main() {
 
   encret = aes_cbc.initialize(TEST_KEY_128BIT, sizeof(TEST_KEY_128BIT),
                               TEST_IV_128BIT,  sizeof(TEST_IV_128BIT));
-  if (1 == encret) {
+  if (0 != encret) {
     return 1; // error
   }
 
   encret = aes_cbc.encrypt(plaintext, sizeof(plaintext),
                            ciphertext, sizeof(ciphertext));
-  if (1 == encret) {
+  if (0 != encret) {
     return 1; // error
   }
 
   encret = aes_cbc.decrypt(ciphertext, sizeof(ciphertext),
                            outtext, sizeof(outtext));
-  if (1 == encret) {
+  if (0 != encret) {
     return 1; // error
   }
 
@@ -68,6 +68,19 @@ int main() {
 }
 ```
 
+The return code corresponding to the above encret is as follows.
+
+| Error code  | Explanation |
+|-------------|-------------|
+| SUCCESS | Successful termination. |
+| UNSET_KEY_ERROR | Encryption or decryption using the secret key cryptosystem was performed without setting the key. |
+| KEY_SIZE_ERROR | The set secret key size is invalid. |
+| STRING_SIZE_ERROR | The size of the buffer that stores the plaintext to be encrypted or the encrypted text is invalid. |
+| UNSET_IV_ERROR | Encryption or decryption using the secret key cryptosystem was performed without setting the initialization vector. |
+| IV_SIZE_ERROR | The set initialization vector size is invalid. |
+| PADDING_ERROR | The padding could not be removed normally. |
+
 Notes:<br>
-- The ciphertext size must be specified in 16 bytes or a multiple of 8 bytes. For example, when encrypting with AES, you need to specify the array size as follows. If plaintext[16] then ciphertext[32], if plaintext[20] then ciphertext[32], if plaintext[40] then ciphertext[48]. <br>The ciphertext size can be calculated by ```((Plaintext size / 16) + 1) * 16```.
+- The ciphertext size must be specified in 16 bytes or a multiple of 8 bytes. For example, when encrypting with AES, you need to specify the array size as follows. <br>If plaintext[16] then ciphertext[32], if plaintext[20] then ciphertext[32], if plaintext[40] then ciphertext[48].
+<br>The ciphertext size can be calculated by ```((Plaintext size / 16) + 1) * 16```.
 　

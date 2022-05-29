@@ -13,10 +13,6 @@
 
 namespace cryptography {
 
-#define SUCCESS                 0x0000'0000
-#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
-#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
-
 #define CAST256_128_KEY_BYTE_SIZE         16
 #define CAST256_160_KEY_BYTE_SIZE         20
 #define CAST256_192_KEY_BYTE_SIZE         24

@@ -13,10 +13,6 @@
 
 namespace cryptography {
 
-#define SUCCESS                 0x0000'0000
-#define UNSET_KEY_ERROR         ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::UNSET_KEY)
-#define KEY_SIZE_ERROR          ((int32_t)module_code_t::SECRET_KEY | (int32_t)retcode_t::INVALID_KEY_SIZE)
-
 #define EXTRACT_6BIT_1                                    0x0000'0000'0000'003F
 #define EXTRACT_6BIT_2                                    0x0000'0000'0000'0FC0
 #define EXTRACT_6BIT_3                                    0x0000'0000'0003'F000
