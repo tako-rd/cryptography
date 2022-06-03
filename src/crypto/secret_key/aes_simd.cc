@@ -6,7 +6,7 @@
  * This software is released under the MIT license.
  * see https://opensource.org/licenses/MIT
  */
-
+#if 0
 #include "crypto/secret_key/aes.h"
 #include "common/bit.h"
 #include "common/endian.h"
@@ -641,3 +641,4 @@ void aes_simd::expand_key(const uint32_t * const key, uint32_t *encskeys, uint32
 }
 
 }
+#endif

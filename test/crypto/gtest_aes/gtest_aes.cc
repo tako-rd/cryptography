@@ -33,7 +33,7 @@ TEST_F(GTestAes, Normal_AES128_001) {
     EXPECT_EQ(FIPS197_C1_128BIT_TEST_PLAINTEXT[i], plaintext[i]);
   }
 }
-
+#if 0
 TEST_F(GTestAes, Normal_AESSIMD128_001) {
   cryptography::secret_key_cryptosystem<cryptography::aes_simd> aes;
   uint8_t ciphertext[16];
@@ -54,7 +54,7 @@ TEST_F(GTestAes, Normal_AESSIMD128_001) {
     EXPECT_EQ(FIPS197_C1_128BIT_TEST_PLAINTEXT[i], plaintext[i]);
   }
 }
-
+#endif
 TEST_F(GTestAes, Normal_AESNI128_001) {
   cryptography::secret_key_cryptosystem<cryptography::aes_ni> aes_ni;
   uint8_t ciphertext[16];
@@ -107,7 +107,7 @@ TEST_F(GTestAes, Normal_AES192_001) {
     EXPECT_EQ(FIPS197_C2_192BIT_TEST_PLAINTEXT[i], plaintext[i]);
   }
 }
-
+#if 0
 TEST_F(GTestAes, Normal_AESSIMD192_001) {
   cryptography::secret_key_cryptosystem<cryptography::aes_simd> aes;
   uint8_t ciphertext[16];
@@ -126,7 +126,7 @@ TEST_F(GTestAes, Normal_AESSIMD192_001) {
     EXPECT_EQ(FIPS197_C2_192BIT_TEST_PLAINTEXT[i], plaintext[i]);
   }
 }
-
+#endif
 TEST_F(GTestAes, Normal_AESNI192_001) {
   cryptography::secret_key_cryptosystem<cryptography::aes_ni> aes_ni;
   uint8_t ciphertext[16];
@@ -167,7 +167,7 @@ TEST_F(GTestAes, Normal_AES256_001) {
     EXPECT_EQ(FIPS197_C2_192BIT_TEST_PLAINTEXT[i], plaintext[i]);
   }
 }
-
+#if 0
 TEST_F(GTestAes, Normal_AESSIMD256_001) {
   cryptography::secret_key_cryptosystem<cryptography::aes_simd> aes;
   uint8_t ciphertext[16];
@@ -186,7 +186,7 @@ TEST_F(GTestAes, Normal_AESSIMD256_001) {
     EXPECT_EQ(FIPS197_C2_192BIT_TEST_PLAINTEXT[i], plaintext[i]);
   }
 }
-
+#endif
 TEST_F(GTestAes, Normal_AESNI256_001) {
   cryptography::secret_key_cryptosystem<cryptography::aes_ni> aes_ni;
   uint8_t ciphertext[16];

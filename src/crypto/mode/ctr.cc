@@ -12,9 +12,12 @@
 
 namespace cryptography {
 
-#if defined(ENABLE_SSE2) && defined(ENABLE_SSE3)
+#if defined(ENABLE_SSE2) && defined(ENABLE_SSE3) && (_M_X64 == 100 || _M_IX86 == 600) 
 # define ENCRYPT_XOR(ptxt, msk, out)    _mm_storeu_si128((__m128i *)(out), _mm_xor_si128(_mm_lddqu_si128((__m128i *)(ptxt)), _mm_lddqu_si128((__m128i *)(msk))));
 # define DECRYPT_XOR(ctxt, msk, out)    _mm_storeu_si128((__m128i *)(out), _mm_xor_si128(_mm_lddqu_si128((__m128i *)(ctxt)), _mm_lddqu_si128((__m128i *)(msk))));
+#elif defined(ENABLE_ARMNEON) && (_M_ARM == 7)
+# define ENCRYPT_XOR(ptxt, msk, out)    vst1q_u8(out, veorq_u8(vld1q_u8((ptxt)), vld1q_u8((msk))));
+# define DECRYPT_XOR(ctxt, msk, out)    vst1q_u8(out, veorq_u8(vld1q_u8((ctxt)), vld1q_u8((msk))));
 #else
 # define ENCRYPT_XOR(ptxt, msk, out)    for (int64_t i = 0; i < UnitSize; ++i) { *(out + i) = *(ptxt + i) ^ *(msk + i); }
 # define DECRYPT_XOR(ctxt, msk, out)    for (int64_t i = 0; i < UnitSize; ++i) { *(out + i) = *(ctxt + i) ^ *(msk + i); }

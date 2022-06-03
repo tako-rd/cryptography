@@ -11,10 +11,20 @@
 #define SIMD_H
 
 #if defined(_MSC_VER)
-# include <intrin.h>
 
 # define ALIGNAS(x)                           __declspec(align(x))
-# define GET_CPUID(info, eax)                 __cpuid(info, eax)
+
+# if (_M_X64 == 100)
+#   include <intrin.h>
+#   define GET_CPUID(info, eax)               __cpuid(info, eax)
+# elif (_M_IX86 == 600) 
+#   include <intrin.h>
+#   define GET_CPUID(info, eax)               __cpuid(info, eax)
+# elif (_M_ARM == 7)
+#   define _ARM_USE_NEW_NEON_INTRINSICS
+#   include <arm_neon.h>
+# endif
+
 #elif defined(__GNUC__)
 # include <cpuid.h>
 # include <x86intrin.h>

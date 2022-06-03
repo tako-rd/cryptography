@@ -916,8 +916,7 @@ inline void aes::expand_key(const uint32_t * const key, uint32_t *encskeys, uint
       tmp = ((uint32_t)sbox[(tmp >> 24) & 0xFF] << 24 | 
              (uint32_t)sbox[(tmp >> 16) & 0xFF] << 16 | 
              (uint32_t)sbox[(tmp >>  8) & 0xFF] <<  8 | 
-             (uint32_t)sbox[(tmp)       & 0xFF]) ^
-             rcon[j / nk_];
+             (uint32_t)sbox[(tmp)       & 0xFF]) ^ rcon[j / nk_];
 #else
       tmp = sub_word(rot_word(tmp)) ^ rcon[j / nk_];
 #endif

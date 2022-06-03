@@ -72,7 +72,7 @@ class wrapswap {
  public:
   wrapswap() noexcept {};
 
-  wrapswap(wrapswap &other)= delete;
+  wrapswap(wrapswap &other) = delete;
 
   wrapswap(wrapswap &&other) = delete;
 

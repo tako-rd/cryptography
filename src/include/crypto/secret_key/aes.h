@@ -16,6 +16,12 @@ namespace cryptography {
 
 #define SPEED_PRIORITY_AES    1
 
+#if (_M_X64 == 100 || _M_IX86 == 600)
+typedef __m128i u128_t;
+#elif (_M_ARM == 7)
+typedef uint8x16_t u128_t;
+#endif
+
 /* Prototype declaration of class. */
 class aes_base;
 class aes;
@@ -86,7 +92,7 @@ class aes final : public aes_base, public secret_key_base<aes> {
 
   bool has_subkeys_;
 };
-
+#if 0
 /* Needs improvement. */
 class aes_simd final : public aes_base, public secret_key_base<aes_simd> { 
 public:
@@ -115,7 +121,7 @@ private:
 
   bool has_subkeys_;
 };
-
+#endif
 class aes_ni final : public aes_base, public secret_key_base<aes_ni> { 
 public:
   aes_ni() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), has_subkeys_(false) {};
@@ -131,15 +137,15 @@ public:
   void clear() noexcept;
 
 private:
-  void expand_128bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept;
+  void expand_128bit_key(const uint8_t * const key, u128_t *encskeys, u128_t *decskeys) const noexcept;
 
-  void expand_192bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept;
+  void expand_192bit_key(const uint8_t * const key, u128_t *encskeys, u128_t *decskeys) const noexcept;
 
-  void expand_256bit_key(const uint8_t * const key, __m128i *encskeys, __m128i *decskeys) const noexcept;
+  void expand_256bit_key(const uint8_t * const key, u128_t *encskeys, u128_t *decskeys) const noexcept;
 
-  __m128i encskeys_[15];
+  u128_t encskeys_[15];
 
-  __m128i decskeys_[15];
+  u128_t decskeys_[15];
 
   int32_t nr_;
 

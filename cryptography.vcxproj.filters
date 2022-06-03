@@ -54,9 +54,6 @@
     <ClInclude Include="src\include\cryptography.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="src\include\common\base64.h">
-      <Filter>include\common</Filter>
-    </ClInclude>
     <ClInclude Include="src\include\common\defs.h">
       <Filter>include\common</Filter>
     </ClInclude>
@@ -138,11 +135,11 @@
     <ClInclude Include="src\include\common\bit.h">
       <Filter>include\common</Filter>
     </ClInclude>
+    <ClInclude Include="src\include\common\base64.h">
+      <Filter>include\common</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\common\base64.cc">
-      <Filter>src\common</Filter>
-    </ClCompile>
     <ClCompile Include="src\crypto\secret_key\aes.cc">
       <Filter>src\crypto\seckey</Filter>
     </ClCompile>
@@ -199,6 +196,12 @@
     </ClCompile>
     <ClCompile Include="src\crypto\secret_key\aes_simd.cc">
       <Filter>src\crypto\seckey</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\base64.cc">
+      <Filter>src\common</Filter>
+    </ClCompile>
+    <ClCompile Include="src\common\bit.cc">
+      <Filter>src\common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@
  * see https://opensource.org/licenses/MIT
  */
 
+#if (_M_X64 == 100 || _M_IX86 == 600)
 #include "common/base64.h"
 
 namespace cryptography {
@@ -158,3 +159,4 @@ void base64::decode_rfc4648(std::vector<uint8_t> &byte_array, const std::string 
 
 
 }
+#endif
