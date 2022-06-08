@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="cryptography" />
+		<Option pch_mode="2" />
+		<Option compiler="cygwin" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/cryptography" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Debug/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-std=c++11" />
+					<Add option="-g" />
+					<Add option="-mmmx -msse -msse2 -msse3 -mssse3 -maes" />
+					<Add option="-DENABLE_LITTLE_ENDIAN" />
+					<Add option="-DDENABLE_BIG_ENDIAN" />
+					<Add option="-DENABLE_SSE" />
+					<Add option="-DENABLE_SSE2" />
+					<Add option="-DENABLE_SSE3" />
+					<Add option="-DENABLE_SSE4_1" />
+					<Add option="-DENABLE_SSE4_2" />
+					<Add option="-DDENABLE_AESNI" />
+					<Add option="-DDENABLE_ARMNEON" />
+					<Add directory="src/include" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/cryptography" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="" />
+				<Option object_output="obj/Release/" />
+				<Option type="2" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Wall" />
+					<Add option="-std=c++11" />
+					<Add option="-mmmx -msse -msse2 -msse3 -mssse3 -maes" />
+					<Add option="-DENABLE_LITTLE_ENDIAN" />
+					<Add option="-DDENABLE_BIG_ENDIAN" />
+					<Add option="-DENABLE_SSE" />
+					<Add option="-DENABLE_SSE2" />
+					<Add option="-DENABLE_SSE3" />
+					<Add option="-DENABLE_SSE4_1" />
+					<Add option="-DENABLE_SSE4_2" />
+					<Add option="-DDENABLE_AESNI" />
+					<Add option="-DDENABLE_ARMNEON" />
+					<Add directory="src/include" />
+				</Compiler>
+			</Target>
+		</Build>
+		<Unit filename="src/common/base64.cc" />
+		<Unit filename="src/common/bignumber.cc" />
+		<Unit filename="src/common/bit.cc" />
+		<Unit filename="src/common/random.cc" />
+		<Unit filename="src/crypto/mode/cbc.cc" />
+		<Unit filename="src/crypto/mode/cfb.cc" />
+		<Unit filename="src/crypto/mode/ctr.cc" />
+		<Unit filename="src/crypto/mode/ecb.cc" />
+		<Unit filename="src/crypto/mode/ofb.cc" />
+		<Unit filename="src/crypto/padding/pkcs7.cc" />
+		<Unit filename="src/crypto/public_key/rsa.cc" />
+		<Unit filename="src/crypto/secret_key/aes.cc" />
+		<Unit filename="src/crypto/secret_key/aes_ni.cc" />
+		<Unit filename="src/crypto/secret_key/aes_simd.cc" />
+		<Unit filename="src/crypto/secret_key/camellia.cc" />
+		<Unit filename="src/crypto/secret_key/cast128.cc" />
+		<Unit filename="src/crypto/secret_key/cast256.cc" />
+		<Unit filename="src/crypto/secret_key/des.cc" />
+		<Unit filename="src/crypto/secret_key/rc6.cc" />
+		<Unit filename="src/crypto/secret_key/seed.cc" />
+		<Unit filename="src/crypto/secret_key/twofish.cc" />
+		<Unit filename="src/include/common/allocator.h" />
+		<Unit filename="src/include/common/base64.h" />
+		<Unit filename="src/include/common/bignumber.h" />
+		<Unit filename="src/include/common/bit.h" />
+		<Unit filename="src/include/common/defs.h" />
+		<Unit filename="src/include/common/endian.h" />
+		<Unit filename="src/include/common/mathematics.h" />
+		<Unit filename="src/include/common/random.h" />
+		<Unit filename="src/include/common/simd.h" />
+		<Unit filename="src/include/crypto/mode/cbc.h" />
+		<Unit filename="src/include/crypto/mode/cfb.h" />
+		<Unit filename="src/include/crypto/mode/ctr.h" />
+		<Unit filename="src/include/crypto/mode/ecb.h" />
+		<Unit filename="src/include/crypto/mode/mode.h" />
+		<Unit filename="src/include/crypto/mode/ofb.h" />
+		<Unit filename="src/include/crypto/padding/pkcs7.h" />
+		<Unit filename="src/include/crypto/public_key/public_key_base.h" />
+		<Unit filename="src/include/crypto/public_key/rsa.h" />
+		<Unit filename="src/include/crypto/secret_key/aes.h" />
+		<Unit filename="src/include/crypto/secret_key/camellia.h" />
+		<Unit filename="src/include/crypto/secret_key/cast128.h" />
+		<Unit filename="src/include/crypto/secret_key/cast256.h" />
+		<Unit filename="src/include/crypto/secret_key/des.h" />
+		<Unit filename="src/include/crypto/secret_key/rc6.h" />
+		<Unit filename="src/include/crypto/secret_key/secret_key.h" />
+		<Unit filename="src/include/crypto/secret_key/secret_key_base.h" />
+		<Unit filename="src/include/crypto/secret_key/seed.h" />
+		<Unit filename="src/include/crypto/secret_key/twofish.h" />
+		<Unit filename="src/include/cryptography.h" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>

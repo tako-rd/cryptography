@@ -1,0 +1,206 @@
+# depslib dependency file v1.0
+1654617532 source:d:\git\cryptography\src\common\base64.cc
+	"common/base64.h"
+
+1654529239 d:\git\cryptography\src\include\common\base64.h
+	<string>
+	<vector>
+	"common/defs.h"
+
+1654616772 d:\git\cryptography\src\include\common\defs.h
+	<stdlib.h>
+	<stdint.h>
+	<cstring>
+	<type_traits>
+
+1654620445 source:d:\git\cryptography\src\common\bignumber.cc
+	<stdio.h>
+	<cmath>
+	"common/bignumber.h"
+
+1652548965 d:\git\cryptography\src\include\common\bignumber.h
+	<string.h>
+	<stdint.h>
+	"common/random.h"
+	"common/allocator.h"
+
+1653474281 d:\git\cryptography\src\include\common\random.h
+	<stdint.h>
+	"common/simd.h"
+
+1654621709 d:\git\cryptography\src\include\common\simd.h
+	<intrin.h>
+	<intrin.h>
+	<arm_neon.h>
+	<cpuid.h>
+	<x86intrin.h>
+	<arm_neon.h>
+
+1652545093 d:\git\cryptography\src\include\common\allocator.h
+	<stdlib.h>
+	<stdint.h>
+	<string.h>
+	<type_traits>
+
+1654610018 source:d:\git\cryptography\src\common\bit.cc
+	"common/bit.h"
+	"common/simd.h"
+
+1654616714 d:\git\cryptography\src\include\common\bit.h
+	<stdlib.h>
+	<stdint.h>
+	"common/defs.h"
+
+1654215345 source:d:\git\cryptography\src\common\random.cc
+	"common/random.h"
+
+1654611068 source:d:\git\cryptography\src\crypto\mode\cbc.cc
+	"crypto/mode/cbc.h"
+
+1653750816 d:\git\cryptography\src\include\crypto\mode\cbc.h
+	<string.h>
+	"crypto/mode/mode.h"
+
+1653339561 d:\git\cryptography\src\include\crypto\mode\mode.h
+	<stdint.h>
+	<stdlib.h>
+	"crypto/padding/pkcs7.h"
+	"crypto/secret_key/aes.h"
+	"crypto/secret_key/des.h"
+	"crypto/secret_key/camellia.h"
+	"crypto/secret_key/cast128.h"
+	"crypto/secret_key/cast256.h"
+	"crypto/secret_key/rc6.h"
+	"crypto/secret_key/seed.h"
+	"crypto/secret_key/twofish.h"
+
+1653057866 d:\git\cryptography\src\include\crypto\padding\pkcs7.h
+	<stdint.h>
+
+1654620616 d:\git\cryptography\src\include\crypto\secret_key\aes.h
+	"crypto/secret_key/secret_key_base.h"
+
+1653749017 d:\git\cryptography\src\include\crypto\secret_key\secret_key_base.h
+	<stdint.h>
+	<type_traits>
+	"common/defs.h"
+	"common/simd.h"
+
+1653493681 d:\git\cryptography\src\include\crypto\secret_key\des.h
+	"crypto/secret_key/secret_key_base.h"
+
+1653493387 d:\git\cryptography\src\include\crypto\secret_key\camellia.h
+	"crypto/secret_key/secret_key_base.h"
+
+1653493431 d:\git\cryptography\src\include\crypto\secret_key\cast128.h
+	"crypto/secret_key/secret_key_base.h"
+
+1653493646 d:\git\cryptography\src\include\crypto\secret_key\cast256.h
+	"crypto/secret_key/secret_key_base.h"
+
+1653493719 d:\git\cryptography\src\include\crypto\secret_key\rc6.h
+	"crypto/secret_key/secret_key_base.h"
+
+1653493768 d:\git\cryptography\src\include\crypto\secret_key\seed.h
+	"crypto/secret_key/secret_key_base.h"
+
+1653493832 d:\git\cryptography\src\include\crypto\secret_key\twofish.h
+	"crypto/secret_key/secret_key_base.h"
+
+1654611075 source:d:\git\cryptography\src\crypto\mode\cfb.cc
+	"crypto/mode/cfb.h"
+
+1653750809 d:\git\cryptography\src\include\crypto\mode\cfb.h
+	<string.h>
+	"crypto/mode/mode.h"
+
+1654620509 source:d:\git\cryptography\src\crypto\mode\ctr.cc
+	"crypto/mode/ctr.h"
+	"common/endian.h"
+
+1653750856 d:\git\cryptography\src\include\crypto\mode\ctr.h
+	<string.h>
+	"crypto/mode/mode.h"
+
+1654242284 d:\git\cryptography\src\include\common\endian.h
+	<stdint.h>
+	<string.h>
+	<type_traits>
+	"defs.h"
+	"simd.h"
+
+1653758030 source:d:\git\cryptography\src\crypto\mode\ecb.cc
+	"crypto/mode/ecb.h"
+
+1653147264 d:\git\cryptography\src\include\crypto\mode\ecb.h
+	"crypto/mode/mode.h"
+
+1654611089 source:d:\git\cryptography\src\crypto\mode\ofb.cc
+	"crypto/mode/ofb.h"
+
+1653750855 d:\git\cryptography\src\include\crypto\mode\ofb.h
+	<string.h>
+	"crypto/mode/mode.h"
+
+1653751107 source:d:\git\cryptography\src\crypto\padding\pkcs7.cc
+	"crypto/padding/pkcs7.h"
+
+1653063723 source:d:\git\cryptography\src\crypto\public_key\rsa.cc
+	"crypto/public_key/rsa.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1653065830 d:\git\cryptography\src\include\crypto\public_key\rsa.h
+	"common/defs.h"
+	"common/endian.h"
+	"common/bignumber.h"
+
+1654621749 source:d:\git\cryptography\src\crypto\secret_key\aes_simd.cc
+	"crypto/secret_key/aes.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1654617718 source:d:\git\cryptography\src\crypto\secret_key\camellia.cc
+	"crypto/secret_key/camellia.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1654617744 source:d:\git\cryptography\src\crypto\secret_key\cast128.cc
+	"crypto/secret_key/cast128.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1654617766 source:d:\git\cryptography\src\crypto\secret_key\cast256.cc
+	"crypto/secret_key/cast256.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1654617837 source:d:\git\cryptography\src\crypto\secret_key\des.cc
+	"crypto/secret_key/des.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1653758000 source:d:\git\cryptography\src\crypto\secret_key\rc6.cc
+	"crypto/secret_key/rc6.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1654617876 source:d:\git\cryptography\src\crypto\secret_key\seed.cc
+	"crypto/secret_key/seed.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1654617899 source:d:\git\cryptography\src\crypto\secret_key\twofish.cc
+	"crypto/secret_key/twofish.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1654621288 source:d:\git\cryptography\src\crypto\secret_key\aes.cc
+	"crypto/secret_key/aes.h"
+	"common/bit.h"
+	"common/endian.h"
+
+1654621355 source:d:\git\cryptography\src\crypto\secret_key\aes_ni.cc
+	"crypto/secret_key/aes.h"
+	"common/bit.h"
+
