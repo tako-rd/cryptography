@@ -1292,19 +1292,19 @@ inline uint64_t camellia::f_function(uint64_t in, uint64_t key) const noexcept {
 
 inline uint64_t camellia::fl_function(const uint64_t x, const uint64_t kl) const noexcept {
   uint32_t xl = (uint32_t)(x >> 32);
-  uint32_t xr = (uint32_t)(x & 0x0000'0000'FFFF'FFFF);
+  uint32_t xr = (uint32_t)(x & 0x00000000FFFFFFFF);
 
   xr ^= ROTATE_LEFT32((xl & (uint32_t)(kl >> 32)), 1);
-  xl ^= (xr | (uint32_t)(kl & 0x0000'0000'FFFF'FFFF));
+  xl ^= (xr | (uint32_t)(kl & 0x00000000FFFFFFFF));
  
   return (((uint64_t)xl << 32) | (uint64_t)xr); 
 }
 
 inline uint64_t camellia::inv_fl_function(const uint64_t y, const uint64_t kl) const noexcept {
   uint32_t yl = (uint32_t)(y >> 32);
-  uint32_t yr = (uint32_t)(y & 0x0000'0000'FFFF'FFFF);
+  uint32_t yr = (uint32_t)(y & 0x00000000FFFFFFFF);
 
-  yl ^= (yr | (uint32_t)(kl & 0x0000'0000'FFFF'FFFF));
+  yl ^= (yr | (uint32_t)(kl & 0x00000000FFFFFFFF));
   yr ^= ROTATE_LEFT32((yl & (uint32_t)(kl >> 32)), 1);
 
   return (((uint64_t)yl << 32) | (uint64_t)yr); 

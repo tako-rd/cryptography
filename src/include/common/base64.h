@@ -6,7 +6,7 @@
  * This software is released under the MIT license.
  * see https://opensource.org/licenses/MIT
  */
-#if (_M_X64 == 100 || _M_IX86 == 600)
+#if (_M_X64 == 100 || _M_IX86 == 600) || (_X86_ == 1 || __x86_64__ == 1)
 #ifndef __BASE64_H_
 #define __BASE64_H_
 

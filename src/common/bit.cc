@@ -15,6 +15,7 @@ namespace cryptography {
 uint32_t bit::popcount32(uint64_t in) noexcept {
 # if (_M_X64 == 100 || _M_IX86 == 600)
   static_assert(true, "An infeasible function has been called.");
+  return 0;
 # elif (_M_ARM == 7)
   uint8x8_t counter8x8 = {0}; 
   uint32_t counter = 0;
@@ -33,6 +34,7 @@ uint32_t bit::popcount32(uint64_t in) noexcept {
 uint64_t bit::popcount64(uint64_t in) noexcept {
 # if (_M_X64 == 100 || _M_IX86 == 600)
   static_assert(true, "An infeasible function has been called.");
+  return 0;
 # elif (_M_ARM == 7)
   uint8x8_t counter8x8 = {0}; 
   uint32_t counter = 0;

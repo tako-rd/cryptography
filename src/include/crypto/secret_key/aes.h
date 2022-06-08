@@ -16,7 +16,7 @@ namespace cryptography {
 
 #define SPEED_PRIORITY_AES    1
 
-#if (_M_X64 == 100 || _M_IX86 == 600)
+#if (_M_X64 == 100 || _M_IX86 == 600) || (_X86_ == 1 || __x86_64__ == 1)
 typedef __m128i u128_t;
 #elif (_M_ARM == 7)
 typedef uint8x16_t u128_t;
@@ -44,7 +44,7 @@ class aes_base {
   uint32_t padding[4];
 };
 
-class aes final : public aes_base, public secret_key_base<aes> { 
+class aes final : public aes_base, public secret_key_base<aes> {
  public:
   aes() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
 
@@ -94,7 +94,7 @@ class aes final : public aes_base, public secret_key_base<aes> {
 };
 #if 0
 /* Needs improvement. */
-class aes_simd final : public aes_base, public secret_key_base<aes_simd> { 
+class aes_simd final : public aes_base, public secret_key_base<aes_simd> {
 public:
   aes_simd() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), nk_(0), has_subkeys_(false) {};
 
@@ -122,7 +122,7 @@ private:
   bool has_subkeys_;
 };
 #endif
-class aes_ni final : public aes_base, public secret_key_base<aes_ni> { 
+class aes_ni final : public aes_base, public secret_key_base<aes_ni> {
 public:
   aes_ni() noexcept : encskeys_{0}, decskeys_{0}, nr_(0), has_subkeys_(false) {};
 

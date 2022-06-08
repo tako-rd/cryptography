@@ -41,11 +41,11 @@ namespace cryptography {
  * The upper 16 bits are used to identify the module and the lower 16 bits are used to cause the error.
  */
 typedef enum class module_code {
-  SUCCESS    = 0x0000'0000,
-  SECRET_KEY = 0x0001'0000,
-  MODE       = 0x0002'0000,
-  PUBLIC_KEY = 0x0003'0000,
-  COMMON     = 0x0004'0000,
+  SUCCESS    = 0x00000000,
+  SECRET_KEY = 0x00010000,
+  MODE       = 0x00020000,
+  PUBLIC_KEY = 0x00030000,
+  COMMON     = 0x00040000,
 } module_code_t;
 
 typedef enum class return_code {
@@ -56,6 +56,7 @@ typedef enum class return_code {
   UNSET_IV,
   INVALID_IV_SIZE,
   INVALID_PADDING,
+  RETURN_CODE_MAX = 0x0000FFFF,
 } retcode_t;
 
 /* The return code common to all modules. */

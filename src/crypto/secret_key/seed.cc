@@ -315,7 +315,7 @@ void seed::clear() noexcept {
 inline void seed::expand_key(uint64_t *key, uint64_t *skeys) const noexcept {
   for (int32_t round = 0; round < 16; ++round) {
     skeys[round] = (uint64_t)g_function(((uint32_t)(key[0] >> 32) + (uint32_t)(key[1] >> 32) - kc[round])) << 32 | 
-                   (uint64_t)g_function(((uint32_t)(key[0] & 0x0000'0000'FFFF'FFFF) - (uint32_t)(key[1] & 0x0000'0000'FFFF'FFFF) + kc[round]));
+                   (uint64_t)g_function(((uint32_t)(key[0] & 0x00000000FFFFFFFF) - (uint32_t)(key[1] & 0x00000000FFFFFFFF) + kc[round]));
 
     if (1 == key_round_schd[round]) { /* Odd round */
       key[0] = ROTATE_RIGHT64(key[0], 8);
@@ -327,7 +327,7 @@ inline void seed::expand_key(uint64_t *key, uint64_t *skeys) const noexcept {
 
 inline uint64_t seed::f_function(uint64_t r, uint64_t k) const noexcept {
   uint32_t rk0 = (uint32_t)(r >> 32) ^ (k >> 32);
-  uint32_t rk1 = (uint32_t)(r & 0x0000'0000'FFFF'FFFF) ^ (k & 0x0000'0000'FFFF'FFFF);
+  uint32_t rk1 = (uint32_t)(r & 0x00000000FFFFFFFF) ^ (k & 0x00000000FFFFFFFF);
   uint32_t xorrk = rk0 ^ rk1;
   uint32_t p1 = g_function(g_function(xorrk) + rk0);
   uint32_t p2 = g_function(g_function(g_function(xorrk) + rk0) + g_function(xorrk));

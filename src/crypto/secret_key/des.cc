@@ -13,46 +13,46 @@
 
 namespace cryptography {
 
-#define EXTRACT_6BIT_1                                    0x0000'0000'0000'003F
-#define EXTRACT_6BIT_2                                    0x0000'0000'0000'0FC0
-#define EXTRACT_6BIT_3                                    0x0000'0000'0003'F000
-#define EXTRACT_6BIT_4                                    0x0000'0000'00FC'0000
-#define EXTRACT_6BIT_5                                    0x0000'0000'3F00'0000
-#define EXTRACT_6BIT_6                                    0x0000'000F'C000'0000
-#define EXTRACT_6BIT_7                                    0x0000'03F0'0000'0000
-#define EXTRACT_6BIT_8                                    0x0000'FC00'0000'0000
+#define EXTRACT_6BIT_1                                    0x000000000000003F
+#define EXTRACT_6BIT_2                                    0x0000000000000FC0
+#define EXTRACT_6BIT_3                                    0x000000000003F000
+#define EXTRACT_6BIT_4                                    0x0000000000FC0000
+#define EXTRACT_6BIT_5                                    0x000000003F000000
+#define EXTRACT_6BIT_6                                    0x0000000FC0000000
+#define EXTRACT_6BIT_7                                    0x000003F000000000
+#define EXTRACT_6BIT_8                                    0x0000FC0000000000
 
-#define EXTRACT_BYTE_1                                    0x0000'0000'0000'00FF
-#define EXTRACT_BYTE_2                                    0x0000'0000'0000'FF00
-#define EXTRACT_BYTE_3                                    0x0000'0000'00FF'0000
-#define EXTRACT_BYTE_4                                    0x0000'0000'FF00'0000
-#define EXTRACT_BYTE_5                                    0x0000'00FF'0000'0000
-#define EXTRACT_BYTE_6                                    0x0000'FF00'0000'0000
-#define EXTRACT_BYTE_7                                    0x00FF'0000'0000'0000
-#define EXTRACT_BYTE_8                                    0xFF00'0000'0000'0000
+#define EXTRACT_BYTE_1                                    0x00000000000000FF
+#define EXTRACT_BYTE_2                                    0x000000000000FF00
+#define EXTRACT_BYTE_3                                    0x0000000000FF0000
+#define EXTRACT_BYTE_4                                    0x00000000FF000000
+#define EXTRACT_BYTE_5                                    0x000000FF00000000
+#define EXTRACT_BYTE_6                                    0x0000FF0000000000
+#define EXTRACT_BYTE_7                                    0x00FF000000000000
+#define EXTRACT_BYTE_8                                    0xFF00000000000000
 
-#define KEY_SHIFT_EXTRACT_MSB_1BIT                        0x0800'0000
-#define KEY_SHIFT_EXTRACT_MSB_2BIT                        0x0C00'0000
-#define KEY_SHIFT_REMOVE_MSB_1BIT                         0x07FF'FFFF
-#define KEY_SHIFT_REMOVE_MSB_2BIT                         0x03FF'FFFF
+#define KEY_SHIFT_EXTRACT_MSB_1BIT                        0x08000000
+#define KEY_SHIFT_EXTRACT_MSB_2BIT                        0x0C000000
+#define KEY_SHIFT_REMOVE_MSB_1BIT                         0x07FFFFFF
+#define KEY_SHIFT_REMOVE_MSB_2BIT                         0x03FFFFFF
 
-#define KEY_SHIFT_EXTRACT_LSB_1BIT                        0x0000'0001
-#define KEY_SHIFT_EXTRACT_LSB_2BIT                        0x0000'0003
-#define KEY_SHIFT_REMOVE_LSB_1BIT                         0x0FFF'FFFE
-#define KEY_SHIFT_REMOVE_LSB_2BIT                         0x0FFF'FFFC
+#define KEY_SHIFT_EXTRACT_LSB_1BIT                        0x00000001
+#define KEY_SHIFT_EXTRACT_LSB_2BIT                        0x00000003
+#define KEY_SHIFT_REMOVE_LSB_1BIT                         0x0FFFFFFE
+#define KEY_SHIFT_REMOVE_LSB_2BIT                         0x0FFFFFFC
 
-#define SUBKEY_EXTRACT_LEFT_7BYTE                         0x00FF'FFFF'F000'0000
-#define SUBKEY_EXTRACT_RIGHT_7BYTE                        0x0000'0000'0FFF'FFFF
+#define SUBKEY_EXTRACT_LEFT_7BYTE                         0x00FFFFFFF0000000
+#define SUBKEY_EXTRACT_RIGHT_7BYTE                        0x000000000FFFFFFF
 
 #define EXTRACT_LEFT_1BIT                                 0x20
 #define EXTRACT_RIGHT_1BIT                                0x01
 #define EXTRACT_MIDDLE_4BIT                               0x1E
 
-#define EXTRACT_AND_SET_BIT_LEFT64(target, pos, setpos)   POPCOUNT64(target & (0x8000'0000'0000'0000 >> (pos - 1))) << (63 - setpos)
-#define EXTRACT_BIT_LEFT64(target, position)              POPCOUNT64(target & (0x8000'0000'0000'0000 >> (position - 1)))
+#define EXTRACT_AND_SET_BIT_LEFT64(target, pos, setpos)   POPCOUNT64(target & (0x8000000000000000 >> (pos - 1))) << (63 - setpos)
+#define EXTRACT_BIT_LEFT64(target, position)              POPCOUNT64(target & (0x8000000000000000 >> (position - 1)))
 
-#define EXTRACT_AND_SET_BIT_LEFT32(target, pos, setpos)   POPCOUNT32(target & (0x8000'0000 >> (pos - 1))) << (31 - setpos)
-#define EXTRACT_BIT_LEFT32(target, position)              POPCOUNT32(target & (0x8000'0000 >> (position - 1)))
+#define EXTRACT_AND_SET_BIT_LEFT32(target, pos, setpos)   POPCOUNT32(target & (0x80000000 >> (pos - 1))) << (31 - setpos)
+#define EXTRACT_BIT_LEFT32(target, position)              POPCOUNT32(target & (0x80000000 >> (position - 1)))
 
 static const uint8_t ip[64] = {
   0x3A, 0x32, 0x2A, 0x22, 0x1A, 0x12, 0x0A, 0x02,
@@ -359,7 +359,7 @@ inline void des::initialize_permute(uint32_t *text) const noexcept {
     iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 7], (bits + 7));
   }
   text[0] = iptext >> 32;
-  text[1] = iptext & 0x0000'0000'FFFF'FFFF;
+  text[1] = iptext & 0x00000000FFFFFFFF;
 }
 
 inline void des::finalize_permute(uint32_t *text) const noexcept {
@@ -377,7 +377,7 @@ inline void des::finalize_permute(uint32_t *text) const noexcept {
     fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 7], (bits + 7));
   }
   text[0] = fptext >> 32;
-  text[1] = fptext & 0x0000'0000'FFFF'FFFF;
+  text[1] = fptext & 0x00000000FFFFFFFF;
 }
 
 inline void des::round(const uint64_t subkey, const uint32_t rtext, uint32_t &roundtext) const noexcept {

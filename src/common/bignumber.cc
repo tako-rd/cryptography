@@ -15,13 +15,13 @@
 
 namespace cryptography {
 
-#define BIT32_MSB       0x8000'0000
-#define BIT32_LSB       0x0000'0001
+#define BIT32_MSB       0x80000000
+#define BIT32_LSB       0x00000001
 
-#define MASK_BIT32_LSB  0x7FFF'FFFF
-#define MASK_BIT32_MSB  0xFFFF'FFFE
+#define MASK_BIT32_LSB  0x7FFFFFFF
+#define MASK_BIT32_MSB  0xFFFFFFFE
 
-#define BIT32_MAX       0xFFFF'FFFF
+#define BIT32_MAX       0xFFFFFFFF
 
 #define CONVERT_BIT_TO_BYTE(x) ((x) >> 3)
 #define CONVERT_BIT_TO_UNIT(x) ((x) >> 5)
@@ -77,13 +77,13 @@ inline void operation::add(uint32_t *x, const int32_t xsize, const uint32_t *y, 
       x[xpos] = (x[xpos] - BIT32_MSB) + y[ypos];
       if (BIT32_MSB == (x[xpos] & BIT32_MSB)) {
         is_overflow = true;
-      } 
+      }
       x[xpos] += BIT32_MSB;
     } else if (0 == x_msb && BIT32_MSB == y_msb) {
       x[xpos] = x[xpos] + (y[ypos] - BIT32_MSB);
       if (BIT32_MSB == (x[xpos] & BIT32_MSB)) {
         is_overflow = true;
-      } 
+      }
       x[xpos] += BIT32_MSB;
     } else {
       x[xpos] = x[xpos] + y[ypos];
@@ -192,7 +192,7 @@ inline void operation::divide(uint32_t *x, const int32_t xsize, const uint32_t *
 
       /* Clear tmp_y. */
       for (int32_t i = 0; i < xsize - 1; ++i) {
-        tmp_y[i] = 0x0000'0000;
+        tmp_y[i] = 0x00000000;
       }
       tmp_y[xsize - 1] = BIT32_LSB;
 
@@ -278,8 +278,8 @@ inline void operation::left_shift(uint32_t *x, const int32_t shift, const int32_
 
     /* 0 filling process. */
     for (int32_t pos = byteshift; pos > 0; --pos) {
-      x[pos] = 0x0000'0000;
-    } 
+      x[pos] = 0x00000000;
+    }
   }
 };
 
@@ -307,7 +307,7 @@ inline void operation::right_shift(uint32_t *x, const int32_t shift, const int32
 
     /* 0 filling process. */
     for (int32_t pos = 0; pos < byteshift; ++pos) {
-      x[pos] = 0x0000'0000;
+      x[pos] = 0x00000000;
     }
   }
 };
@@ -406,7 +406,7 @@ inline void operation::logical_and(uint32_t *x, const int32_t xsize, const uint3
 
   if (xsize > ysize) {
     for (int32_t xpos = 0; xpos < xstart; ++xpos) {
-      x[xpos] &= 0x0000'0000;
+      x[xpos] &= 0x00000000;
     }
   }
 
@@ -421,7 +421,7 @@ inline void operation::logical_or(uint32_t *x, const int32_t xsize, const uint32
 
   if (xsize > ysize) {
     for (int32_t xpos = 0; xpos < xstart; ++xpos) {
-      x[xpos] |= 0x0000'0000;
+      x[xpos] |= 0x00000000;
     }
   }
 
@@ -436,7 +436,7 @@ void operation::logical_xor(uint32_t *x, const int32_t xsize, const uint32_t *y,
 
   if (xsize > ysize) {
     for (int32_t xpos = 0; xpos < xstart; ++xpos) {
-      x[xpos] ^= 0x0000'0000;
+      x[xpos] ^= 0x00000000;
     }
   }
 
@@ -513,7 +513,7 @@ void bignumber::destroy() noexcept {
     allocator_.deallocate(value_, CONVERT_BIT_TO_BYTE(bitsize_));
     value_ = nullptr;
     bitsize_ = 0;
-  }  
+  }
 }
 
 /***************************/
@@ -544,7 +544,7 @@ bignumber bignumber::operator+(bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator+(const bignumber &inst) noexcept { 
+bignumber bignumber::operator+(const bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.add(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -555,7 +555,7 @@ bignumber bignumber::operator+(const bignumber &inst) noexcept {
 /**************************/
 /* Subtraction functions. */
 /**************************/
-bignumber bignumber::operator-(bignumber &inst) noexcept { 
+bignumber bignumber::operator-(bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.subtract(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -563,7 +563,7 @@ bignumber bignumber::operator-(bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator-(const bignumber &inst) noexcept { 
+bignumber bignumber::operator-(const bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.subtract(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -574,7 +574,7 @@ bignumber bignumber::operator-(const bignumber &inst) noexcept {
 /*****************************/
 /* Multiplication functions. */
 /*****************************/
-bignumber bignumber::operator*(bignumber &inst) noexcept { 
+bignumber bignumber::operator*(bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.multiply(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -582,7 +582,7 @@ bignumber bignumber::operator*(bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator*(const bignumber &inst) noexcept { 
+bignumber bignumber::operator*(const bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.multiply(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -612,7 +612,7 @@ bignumber bignumber::operator/(const bignumber &inst) noexcept {
 /*********************/
 /* Modulo functions. */
 /*********************/
-bignumber bignumber::operator%(bignumber &inst) noexcept { 
+bignumber bignumber::operator%(bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.modulo(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -620,7 +620,7 @@ bignumber bignumber::operator%(bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator%(const bignumber &inst) noexcept { 
+bignumber bignumber::operator%(const bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.modulo(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -631,42 +631,42 @@ bignumber bignumber::operator%(const bignumber &inst) noexcept {
 /*************************/
 /* Comparison functions. */
 /*************************/
-bool bignumber::operator==(const bignumber &inst) noexcept { 
+bool bignumber::operator==(const bignumber &inst) noexcept {
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     return operation_.equal(this->value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
   }
   return false;
 }
 
-bool bignumber::operator!=(const bignumber &inst) noexcept { 
+bool bignumber::operator!=(const bignumber &inst) noexcept {
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     return !operation_.equal(this->value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
   }
   return false;
 }
 
-bool bignumber::operator<(const bignumber &inst) noexcept { 
+bool bignumber::operator<(const bignumber &inst) noexcept {
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     return operation_.greater(inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_), this->value_, CONVERT_BIT_TO_UNIT(bitsize_));
   }
   return false;
 }
 
-bool bignumber::operator>(const bignumber &inst) noexcept { 
+bool bignumber::operator>(const bignumber &inst) noexcept {
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     return operation_.greater(this->value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
   }
   return false;
 }
 
-bool bignumber::operator<=(const bignumber &inst) noexcept { 
+bool bignumber::operator<=(const bignumber &inst) noexcept {
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     return operation_.no_less(inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_), this->value_, CONVERT_BIT_TO_UNIT(bitsize_));
   }
   return false;
 }
 
-bool bignumber::operator>=(const bignumber &inst) noexcept { 
+bool bignumber::operator>=(const bignumber &inst) noexcept {
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     return operation_.no_less(this->value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
   }
@@ -676,7 +676,7 @@ bool bignumber::operator>=(const bignumber &inst) noexcept {
 /******************************/
 /* Bitwise operator function. */
 /******************************/
-bignumber bignumber::operator&(bignumber &inst) noexcept { 
+bignumber bignumber::operator&(bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.logical_and(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -684,7 +684,7 @@ bignumber bignumber::operator&(bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator&(const bignumber &inst) noexcept { 
+bignumber bignumber::operator&(const bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.logical_and(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -692,7 +692,7 @@ bignumber bignumber::operator&(const bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator|(bignumber &inst) noexcept { 
+bignumber bignumber::operator|(bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.logical_or(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -700,7 +700,7 @@ bignumber bignumber::operator|(bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator|(const bignumber &inst) noexcept { 
+bignumber bignumber::operator|(const bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.logical_or(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -708,7 +708,7 @@ bignumber bignumber::operator|(const bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator^(bignumber &inst) noexcept { 
+bignumber bignumber::operator^(bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.logical_xor(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -716,7 +716,7 @@ bignumber bignumber::operator^(bignumber &inst) noexcept {
   return out;
 }
 
-bignumber bignumber::operator^(const bignumber &inst) noexcept { 
+bignumber bignumber::operator^(const bignumber &inst) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_ && nullptr != inst.value_ && 0 != inst.bitsize_) {
     operation_.logical_xor(out.value_, CONVERT_BIT_TO_UNIT(bitsize_), inst.value_, CONVERT_BIT_TO_UNIT(inst.bitsize_));
@@ -727,7 +727,7 @@ bignumber bignumber::operator^(const bignumber &inst) noexcept {
 /********************/
 /* Shift functions. */
 /********************/
-bignumber bignumber::operator<<(const int32_t shift) noexcept { 
+bignumber bignumber::operator<<(const int32_t shift) noexcept {
   bignumber out(this->value_, CONVERT_BIT_TO_BYTE(this->bitsize_));
   if (nullptr != value_ && 0 != bitsize_) {
     operation_.left_shift(out.value_, shift, CONVERT_BIT_TO_UNIT(bitsize_));
@@ -746,7 +746,7 @@ bignumber bignumber::operator>>(const int32_t &shift) noexcept {
 /********************/
 /* Other functions. */
 /********************/
-uint32_t& bignumber::operator[](const uint32_t pos) noexcept { 
+uint32_t& bignumber::operator[](const uint32_t pos) noexcept {
   return this->value_[pos];
 }
 
@@ -773,8 +773,8 @@ inline void bignumber::copy(const uint32_t *other, const int32_t othersize) noex
     return ;
   }
 
-  xend = (CONVERT_BIT_TO_UNIT(bitsize_) > 0) ? CONVERT_BIT_TO_UNIT(bitsize_) - 1 : othersize - 1; 
-  yend = othersize - 1; 
+  xend = (CONVERT_BIT_TO_UNIT(bitsize_) > 0) ? CONVERT_BIT_TO_UNIT(bitsize_) - 1 : othersize - 1;
+  yend = othersize - 1;
   end = (0 < xend && CONVERT_BIT_TO_UNIT(bitsize_) <= othersize) ? xend : yend;
 
   memset(value_, 0x00, CONVERT_BIT_TO_BYTE(bitsize_));

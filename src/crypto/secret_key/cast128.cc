@@ -29,39 +29,39 @@ namespace cryptography {
 #define NROUND_FOR_KEY_80BIT                    true
 #define NROUND_FOR_KEY_128BIT                   false
 
-#define X0(x)                                   (uint8_t)((x[0] >> 24) & 0x0000'00FF)
-#define X1(x)                                   (uint8_t)((x[0] >> 16) & 0x0000'00FF)
-#define X2(x)                                   (uint8_t)((x[0] >>  8) & 0x0000'00FF)
-#define X3(x)                                   (uint8_t)((x[0] >>  0) & 0x0000'00FF)
-#define X4(x)                                   (uint8_t)((x[1] >> 24) & 0x0000'00FF)
-#define X5(x)                                   (uint8_t)((x[1] >> 16) & 0x0000'00FF)
-#define X6(x)                                   (uint8_t)((x[1] >>  8) & 0x0000'00FF)
-#define X7(x)                                   (uint8_t)((x[1] >>  0) & 0x0000'00FF)
-#define X8(x)                                   (uint8_t)((x[2] >> 24) & 0x0000'00FF)
-#define X9(x)                                   (uint8_t)((x[2] >> 16) & 0x0000'00FF)
-#define XA(x)                                   (uint8_t)((x[2] >>  8) & 0x0000'00FF)
-#define XB(x)                                   (uint8_t)((x[2] >>  0) & 0x0000'00FF)
-#define XC(x)                                   (uint8_t)((x[3] >> 24) & 0x0000'00FF)
-#define XD(x)                                   (uint8_t)((x[3] >> 16) & 0x0000'00FF)
-#define XE(x)                                   (uint8_t)((x[3] >>  8) & 0x0000'00FF)
-#define XF(x)                                   (uint8_t)((x[3] >>  0) & 0x0000'00FF)
+#define X0(x)                                   (uint8_t)((x[0] >> 24) & 0x000000FF)
+#define X1(x)                                   (uint8_t)((x[0] >> 16) & 0x000000FF)
+#define X2(x)                                   (uint8_t)((x[0] >>  8) & 0x000000FF)
+#define X3(x)                                   (uint8_t)((x[0] >>  0) & 0x000000FF)
+#define X4(x)                                   (uint8_t)((x[1] >> 24) & 0x000000FF)
+#define X5(x)                                   (uint8_t)((x[1] >> 16) & 0x000000FF)
+#define X6(x)                                   (uint8_t)((x[1] >>  8) & 0x000000FF)
+#define X7(x)                                   (uint8_t)((x[1] >>  0) & 0x000000FF)
+#define X8(x)                                   (uint8_t)((x[2] >> 24) & 0x000000FF)
+#define X9(x)                                   (uint8_t)((x[2] >> 16) & 0x000000FF)
+#define XA(x)                                   (uint8_t)((x[2] >>  8) & 0x000000FF)
+#define XB(x)                                   (uint8_t)((x[2] >>  0) & 0x000000FF)
+#define XC(x)                                   (uint8_t)((x[3] >> 24) & 0x000000FF)
+#define XD(x)                                   (uint8_t)((x[3] >> 16) & 0x000000FF)
+#define XE(x)                                   (uint8_t)((x[3] >>  8) & 0x000000FF)
+#define XF(x)                                   (uint8_t)((x[3] >>  0) & 0x000000FF)
 
-#define Z0(x)                                   (uint8_t)((x[0] >> 24) & 0x0000'00FF)
-#define Z1(x)                                   (uint8_t)((x[0] >> 16) & 0x0000'00FF)
-#define Z2(x)                                   (uint8_t)((x[0] >>  8) & 0x0000'00FF)
-#define Z3(x)                                   (uint8_t)((x[0] >>  0) & 0x0000'00FF)
-#define Z4(x)                                   (uint8_t)((x[1] >> 24) & 0x0000'00FF)
-#define Z5(x)                                   (uint8_t)((x[1] >> 16) & 0x0000'00FF)
-#define Z6(x)                                   (uint8_t)((x[1] >>  8) & 0x0000'00FF)
-#define Z7(x)                                   (uint8_t)((x[1] >>  0) & 0x0000'00FF)
-#define Z8(x)                                   (uint8_t)((x[2] >> 24) & 0x0000'00FF)
-#define Z9(x)                                   (uint8_t)((x[2] >> 16) & 0x0000'00FF)
-#define ZA(x)                                   (uint8_t)((x[2] >>  8) & 0x0000'00FF)
-#define ZB(x)                                   (uint8_t)((x[2] >>  0) & 0x0000'00FF)
-#define ZC(x)                                   (uint8_t)((x[3] >> 24) & 0x0000'00FF)
-#define ZD(x)                                   (uint8_t)((x[3] >> 16) & 0x0000'00FF)
-#define ZE(x)                                   (uint8_t)((x[3] >>  8) & 0x0000'00FF)
-#define ZF(x)                                   (uint8_t)((x[3] >>  0) & 0x0000'00FF)
+#define Z0(x)                                   (uint8_t)((x[0] >> 24) & 0x000000FF)
+#define Z1(x)                                   (uint8_t)((x[0] >> 16) & 0x000000FF)
+#define Z2(x)                                   (uint8_t)((x[0] >>  8) & 0x000000FF)
+#define Z3(x)                                   (uint8_t)((x[0] >>  0) & 0x000000FF)
+#define Z4(x)                                   (uint8_t)((x[1] >> 24) & 0x000000FF)
+#define Z5(x)                                   (uint8_t)((x[1] >> 16) & 0x000000FF)
+#define Z6(x)                                   (uint8_t)((x[1] >>  8) & 0x000000FF)
+#define Z7(x)                                   (uint8_t)((x[1] >>  0) & 0x000000FF)
+#define Z8(x)                                   (uint8_t)((x[2] >> 24) & 0x000000FF)
+#define Z9(x)                                   (uint8_t)((x[2] >> 16) & 0x000000FF)
+#define ZA(x)                                   (uint8_t)((x[2] >>  8) & 0x000000FF)
+#define ZB(x)                                   (uint8_t)((x[2] >>  0) & 0x000000FF)
+#define ZC(x)                                   (uint8_t)((x[3] >> 24) & 0x000000FF)
+#define ZD(x)                                   (uint8_t)((x[3] >> 16) & 0x000000FF)
+#define ZE(x)                                   (uint8_t)((x[3] >>  8) & 0x000000FF)
+#define ZF(x)                                   (uint8_t)((x[3] >>  0) & 0x000000FF)
 
 #define BENDIAN_32BIT_KEY_SET(key, buf, size)   for (uint32_t i = 0; i < (size); ++i) {                   \
                                                   buf[i >> 2] |= (uint32_t)(key[i]) << (32 - 8 * ((i ^ 0x04) + 1)); \
@@ -617,7 +617,7 @@ inline uint32_t cast128::fa_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint32_t i = 0;
   uint8_t out[4] = {0};
 
-  i = ROTATE_LEFT32(kmi + d, kri & 0x0000'001F);
+  i = ROTATE_LEFT32(kmi + d, kri & 0x0000001F);
   endian<BIG, uint32_t, 4>::convert(&i, out);
   return ((sbox1[out[0]] ^ sbox2[out[1]]) - sbox3[out[2]]) + sbox4[out[3]];
 }
@@ -626,7 +626,7 @@ inline uint32_t cast128::fb_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint32_t i = 0;
   uint8_t out[4] = {0};
 
-  i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000'001F);
+  i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000001F);
   endian<BIG, uint32_t, 4>::convert(&i, out);
   return ((sbox1[out[0]] - sbox2[out[1]]) + sbox3[out[2]]) ^ sbox4[out[3]];
 }
@@ -635,7 +635,7 @@ inline uint32_t cast128::fc_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint32_t i = 0;
   uint8_t out[4] = {0};
 
-  i = ROTATE_LEFT32(kmi - d, kri & 0x0000'001F);
+  i = ROTATE_LEFT32(kmi - d, kri & 0x0000001F);
   endian<BIG, uint32_t, 4>::convert(&i, out);
   return ((sbox1[out[0]] + sbox2[out[1]]) ^ sbox3[out[2]]) - sbox4[out[3]];
 }

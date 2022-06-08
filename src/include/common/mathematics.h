@@ -51,7 +51,7 @@ public:
   }
 
   bool is_prime(bignumber &n) noexcept {
-    if (n == 1 || (n & 0x0000'0001) == 0U) {
+    if (n == 1 || (n & 0x00000001) == 0U) {
       return false;
     } else if (n == 2) {
       return true;
@@ -74,12 +74,12 @@ public:
       t = d;
       y = mod_power(a, t, n);
 
-      while ((t != (n - 1)) && (y != 0x0000'0001) && (y != (n - 1))) {
+      while ((t != (n - 1)) && (y != 0x00000001) && (y != (n - 1))) {
         y = (y * y) % n;
         t = t << 1;
       }
 
-      if ((y != n - 1) && (t & 0x0000'0001) == 0U) { 
+      if ((y != n - 1) && (t & 0x00000001) == 0U) { 
         return false; 
       }
     }
@@ -91,7 +91,7 @@ private:
     bignumber out = 1;
 
     while (exp > 0) {
-      if ((exp & 0x0000'0001) == 0x0000'0001) {
+      if ((exp & 0x00000001) == 0x00000001) {
         out = (out * base) % mod;
       }
       base = (base * base) % mod;

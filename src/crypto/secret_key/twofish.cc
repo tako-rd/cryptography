@@ -23,9 +23,9 @@ namespace cryptography {
 
 #define TWOFISH_ROUND_MAX             15
 
-#define TWOFISH_RHO                   0x0101'0101   /**< 2^24 + 2^16 + 2^8 + 2^0       */
-#define MDS_MODULUS                   0x0000'0169   /**< 2^ 8 + 2^ 6 + 2^5 + 2^3 + 2^0 */
-#define RS_MODULUS                    0x0000'014D   /**< 2^ 8 + 2^ 6 + 2^3 + 2^2 + 2^0 */
+#define TWOFISH_RHO                   0x01010101   /**< 2^24 + 2^16 + 2^8 + 2^0       */
+#define MDS_MODULUS                   0x00000169   /**< 2^ 8 + 2^ 6 + 2^5 + 2^3 + 2^0 */
+#define RS_MODULUS                    0x0000014D   /**< 2^ 8 + 2^ 6 + 2^3 + 2^2 + 2^0 */
 
 #define ROTR4(x, shift)               (uint8_t)((((x) >> (shift)) | ((x) << (4 - shift))) & 0x0F)
 

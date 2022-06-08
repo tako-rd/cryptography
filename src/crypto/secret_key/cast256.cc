@@ -302,10 +302,10 @@ inline void cast256::expand_key(const uint32_t * const key, uint32_t *km, uint32
     kappa[0] = kappa[0] ^ f1_function(kappa[1], tm[6][2 * i + 1], tr[6][2 * i + 1]);
     kappa[7] = kappa[7] ^ f2_function(kappa[0], tm[7][2 * i + 1], tr[7][2 * i + 1]);
 
-    kr[4 * i]     = kappa[0] & 0x0000'001F;
-    kr[4 * i + 1] = kappa[2] & 0x0000'001F;
-    kr[4 * i + 2] = kappa[4] & 0x0000'001F;
-    kr[4 * i + 3] = kappa[6] & 0x0000'001F;
+    kr[4 * i]     = kappa[0] & 0x0000001F;
+    kr[4 * i + 1] = kappa[2] & 0x0000001F;
+    kr[4 * i + 2] = kappa[4] & 0x0000001F;
+    kr[4 * i + 3] = kappa[6] & 0x0000001F;
 
     km[4 * i]     = kappa[7];
     km[4 * i + 1] = kappa[5];
@@ -318,7 +318,7 @@ inline uint32_t cast256::f1_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint32_t i = 0;
   uint8_t out[4] = {0};
 
-  i = ROTATE_LEFT32(kmi + d, kri & 0x0000'001F);
+  i = ROTATE_LEFT32(kmi + d, kri & 0x0000001F);
   endian<BIG, uint32_t, 16>::convert(&i, out);
   return ((sbox1[out[0]] ^ sbox2[out[1]]) - sbox3[out[2]]) + sbox4[out[3]];
 }
@@ -327,7 +327,7 @@ inline uint32_t cast256::f2_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint32_t i = 0;
   uint8_t out[4] = {0};
 
-  i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000'001F);
+  i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000001F);
   endian<BIG, uint32_t, 16>::convert(&i, out);
   return ((sbox1[out[0]] - sbox2[out[1]]) + sbox3[out[2]]) ^ sbox4[out[3]];
 }
@@ -336,7 +336,7 @@ inline uint32_t cast256::f3_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint32_t i = 0;
   uint8_t out[4] = {0};
 
-  i = ROTATE_LEFT32(kmi - d, kri & 0x0000'001F);
+  i = ROTATE_LEFT32(kmi - d, kri & 0x0000001F);
   endian<BIG, uint32_t, 16>::convert(&i, out);
   return ((sbox1[out[0]] + sbox2[out[1]]) ^ sbox3[out[2]]) - sbox4[out[3]];
 }

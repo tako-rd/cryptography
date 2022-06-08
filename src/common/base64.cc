@@ -7,23 +7,23 @@
  * see https://opensource.org/licenses/MIT
  */
 
-#if (_M_X64 == 100 || _M_IX86 == 600)
+#if (_M_X64 == 100 || _M_IX86 == 600) || (_X86_ == 1 || __x86_64__ == 1)
 #include "common/base64.h"
 
 namespace cryptography {
 
-#define EXTRACT_6BIT_MASK     0x0000'0000'0000'003F
-#define EXTRACT_8BIT_MASK     0x0000'0000'0000'00FF
+#define EXTRACT_6BIT_MASK     0x000000000000003F
+#define EXTRACT_8BIT_MASK     0x00000000000000FF
 #define BASE64_PADDING_CHAR   '='
 
 static const char base64_encode_table[64] = {
-  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 
-  'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 
-  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 
-  'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 
-  'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 
-  'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 
-  'w', 'x', 'y', 'z', '0', '1', '2', '3', 
+  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+  'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
+  'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+  'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f',
+  'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+  'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+  'w', 'x', 'y', 'z', '0', '1', '2', '3',
   '4', '5', '6', '7', '8', '9', '+', '/',
 };
 
@@ -134,7 +134,7 @@ void base64::decode_rfc4648(std::vector<uint8_t> &byte_array, const std::string 
   } else {
     base64text_size = base64text.size();
   }
-  
+
   for (uint64_t bytes = 0; bytes < base64text_size; bytes += 4) {
     uint32_t ptext = 0;
 
@@ -146,14 +146,14 @@ void base64::decode_rfc4648(std::vector<uint8_t> &byte_array, const std::string 
         return ;
       }
     }
- 
+
     for (uint8_t cnt = 0; cnt < 3; ++cnt) {
       uint8_t charactor = (uint8_t)((ptext & (EXTRACT_8BIT_MASK << (16 - (8 * cnt)))) >> (16 - (8 * cnt)));
 
       if ('\0' != charactor) {
         byte_array.emplace_back(charactor);
       }
-    }   
+    }
   }
 }
 
