@@ -22,11 +22,48 @@ namespace cryptography {
 #define M2                                              0xCF
 #define M3                                              0x3F
 
-#define SEED_BIGENDIAN_U64_TO_U32_COPY(value, outval)   value  = _byteswap_uint64(value);  \
-                                                        memcpy(outval, &value, 8);
-                           
-#define SEED_BIGENDIAN_U32_TO_U64_COPY(value, outval)   memcpy(&outval, value, 8);  \
-                                                        outval = _byteswap_uint64(outval);
+#if defined(_MSC_VER)
+# define BSWAP32(x)                                     _byteswap_ulong((x))
+# define BSWAP64(x)                                     _byteswap_uint64((x))
+#elif defined(__GNUC__)
+# define BSWAP32(x)                                     __builtin_bswap32(x)
+# define BSWAP64(x)                                     __builtin_bswap64(x)
+#endif
+
+#if defined(__LITTLE_ENDIAN__)
+# define BENDIAN_8BIT_TO_32BIT_SIZE32(in, out)          memcpy(&out, &in, 4);  \
+                                                        out = BSWAP32(out);
+                                                        
+# define BENDIAN_32BIT_TO_8BIT_SIZE32(in, out)          in = BSWAP32(in); \
+                                                        memcpy(&out, &in, 4);
+
+# define BENDIAN_64BIT_TO_8BIT_SIZE128(in, out)         in[0] = BSWAP64(in[0]); \
+                                                        in[1] = BSWAP64(in[1]); \
+                                                        memcpy(out, in, 16);
+
+# define BENDIAN_8BIT_TO_64BIT_SIZE128(in, out)         memcpy(out, in, 16);      \
+                                                        out[0] = BSWAP64(out[0]); \
+                                                        out[1] = BSWAP64(out[1]);
+
+# define BENDIAN_8BIT_TO_64BIT_SIZE192(in, out)         memcpy(out, in, 24);      \
+                                                        out[0] = BSWAP64(out[0]); \
+                                                        out[1] = BSWAP64(out[1]); \
+                                                        out[2] = BSWAP64(out[2]);
+
+# define BENDIAN_8BIT_TO_64BIT_SIZE256(in, out)         memcpy(out, in, 32);      \
+                                                        out[0] = BSWAP64(out[0]); \
+                                                        out[1] = BSWAP64(out[1]); \
+                                                        out[2] = BSWAP64(out[2]); \
+                                                        out[3] = BSWAP64(out[3]);
+#elif defined(__BIG_ENDIAN__)
+# define BENDIAN_8BIT_TO_32BIT_SIZE32(in, out)        memcpy(out, in, 4);
+# define BENDIAN_32BIT_TO_8BIT_SIZE32(in, out)        memcpy(out, in, 4);
+# define BENDIAN_64BIT_TO_8BIT_SIZE128(in, out)       memcpy(out, in, 16);
+# define BENDIAN_8BIT_TO_64BIT_SIZE128(in, out)       memcpy(out, in, 16);
+# define BENDIAN_8BIT_TO_64BIT_SIZE192(in, out)       memcpy(out, in, 24);
+# define BENDIAN_8BIT_TO_64BIT_SIZE256(in, out)       memcpy(out, in, 32);
+#endif
+
 
 static const uint32_t kc[16] = {
   0x9E3779B9, 0x3C6EF373, 0x78DDE6E6, 0xF1BBCDCC, 
@@ -260,7 +297,7 @@ int32_t seed::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
   uint64_t k[2] = {0};
 
   if (SEED_KEY_BYTE_SIZE != ksize) { return KEY_SIZE_ERROR; }
-  endian<BIG, uint64_t, SEED_KEY_BYTE_SIZE>::convert(key, k);
+  BENDIAN_8BIT_TO_64BIT_SIZE128(key, k);
   expand_key(k, subkey_);
   has_subkeys_ = true;
 
@@ -273,7 +310,7 @@ int32_t seed::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
 
   if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
-  endian<BIG, uint64_t, 16>::convert(ptext, tmppln);
+  BENDIAN_8BIT_TO_64BIT_SIZE128(ptext, tmppln);
 
   for (int32_t round = 0; round < 15; ++round) {
     t = tmppln[1];
@@ -282,7 +319,7 @@ int32_t seed::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
   }
   tmppln[0] ^= f_function(tmppln[1], subkey_[15]);
 
-  endian<BIG, uint64_t, 16>::convert(tmppln, ctext);
+  BENDIAN_64BIT_TO_8BIT_SIZE128(tmppln, ctext);
 
   return SUCCESS;
 }
@@ -293,7 +330,7 @@ int32_t seed::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
 
   if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
-  endian<BIG, uint64_t, 16>::convert(ctext, tmpcphr);
+  BENDIAN_8BIT_TO_64BIT_SIZE128(ctext, tmpcphr);
 
   for (int32_t round = 15; round > 0; --round) {
     t = tmpcphr[1];
@@ -302,7 +339,7 @@ int32_t seed::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   }
   tmpcphr[0] ^= f_function(tmpcphr[1], subkey_[0]);
 
-  endian<BIG, uint64_t, 16>::convert(tmpcphr, ptext);
+  BENDIAN_64BIT_TO_8BIT_SIZE128(tmpcphr, ptext);
 
   return SUCCESS;
 }
@@ -358,18 +395,16 @@ inline uint32_t seed::g_function(uint32_t r) const noexcept {
 #if !defined(SPEED_PRIORITY_SEED)
   uint32_t z = 0;
   uint8_t z8bit[4] = {0};
-  uint8_t r8bit[4] = {0};
-#else
-  uint8_t r8bit[4] = {0};
 #endif
+  uint8_t r8bit[4] = {0};
 
-  endian<BIG, uint32_t, 4>::convert(&r, r8bit);
+  BENDIAN_32BIT_TO_8BIT_SIZE32(r, r8bit);
 #if !defined(SPEED_PRIORITY_SEED)
   z8bit[3]  = (sbox0[r8bit[3]] & M0)  ^ (sbox1[r8bit[2]] & M1)  ^ (sbox0[r8bit[1]] & M2)  ^ (sbox1[r8bit[0]] & M3);
   z8bit[2]  = (sbox0[r8bit[3]] & M1)  ^ (sbox1[r8bit[2]] & M2)  ^ (sbox0[r8bit[1]] & M3)  ^ (sbox1[r8bit[0]] & M0);
   z8bit[1]  = (sbox0[r8bit[3]] & M2)  ^ (sbox1[r8bit[2]] & M3)  ^ (sbox0[r8bit[1]] & M0)  ^ (sbox1[r8bit[0]] & M1);
   z8bit[0]  = (sbox0[r8bit[3]] & M3)  ^ (sbox1[r8bit[2]] & M0)  ^ (sbox0[r8bit[1]] & M1)  ^ (sbox1[r8bit[0]] & M2);
-  BIGENDIAN_U8_TO_U32_COPY(z8bit, z);
+  BENDIAN_8BIT_TO_32BIT_SIZE32(z8bit, z);
 
   return z;
 #else

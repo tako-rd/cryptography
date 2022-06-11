@@ -32,15 +32,14 @@ class mode {
 
   ~mode() {};
 
-  int32_t initialize(const uint8_t key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept {};
+  int32_t initialize(const uint8_t key, const uint32_t ksize, const uint8_t *iv, const uint32_t ivsize) noexcept { return 1; };
 
-  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept {};
+  int32_t encrypt(const uint8_t * const ptext, const uint32_t psize, uint8_t *ctext, const uint32_t csize) noexcept { return 1; };
 
-  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept {};
+  int32_t decrypt(const uint8_t * const ctext, const uint32_t csize, uint8_t *ptext, const uint32_t psize) noexcept { return 1; };
 
   void clear() noexcept {};
 };
 
 }
-
 #endif

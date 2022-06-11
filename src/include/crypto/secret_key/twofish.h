@@ -32,7 +32,7 @@ class twofish_base {
 
 class twofish final : public twofish_base, public secret_key_base<twofish> {
  public:
-  twofish() noexcept : subkey_{0}, has_subkeys_(false) {};
+  twofish() noexcept : subkey_{0}, has_subkeys_(false), mds_sbox0_{0}, mds_sbox1_{0}, mds_sbox2_{0}, mds_sbox3_{0} {};
 
   ~twofish();
 

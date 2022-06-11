@@ -82,7 +82,7 @@ class wrapswap {
 #if defined(_MSC_VER)
     return _byteswap_ushort(t);
 #elif defined(__GNUC__)
-    return __builtin_bswap16 (t);
+    return __builtin_bswap16(t);
 #endif
   }
 

@@ -37,7 +37,7 @@ static const uint8_t TEST_IV_128BIT[16] = {
 };
 
 int main() {
-  int encret = 0;
+  int encret = SUCCESS;
   secret_key<AES, CBC> aes_cbc;
   uint8_t plaintext[47] = "Test encryption with the Cryptography library.";
   uint8_t ciphertext[48] = {0};
@@ -45,19 +45,19 @@ int main() {
 
   encret = aes_cbc.initialize(TEST_KEY_128BIT, sizeof(TEST_KEY_128BIT),
                               TEST_IV_128BIT,  sizeof(TEST_IV_128BIT));
-  if (0 != encret) {
+  if (SUCCESS != encret) {
     return 1; // error
   }
 
   encret = aes_cbc.encrypt(plaintext, sizeof(plaintext),
                            ciphertext, sizeof(ciphertext));
-  if (0 != encret) {
+  if (SUCCESS != encret) {
     return 1; // error
   }
 
   encret = aes_cbc.decrypt(ciphertext, sizeof(ciphertext),
                            outtext, sizeof(outtext));
-  if (0 != encret) {
+  if (SUCCESS != encret) {
     return 1; // error
   }
 
@@ -82,5 +82,5 @@ The return code corresponding to the above encret is as follows.
 
 Notes:<br>
 - The ciphertext size must be specified in 16 bytes or a multiple of 8 bytes. For example, when encrypting with AES, you need to specify the array size as follows. <br>If plaintext[16] then ciphertext[32], if plaintext[20] then ciphertext[32], if plaintext[40] then ciphertext[48].
-<br>The ciphertext size can be calculated by ```((Plaintext size / 16) + 1) * 16```.
+<br>The ciphertext size can be calculated by ```((Plaintext size / 16) + 1) * 16``` or ```((Plaintext size / 8) + 1) * 8```.
 　

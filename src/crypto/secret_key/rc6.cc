@@ -12,18 +12,18 @@
 #include "common/endian.h"
 
 namespace cryptography {
-                                 
+
 #define P32                      0xB7E15163
 #define Q32                      0x9E3779B9
-                                 
-#define NROUND                   20 
+
+#define NROUND                   20
 
 #define RC6_128_KEY_BYTE_SIZE    16
 #define RC6_192_KEY_BYTE_SIZE    24
 #define RC6_256_KEY_BYTE_SIZE    32
 
 rc6::~rc6() {
-  memset(subkeys_, 0xCC, sizeof(SUCCESS));
+  memset(subkeys_, 0xCC, sizeof(subkeys_));
 }
 
 int32_t rc6::initialize(const uint8_t *key, const uint32_t ksize) noexcept {
@@ -74,9 +74,9 @@ int32_t rc6::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
 
     tmp = reg[0];
     reg[0] = reg[1];
-    reg[1] = reg[2]; 
-    reg[2] = reg[3]; 
-    reg[3] = tmp; 
+    reg[1] = reg[2];
+    reg[2] = reg[3];
+    reg[3] = tmp;
   }
 
   reg[0] = reg[0] + subkeys_[42];
@@ -101,8 +101,8 @@ int32_t rc6::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   for (uint32_t round = NROUND; round >= 1; --round) {
     tmp = reg[3];
     reg[3] = reg[2];
-    reg[2] = reg[1]; 
-    reg[1] = reg[0]; 
+    reg[2] = reg[1];
+    reg[1] = reg[0];
     reg[0] = tmp;
 
     u = ROTATE_LEFT32(reg[3] * (2 * reg[3] + 1), 5);
@@ -122,26 +122,26 @@ int32_t rc6::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
 
 void rc6::clear() noexcept {
   memset(subkeys_, 0xCC, sizeof(subkeys_));
-  has_subkeys_ = false;  
+  has_subkeys_ = false;
 }
 
 void rc6::expand_key(uint32_t *key, uint32_t *skeys, const uint32_t ksize) noexcept {
   uint32_t a = 0, b = 0, i = 0, j = 0;
   uint32_t c = ksize >> 2;
   uint32_t l[8] = {0};
-  constexpr uint32_t d = (NROUND << 1) + 4;
-  
+  constexpr int32_t d = (NROUND << 1) + 4;
+
   memcpy(l, key, ksize);
 
   skeys[0] = P32;
 
   for (int32_t k = 1; k < d; ++k) {
-    skeys[k] = skeys[k - 1] + Q32; 
+    skeys[k] = skeys[k - 1] + Q32;
   }
 
   for (int32_t s = 0; s < 132; ++s) {
     a = ROTATE_LEFT32(skeys[i] + a + b, 3);
-    b = ROTATE_LEFT32(l[j] + a + b, a + b); 
+    b = ROTATE_LEFT32(l[j] + a + b, a + b);
 
     skeys[i] = a;
     l[j] = b;

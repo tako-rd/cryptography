@@ -199,7 +199,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;ENABLE_LITTLE_ENDIAN;DENABLE_BIG_ENDIAN;ENABLE_SSE;ENABLE_SSE2;ENABLE_SSE3;ENABLE_SSE4_1;ENABLE_SSE4_2;DENABLE_AESN;ENABLE_ARMNEONI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;ENABLE_LITTLE_ENDIAN;DENABLE_BIG_ENDIAN;ENABLE_SSE;ENABLE_SSE2;ENABLE_SSE3;ENABLE_SSE4_1;ENABLE_SSE4_2;DENABLE_AESNI;ENABLE_ARMNEON;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

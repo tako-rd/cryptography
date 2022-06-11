@@ -27,6 +27,39 @@ namespace cryptography {
 #define CAMELLIA_ROTATE_LEFT128(src, dst, shift)   dst[0] = src[0] << shift | src[1] >> (64 - shift); \
                                                    dst[1] = src[1] << shift | src[0] >> (64 - shift);
 
+#if defined(_MSC_VER)
+# define BSWAP64(x)             _byteswap_uint64((x))
+#elif defined(__GNUC__)
+# define BSWAP64(x)             __builtin_bswap64(x)
+#endif
+
+#if defined(__LITTLE_ENDIAN__)
+# define BENDIAN_64BIT_TO_8BIT_SIZE128(in, out)  in[0] = BSWAP64(in[0]); \
+                                                 in[1] = BSWAP64(in[1]); \
+                                                 memcpy(out, in, 16);
+
+# define BENDIAN_8BIT_TO_64BIT_SIZE128(in, out)  memcpy(out, in, 16);      \
+                                                 out[0] = BSWAP64(out[0]); \
+                                                 out[1] = BSWAP64(out[1]);
+
+# define BENDIAN_8BIT_TO_64BIT_SIZE192(in, out)  memcpy(out, in, 24);      \
+                                                 out[0] = BSWAP64(out[0]); \
+                                                 out[1] = BSWAP64(out[1]); \
+                                                 out[2] = BSWAP64(out[2]);
+
+# define BENDIAN_8BIT_TO_64BIT_SIZE256(in, out)  memcpy(out, in, 32);      \
+                                                 out[0] = BSWAP64(out[0]); \
+                                                 out[1] = BSWAP64(out[1]); \
+                                                 out[2] = BSWAP64(out[2]); \
+                                                 out[3] = BSWAP64(out[3]);
+
+#elif defined(__BIG_ENDIAN__)
+# define BENDIAN_64BIT_TO_8BIT_SIZE128(in, out)  memcpy(out, in, 16);
+# define BENDIAN_8BIT_TO_64BIT_SIZE128(in, out)  memcpy(out, in, 16);
+# define BENDIAN_8BIT_TO_64BIT_SIZE192(in, out)  memcpy(out, in, 24);
+# define BENDIAN_8BIT_TO_64BIT_SIZE256(in, out)  memcpy(out, in, 32);
+#endif
+
 #if defined(SPEED_PRIORITY_CAMELLIA)
 static const uint64_t sp64bit1[256] = {
   0x7070700070000070, 0x8282820082000082, 0x2c2c2c002c00002c, 0xececec00ec0000ec,
@@ -925,7 +958,7 @@ int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
 
   switch (ksize) {
     case CAMELLIA_128_KEY_BYTE_SIZE:
-      endian<BIG, uint64_t, CAMELLIA_128_KEY_BYTE_SIZE>::convert(key, k);
+      BENDIAN_8BIT_TO_64BIT_SIZE128(key, k);
       ksize_ = CAMELLIA_128_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 17;
@@ -935,7 +968,7 @@ int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
       memset(k, 0xCC, 16);
       break;
     case CAMELLIA_192_KEY_BYTE_SIZE:
-      endian<BIG, uint64_t, CAMELLIA_192_KEY_BYTE_SIZE>::convert(key, k);
+      BENDIAN_8BIT_TO_64BIT_SIZE192(key, k);
       ksize_ = CAMELLIA_192_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 23;
@@ -945,7 +978,7 @@ int32_t camellia::initialize(const uint8_t *key, const uint32_t ksize) noexcept 
       memset(k, 0xCC, 24);
       break;
     case CAMELLIA_256_KEY_BYTE_SIZE:
-      endian<BIG, uint64_t, CAMELLIA_256_KEY_BYTE_SIZE>::convert(key, k);
+      BENDIAN_8BIT_TO_64BIT_SIZE256(key, k);
       ksize_ = CAMELLIA_256_KEY_BYTE_SIZE;
       has_subkeys_ = true;
       nk_ = 23;
@@ -967,7 +1000,7 @@ int32_t camellia::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept 
 
   if (false == has_subkeys_) { return UNSET_KEY_ERROR; };
 
-  endian<BIG, uint64_t, 16>::convert(ptext, tmptext);
+  BENDIAN_8BIT_TO_64BIT_SIZE128(ptext, tmptext);
 
   tmptext[0] ^= kw_[0];
   tmptext[1] ^= kw_[1];
@@ -1009,7 +1042,7 @@ int32_t camellia::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept 
   out[0] = tmptext[1] ^ kw_[2];
   out[1] = tmptext[0] ^ kw_[3];
 
-  endian<BIG, uint64_t, 16>::convert(out, ctext);
+  BENDIAN_64BIT_TO_8BIT_SIZE128(out, ctext);
 
   return SUCCESS;
 }
@@ -1021,7 +1054,7 @@ int32_t camellia::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept 
 
   if (false == has_subkeys_) { return UNSET_KEY_ERROR; };
 
-  endian<BIG, uint64_t, 16>::convert(ctext, tmptext);
+  BENDIAN_8BIT_TO_64BIT_SIZE128(ctext, tmptext);
 
   tmptext[0] ^= kw_[2];
   tmptext[1] ^= kw_[3];
@@ -1064,7 +1097,7 @@ int32_t camellia::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept 
   out[0] = tmptext[1] ^ kw_[0];
   out[1] = tmptext[0] ^ kw_[1];
 
-  endian<BIG, uint64_t, 16>::convert(out, ptext);
+  BENDIAN_64BIT_TO_8BIT_SIZE128(out, ptext);
 
   return SUCCESS;
 }
@@ -1258,11 +1291,9 @@ inline void camellia::expand_192bit_or_256bit_key(const uint64_t * const key, ui
 
 inline uint64_t camellia::f_function(uint64_t in, uint64_t key) const noexcept {
   uint64_t tmpy = 0;
-#if defined(SPEED_PRIORITY_CAMELLIA)
   uint64_t zd = 0;
-#else
-  uint8_t *y = nullptr;
-  uint64_t *zd = nullptr;
+#if !defined(SPEED_PRIORITY_CAMELLIA)
+  uint8_t y[8] = {0};
 #endif
 
   tmpy = in ^ key;
@@ -1279,14 +1310,14 @@ inline uint64_t camellia::f_function(uint64_t in, uint64_t key) const noexcept {
 
   return zd;
 #else
-  BIGENDIAN_64BIT_U64_TO_U8(tmpy, y);
+  endian<BIG, uint64_t, 8>::convert(&tmpy, y);
 
   s_function(y);
   p_function(y);
 
-  BIGENDIAN_64BIT_U8_TO_U64(*y, zd);
+  endian<BIG, uint64_t, 8>::convert(y, &zd);
 
-  return *zd;
+  return zd;
 #endif
 }
 
@@ -1310,7 +1341,7 @@ inline uint64_t camellia::inv_fl_function(const uint64_t y, const uint64_t kl) c
   return (((uint64_t)yl << 32) | (uint64_t)yr); 
 }
 
-#if !defined(SPEED_PRIORITY_CAMELLIA)
+#if 0
 inline void camellia::s_function(uint8_t *x) const noexcept {
   uint64_t tmpy = 0;
 
@@ -1323,9 +1354,11 @@ inline void camellia::s_function(uint8_t *x) const noexcept {
   tmpy ^= sp64bit7[x[6]];
   tmpy ^= sp64bit8[x[7]];
 
-  BIGENDIAN_64BIT_U64_TO_U8_COPY(tmpy, x);
+  endian<BIG, uint64_t, 8>::convert(&tmpy, x);
 }
+#endif
 
+#if !defined(SPEED_PRIORITY_CAMELLIA)
 inline void camellia::s_function(uint8_t *x) const noexcept {
   x[0] = sbox1[x[0]];
   x[1] = sbox2[x[1]];

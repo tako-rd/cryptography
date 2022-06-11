@@ -126,7 +126,7 @@ static const uint8_t sbox[8][4][16] = {
     {0x00, 0x0F, 0x07, 0x04, 0x0E, 0x02, 0x0D, 0x01, 0x0A, 0x06, 0x0C, 0x0B, 0x09, 0x05, 0x03, 0x08},
     {0x04, 0x01, 0x0E, 0x08, 0x0D, 0x06, 0x02, 0x0B, 0x0F, 0x0C, 0x09, 0x07, 0x03, 0x0A, 0x05, 0x00},
     {0x0F, 0x0C, 0x08, 0x02, 0x04, 0x09, 0x01, 0x07, 0x05, 0x0B, 0x03, 0x0E, 0x0A, 0x00, 0x06, 0x0D},
-  }, 
+  },
   { /* SBOX2 */
     {0x0F, 0x01, 0x08, 0x0E, 0x06, 0x0B, 0x03, 0x04, 0x09, 0x07, 0x02, 0x0D, 0x0C, 0x00, 0x05, 0x0A},
     {0x03, 0x0D, 0x04, 0x07, 0x0F, 0x02, 0x08, 0x0E, 0x0C, 0x00, 0x01, 0x0A, 0x06, 0x09, 0x0B, 0x05},
@@ -198,7 +198,7 @@ int32_t des::initialize(const uint8_t *key, const uint32_t ksize) {
   create_decrypto_subkeys(tmpkey, decrypto_subkeys_);
 
   has_subkeys_ = true;
-  
+
   return SUCCESS;
 }
 
@@ -209,7 +209,7 @@ int32_t des::encrypt(const uint8_t * const ptext, uint8_t *ctext) {
   if (true != has_subkeys_) { return UNSET_KEY_ERROR; };
 
   endian<BIG, uint32_t, 8>::convert(ptext, tmppln32bit);
- 
+
   initialize_permute(tmppln32bit);
 
   for (int8_t stg = 0; stg < 16; ++stg) {
@@ -270,12 +270,12 @@ inline void des::create_encrypto_subkeys(const uint64_t key, uint64_t *subkeys) 
 
   for (int8_t stg = 0; stg < 16; ++stg) {
     if (0x01 == shift[stg]) {
-      lkey = ((lkey & KEY_SHIFT_REMOVE_MSB_1BIT) << 1) | ((lkey & KEY_SHIFT_EXTRACT_MSB_1BIT) >> 27); 
-      rkey = ((rkey & KEY_SHIFT_REMOVE_MSB_1BIT) << 1) | ((rkey & KEY_SHIFT_EXTRACT_MSB_1BIT) >> 27); 
+      lkey = ((lkey & KEY_SHIFT_REMOVE_MSB_1BIT) << 1) | ((lkey & KEY_SHIFT_EXTRACT_MSB_1BIT) >> 27);
+      rkey = ((rkey & KEY_SHIFT_REMOVE_MSB_1BIT) << 1) | ((rkey & KEY_SHIFT_EXTRACT_MSB_1BIT) >> 27);
 
     } else if (0x02 == shift[stg]) {
-      lkey = ((lkey & KEY_SHIFT_REMOVE_MSB_2BIT) << 2) | ((lkey & KEY_SHIFT_EXTRACT_MSB_2BIT) >> 26); 
-      rkey = ((rkey & KEY_SHIFT_REMOVE_MSB_2BIT) << 2) | ((rkey & KEY_SHIFT_EXTRACT_MSB_2BIT) >> 26); 
+      lkey = ((lkey & KEY_SHIFT_REMOVE_MSB_2BIT) << 2) | ((lkey & KEY_SHIFT_EXTRACT_MSB_2BIT) >> 26);
+      rkey = ((rkey & KEY_SHIFT_REMOVE_MSB_2BIT) << 2) | ((rkey & KEY_SHIFT_EXTRACT_MSB_2BIT) >> 26);
 
     }
     permuted_choice2(lkey, rkey, subkeys[stg]);
@@ -291,12 +291,12 @@ inline void des::create_decrypto_subkeys(const uint64_t key, uint64_t *subkeys) 
   for (int8_t stg = 0; stg < 16; ++stg) {
     if (0 != stg) {
       if (0x01 == shift[stg]) {
-        lkey = ((lkey & KEY_SHIFT_REMOVE_LSB_1BIT) >> 1) | ((lkey & KEY_SHIFT_EXTRACT_LSB_1BIT) << 27); 
-        rkey = ((rkey & KEY_SHIFT_REMOVE_LSB_1BIT) >> 1) | ((rkey & KEY_SHIFT_EXTRACT_LSB_1BIT) << 27); 
+        lkey = ((lkey & KEY_SHIFT_REMOVE_LSB_1BIT) >> 1) | ((lkey & KEY_SHIFT_EXTRACT_LSB_1BIT) << 27);
+        rkey = ((rkey & KEY_SHIFT_REMOVE_LSB_1BIT) >> 1) | ((rkey & KEY_SHIFT_EXTRACT_LSB_1BIT) << 27);
 
       } else if (0x02 == shift[stg]) {
-        lkey = ((lkey & KEY_SHIFT_REMOVE_LSB_2BIT) >> 2) | ((lkey & KEY_SHIFT_EXTRACT_LSB_2BIT) << 26); 
-        rkey = ((rkey & KEY_SHIFT_REMOVE_LSB_2BIT) >> 2) | ((rkey & KEY_SHIFT_EXTRACT_LSB_2BIT) << 26); 
+        lkey = ((lkey & KEY_SHIFT_REMOVE_LSB_2BIT) >> 2) | ((lkey & KEY_SHIFT_EXTRACT_LSB_2BIT) << 26);
+        rkey = ((rkey & KEY_SHIFT_REMOVE_LSB_2BIT) >> 2) | ((rkey & KEY_SHIFT_EXTRACT_LSB_2BIT) << 26);
 
       }
     }
@@ -308,7 +308,7 @@ inline void des::create_decrypto_subkeys(const uint64_t key, uint64_t *subkeys) 
 inline void des::permuted_choice1(const uint64_t key, uint32_t &left, uint32_t &right) const noexcept {
   uint64_t tmp_key = 0;
 
-  for (int8_t bits = 0; bits < sizeof(pc1); bits += 8) {
+  for (int32_t bits = 0; bits < (int32_t)sizeof(pc1); bits += 8) {
     tmp_key |= EXTRACT_AND_SET_BIT_LEFT64(key, pc1[bits]    ,  bits);
     tmp_key |= EXTRACT_AND_SET_BIT_LEFT64(key, pc1[bits + 1], (bits + 1));
     tmp_key |= EXTRACT_AND_SET_BIT_LEFT64(key, pc1[bits + 2], (bits + 2));
@@ -325,13 +325,13 @@ inline void des::permuted_choice1(const uint64_t key, uint32_t &left, uint32_t &
 }
 
 inline void des::permuted_choice2(const uint32_t left, const uint32_t right, uint64_t &subkey) const noexcept {
-  uint64_t skey = 0; 
+  uint64_t skey = 0;
 
   skey |= (uint64_t)left << 28;
   skey |= (uint64_t)right;
   skey <<= 8;
 
-  for (int8_t bits = 0; bits < sizeof(pc2); bits += 8) {
+  for (int32_t bits = 0; bits < (int32_t)sizeof(pc2); bits += 8) {
     subkey |= EXTRACT_AND_SET_BIT_LEFT64(skey, pc2[bits]    ,  bits);
     subkey |= EXTRACT_AND_SET_BIT_LEFT64(skey, pc2[bits + 1], (bits + 1));
     subkey |= EXTRACT_AND_SET_BIT_LEFT64(skey, pc2[bits + 2], (bits + 2));
@@ -348,7 +348,7 @@ inline void des::initialize_permute(uint32_t *text) const noexcept {
   uint64_t iptext = 0;
   uint64_t tmp = (uint64_t)text[0] << 32 | (uint64_t)text[1];
 
-  for (int8_t bits = 0; bits < sizeof(ip); bits += 8) {
+  for (int32_t bits = 0; bits < (int32_t)sizeof(ip); bits += 8) {
     iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits]    ,  bits);
     iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 1], (bits + 1));
     iptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, ip[bits + 2], (bits + 2));
@@ -366,7 +366,7 @@ inline void des::finalize_permute(uint32_t *text) const noexcept {
   uint64_t fptext = 0;
   uint64_t tmp = (uint64_t)text[0] << 32 | (uint64_t)text[1];
 
-  for (int8_t bits = 0; bits < sizeof(invip); bits += 8) {
+  for (int32_t bits = 0; bits < (int32_t)sizeof(invip); bits += 8) {
     fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits]    ,  bits);
     fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 1], (bits + 1));
     fptext |= EXTRACT_AND_SET_BIT_LEFT64(tmp, invip[bits + 2], (bits + 2));
@@ -423,7 +423,7 @@ inline void des::round(const uint64_t subkey, const uint32_t rtext, uint32_t &ro
 inline void des::expand(const uint32_t rtext, uint64_t &etext) const noexcept {
   uint64_t tmp_rtext = (uint64_t)rtext << 32;
 
-  for (int8_t bits = 0; bits < sizeof(e); bits += 8) {
+  for (int32_t bits = 0; bits < (int32_t)sizeof(e); bits += 8) {
     etext |= EXTRACT_AND_SET_BIT_LEFT64(tmp_rtext, e[bits]    ,  bits);
     etext |= EXTRACT_AND_SET_BIT_LEFT64(tmp_rtext, e[bits + 1], (bits + 1));
     etext |= EXTRACT_AND_SET_BIT_LEFT64(tmp_rtext, e[bits + 2], (bits + 2));
@@ -438,7 +438,7 @@ inline void des::expand(const uint32_t rtext, uint64_t &etext) const noexcept {
 
 inline void des::permute(const uint32_t rtext, uint32_t &ptext) const noexcept {
 
-  for (int8_t bits = 0; bits < sizeof(p); bits += 8) {
+  for (int32_t bits = 0; bits < (int32_t)sizeof(p); bits += 8) {
     ptext |= EXTRACT_AND_SET_BIT_LEFT32(rtext, p[bits]    ,  bits);
     ptext |= EXTRACT_AND_SET_BIT_LEFT32(rtext, p[bits + 1], (bits + 1));
     ptext |= EXTRACT_AND_SET_BIT_LEFT32(rtext, p[bits + 2], (bits + 2));

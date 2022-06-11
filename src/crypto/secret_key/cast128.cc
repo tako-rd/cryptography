@@ -67,6 +67,33 @@ namespace cryptography {
                                                   buf[i >> 2] |= (uint32_t)(key[i]) << (32 - 8 * ((i ^ 0x04) + 1)); \
                                                 }
 
+#if defined(_MSC_VER)
+# define BSWAP32(x)             _byteswap_ulong((x))
+#elif defined(__GNUC__)
+# define BSWAP32(x)             __builtin_bswap32(x)
+#endif
+
+#if defined(__LITTLE_ENDIAN__)
+# define BENDIAN_8BIT_TO_32BIT_SIZE32(in, out)   memcpy(&out, in, 4);      \
+                                                 out = BSWAP32(out);       
+                                                                           
+# define BENDIAN_32BIT_TO_8BIT_SIZE32(in, out)   in = BSWAP32(in);         \
+                                                 memcpy(out, &in, 4);      
+                                                                           
+# define BENDIAN_32BIT_TO_8BIT_SIZE64(in, out)   in[0] = BSWAP32(in[0]);   \
+                                                 in[1] = BSWAP32(in[1]);   \
+                                                 memcpy(out, in, 8);      
+                                                                           
+# define BENDIAN_8BIT_TO_32BIT_SIZE64(in, out)   memcpy(out, in, 8);      \
+                                                 out[0] = BSWAP32(out[0]); \
+                                                 out[1] = BSWAP32(out[1]);
+#elif defined(__BIG_ENDIAN__)
+# define BENDIAN_8BIT_TO_32BIT_SIZE32(in, out)   memcpy(&out, in, 4);
+# define BENDIAN_32BIT_TO_8BIT_SIZE32(in, out)   memcpy(out, &in, 4);
+# define BENDIAN_32BIT_TO_8BIT_SIZE64(in, out)   memcpy(out, in, 8);
+# define BENDIAN_8BIT_TO_32BIT_SIZE64(in, out)   memcpy(out, in, 8);
+#endif
+
 static const uint32_t sbox1[256] = {
   0x30fb40d4, 0x9fa0ff0b, 0x6beccd2f, 0x3f258c7a, 0x1e213f2f, 0x9c004dd3, 0x6003e540, 0xcf9fc949,
   0xbfd4af27, 0x88bbbdb5, 0xe2034090, 0x98d09675, 0x6e63a0e0, 0x15c361d2, 0xc2e7661d, 0x22d4ff8e,
@@ -392,7 +419,7 @@ int32_t cast128::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
 
   if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
-  endian<BIG, uint32_t, 8>::convert(ptext, tmppln1);
+  BENDIAN_8BIT_TO_32BIT_SIZE64(ptext, tmppln1);
 
   tmppln2[0] = tmppln1[1];
   tmppln2[1] = tmppln1[0] ^ fa_function(tmppln1[1], km_[0], kr_[0]);
@@ -449,7 +476,7 @@ int32_t cast128::encrypt(const uint8_t * const ptext, uint8_t *ctext) noexcept {
     tmppln1[0] = tmppln2[0] ^ fa_function(tmppln2[1], km_[15], kr_[15]);
   }
 
-  endian<BIG, uint32_t, 8>::convert(tmppln1, ctext);
+  BENDIAN_32BIT_TO_8BIT_SIZE64(tmppln1, ctext);
 
   return SUCCESS;
 }
@@ -460,7 +487,7 @@ int32_t cast128::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
 
   if (false == has_subkeys_) { return UNSET_KEY_ERROR; }
 
-  endian<BIG, uint32_t, 8>::convert(ctext, tmpchpr1);
+  BENDIAN_8BIT_TO_32BIT_SIZE64(ctext, tmpchpr1);
 
   if (NROUND_FOR_KEY_80BIT != is_12round_) {
     tmpchpr2[0] = tmpchpr1[1];
@@ -512,7 +539,7 @@ int32_t cast128::decrypt(const uint8_t * const ctext, uint8_t *ptext) noexcept {
   tmpchpr1[1] = tmpchpr2[1];
   tmpchpr1[0] = tmpchpr2[0] ^ fa_function(tmpchpr2[1], km_[0], kr_[0]);
 
-  endian<BIG, uint32_t, 8>::convert(tmpchpr1, ptext);
+  BENDIAN_32BIT_TO_8BIT_SIZE64(tmpchpr1, ptext);
 
   return SUCCESS;
 }
@@ -618,7 +645,7 @@ inline uint32_t cast128::fa_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi + d, kri & 0x0000001F);
-  endian<BIG, uint32_t, 4>::convert(&i, out);
+  BENDIAN_32BIT_TO_8BIT_SIZE32(i, out);
   return ((sbox1[out[0]] ^ sbox2[out[1]]) - sbox3[out[2]]) + sbox4[out[3]];
 }
 
@@ -627,7 +654,7 @@ inline uint32_t cast128::fb_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi ^ d, kri & 0x0000001F);
-  endian<BIG, uint32_t, 4>::convert(&i, out);
+  BENDIAN_32BIT_TO_8BIT_SIZE32(i, out);
   return ((sbox1[out[0]] - sbox2[out[1]]) + sbox3[out[2]]) ^ sbox4[out[3]];
 }
 
@@ -636,7 +663,7 @@ inline uint32_t cast128::fc_function(uint32_t d, uint32_t kmi, uint32_t kri) con
   uint8_t out[4] = {0};
 
   i = ROTATE_LEFT32(kmi - d, kri & 0x0000001F);
-  endian<BIG, uint32_t, 4>::convert(&i, out);
+  BENDIAN_32BIT_TO_8BIT_SIZE32(i, out);
   return ((sbox1[out[0]] + sbox2[out[1]]) ^ sbox3[out[2]]) - sbox4[out[3]];
 }
 

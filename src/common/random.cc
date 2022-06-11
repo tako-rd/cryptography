@@ -12,11 +12,11 @@
 
 namespace cryptography {
 
-/* Temporary implementation. Eventually,                        */ 
+/* Temporary implementation. Eventually,                        */
 /* random numbers from multiple sources will be mixed and used. */
 uint32_t random::generate_u32() const noexcept {
   uint32_t randval = 0;
-#if (_M_X64 == 100 || _M_IX86 == 600) 
+#if (_M_X64 == 100 || _M_IX86 == 600)
   while (0 == _rdrand32_step(&randval));
 #elif (_M_ARM == 7)
 

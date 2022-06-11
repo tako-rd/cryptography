@@ -222,7 +222,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Full</Optimization>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\src\include\common;$(MSBuildProjectDirectory)\..\src\include\hash;$(MSBuildProjectDirectory)\..\src\include\crypto\mode;$(MSBuildProjectDirectory)\..\src\include\crypto\public_key;$(MSBuildProjectDirectory)\..\src\include\crypto\secret_key;$(MSBuildProjectDirectory)\..\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildProjectDirectory)\..\src\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <CallingConvention>Cdecl</CallingConvention>
       <WholeProgramOptimization>false</WholeProgramOptimization>

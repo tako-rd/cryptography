@@ -47,15 +47,15 @@ class bit;
 
 #elif defined(__GNUC__)
 
-# define ROTATE_LEFT32(val, shift)          ((val >> (32 - shift)) | (val << shift)) 
-# define ROTATE_RIGHT32(val, shift)         ((val >> shift) | (val << (32 - shift))) 
-# define ROTATE_LEFT64(val, shift)          ((val >> (64 - shift)) | (val << shift)) 
-# define ROTATE_RIGHT64(val, shift)         ((val >> shift) | (val << (64 - shift))) 
+# define ROTATE_LEFT32(val, shift)          (((val) >> (32 - (shift))) | ((val) << (shift)))
+# define ROTATE_RIGHT32(val, shift)         (((val) >> (shift)) | ((val) << (32 - (shift))))
+# define ROTATE_LEFT64(val, shift)          (((val) >> (64 - (shift))) | ((val) << (shift)))
+# define ROTATE_RIGHT64(val, shift)         (((val) >> (shift)) | ((val) << (64 - (shift))))
 
-# define POPCOUNT32(val)                    __builtin_popcount(val)
+# define POPCOUNT32(val)                    __builtin_popcount((val))
 
-# ifdef __x86_64__ 
-#   define POPCOUNT64(val)                  __builtin_popcountll(val)
+# ifdef __x86_64__
+#   define POPCOUNT64(val)                  __builtin_popcountll((val))
 # else
 #   define POPCOUNT64(val)                  (uint64_t)(__builtin_popcount((uint32_t)((val) >> 32                  )) + \
                                                        __builtin_popcount((uint32_t)((val) & 0x00000000FFFFFFFF)))

@@ -16,7 +16,6 @@
 #include <cstring>
 #include <type_traits>
 
-/* List of macros to be set in Makefile. */
 //#define ENABLE_LITTLE_ENDIAN
 //#define ENABLE_BIG_ENDIAN
 //#define ENABLE_SSE
@@ -26,10 +25,14 @@
 //#define ENABLE_SSE4_2
 //#define ENABLE_AESNI
 
+#if !defined(ENABLE_LITTLE_ENDIAN) && !defined(ENABLE_BIG_ENDIAN)
+# define ENABLE_LITTLE_ENDIAN
+#endif
+
 #if !defined(__LITTLE_ENDIAN__) && !defined(__BIG_ENDIAN__)
-# if (ENABLE_LITTLE_ENDIAN)
+# if defined(ENABLE_LITTLE_ENDIAN)
 #   define __LITTLE_ENDIAN__
-# elif (ENABLE_BIG_ENDIAN)
+# elif defined(ENABLE_BIG_ENDIAN)
 #   define __BIG_ENDIAN__
 # endif
 #endif

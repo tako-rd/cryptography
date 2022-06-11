@@ -127,7 +127,7 @@ inline void operation::multiply(uint32_t *x, const int32_t xsize, const uint32_t
 
   for (int32_t bit = bitsize; bit >= 0; --bit) {
     ypos = (ysize - 1) - (bit >> 5);
-    bitmask = (BIT32_MSB >> (31 - (uint32_t)bit & 0x1F));
+    bitmask = (BIT32_MSB >> (31 - ((uint32_t)bit & 0x1F)));
 
     if (bitmask == (y[ypos] & bitmask)) {
       for (int32_t i = 0; i < xsize; ++i) {
@@ -171,7 +171,7 @@ inline void operation::divide(uint32_t *x, const int32_t xsize, const uint32_t *
 
   for (int32_t bit = bitsize; bit >= 0; --bit) {
     ypos = (ysize - 1) - (bit >> 5);
-    bitmask = (BIT32_MSB >> (31 - bit & 0x1F));
+    bitmask = (BIT32_MSB >> (31 - ((uint32_t)bit & 0x1F)));
 
     if (bitmask == (y[ypos] & bitmask)) {
       break;
@@ -226,7 +226,7 @@ inline void operation::modulo(uint32_t *x, const int32_t xsize, const uint32_t *
 
   for (int32_t bit = bitsize; bit >= 0; --bit) {
     ypos = (ysize - 1) - (bit >> 5);
-    bitmask = (BIT32_MSB >> (31 - bit & 0x1F));
+    bitmask = (BIT32_MSB >> (31 - ((uint32_t)bit & 0x1F)));
 
     if (bitmask == (y[ypos] & bitmask)) {
       break;
